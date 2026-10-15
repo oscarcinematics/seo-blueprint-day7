@@ -47,9 +47,26 @@ def read(path):
     return Path(path).read_text(encoding="utf-8", errors="replace")
 
 
+CODE_FILES = {".tsx", ".ts", ".jsx", ".js", ".mjs"}
+
+
+def strip_comments(text, suffix):
+    """Drop comments so only words a visitor can read get checked.
+
+    A page file's comments are notes to the next developer ("do not edit this
+    by hand"), not copy, and they were failing good pages as stiff."""
+    if suffix in CODE_FILES:
+        # /* ... */ and JSX {/* ... */}
+        text = re.sub(r"/\*.*?\*/", " ", text, flags=re.S)
+        # // to end of line, but not the // inside https:// or a quoted URL
+        text = re.sub(r"(^|[^:\"'`\w/])//[^\n]*", r"\1", text, flags=re.M)
+    # HTML and markdown comments
+    return re.sub(r"<!--.*?-->", " ", text, flags=re.S)
+
+
 def check(path):
     # Curly apostrophes are contractions too.
-    text = read(path).replace("\u2019", "'")
+    text = strip_comments(read(path), Path(path).suffix.lower()).replace("\u2019", "'")
     failures = []
 
     contractions = len(re.findall(CONTRACTIONS, text, re.I))
