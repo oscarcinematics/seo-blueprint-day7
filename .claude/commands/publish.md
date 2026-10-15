@@ -34,7 +34,7 @@ Three lanes, and you pick without asking:
 1. Drafts being published are Status = Linked in `website-index.md` (if still Draft, run `/internal-linking` first - never publish orphans)
 2. No page targets a primary keyword already Published (check `keyword-map.md`)
 
-**Deploy by lane:**
+**Deploy:**
 - **Static/Next.js - fully automated via GitHub + Vercel CLIs.** One-time wiring (do it now if missing, walking me through each login):
   - GitHub: check the CLI exists first - `command -v gh` → if missing, install it (`brew install gh` on Mac, `winget install GitHub.cli` on Windows) and continue, never error out. Then `gh auth status` → if not logged in, `gh auth login` (I follow the browser prompt - no GitHub account yet? The same page has "Create an account", sign up there and come back). Then `gh repo create [site-name] --private --source website/ --push` (or plain `git push` if the repo exists).
   - Vercel: `npx vercel login` (browser prompt) → `npx vercel link` in the site folder.
@@ -82,7 +82,6 @@ Three lanes, and you pick without asking:
 
   - Every publish after that: `npm run build` locally FIRST (catch errors before they're deploy failures) → commit + push → `npx vercel --prod` → **read the deployment output and logs yourself** (`npx vercel inspect [url] --logs` on failure) - never tell me "check the Vercel dashboard": read the log, find the error, fix it, redeploy, repeat until the deploy is green.
   - Verify the live URLs return 200 before calling it shipped.
-- **WordPress:** publish the drafts through Novamira (they were created as WP drafts by the content commands), verify each URL renders live.
 
 **⛔ The custom domain - first deploy only, and ASK before assuming.** A deploy lands on `something.vercel.app`, which is a temporary address, not a business's website. Nothing errors, so nothing flags it - which is exactly why this step is explicit. First question, before any Search Console work:
 

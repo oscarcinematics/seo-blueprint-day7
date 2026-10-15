@@ -17,7 +17,7 @@ __pycache__/
 *.pyc
 
 # ── THE MEMBER'S WORK. Never tracked, so `git pull` never conflicts. ──
-# The repo ships empty starters in starters/ and website-starter/. Setup copies
+# The repo ships empty starters in starters/. new-site copies
 # them into place once, and from then on these are the member's files alone.
 # Without this split, the first update you push collides with a month of their
 # work and they stop pulling - which quietly turns a living repo into a snapshot.

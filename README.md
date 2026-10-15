@@ -29,9 +29,8 @@ That's it. There's no setup step - each command walks you through exactly what i
 | 7 | `/seo-optimization` | Optimize: on-page, technical, images, speed, AI overviews |
 | 8 | `/gbp` | Business Profile setup, citations campaign included |
 | 9 | `/gbp-posts` | The GBP posting system |
-| 10 | `/review-generator` | 🔒 Day 7 · The review machine: filter form on your site, GHL save-workflow wired, reply drafts |
+| 10 | `/review-generator` | 🔒 Day 7 · The review machine: filter form on your site, bad reviews to the owner's email, reply drafts |
 | 11 | `/internal-linking` | 🔒 Day 7 · Wire everything into the hub-and-spoke graph |
-| 12 | `/proposal` | Win the client: a finished proposal on your own domain, ready to send. Fill in `context/business.md` once and every future proposal prices itself |
 | 13 | `/scale-map` | 🔒 Day 7 · The month-1 finale: build + optimize + publish EVERY page left in the map |
 
 **Around the path** (run when needed):
@@ -41,7 +40,6 @@ That's it. There's no setup step - each command walks you through exactly what i
 | `/publish` | Re-run after every content batch - drafts go live only through it |
 | `/audit` | The whole-site audit: Semrush, on-page, technical, AI overviews - then fixed on a loop |
 | `/gsc` | Month 1: manual Search Console setup + first indexing (clicks only) |
-| `/wordpress` | WP plugin stack + optimization (Novamira lane) |
 
 ## Requirements
 
@@ -49,6 +47,5 @@ That's it. There's no setup step - each command walks you through exactly what i
 - A website (or the intent to build one - `/build-website` handles that)
 - Semrush - powers the audits + all keyword data. [Start with the 14-day free trial](https://www.semrush.com/partner/jonocatliffseo_7401436/?irclickid=UodwPVRilxyZWxsygXUph16GUkr03ZTt3xLWws0&irgwc=1&afsrc=1) - two weeks is enough to build your whole keyword map
 - Optional: Google Search Console access (for `/gsc`)
-- WordPress users: the Novamira plugin + connection (lets Claude edit your site directly) - the first WordPress command you run walks you through it
 
 Stuck? Post in the community - Help board answers same-day.

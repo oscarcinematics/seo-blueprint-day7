@@ -223,7 +223,7 @@ subject:(payout OR remittance OR "payment received" OR "deposit of") -category:p
 ### 7. Slack, CRM and past sessions
 
 - **Slack** - for anyone with a team, this is where wins get posted and praise gets screenshotted. Search the wins, general and client channels
-- **CRM (GHL or equivalent)** - total client count, repeat-customer rate, years of relationship data, review requests answered
+- **CRM** - total client count, repeat-customer rate, years of relationship data, review requests answered
 - **Support tickets and DMs** where customers say "this is incredible"
 - **Past Claude Code sessions** - see the section further down
 

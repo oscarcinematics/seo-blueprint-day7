@@ -27,15 +27,15 @@ The index, with every post living FLAT directly under it: `site.com/blog/how-to-
 Single pages at Layer 1. About carries the author and E-E-A-T load. Quote, or contact, is the conversion target every blog post bridges to.
 
 **/thank-you - off-tree, and mandatory.**
-Every form redirects to it (`/api/lead` → 303 → `/thank-you`), and it is the page conversion tracking fires on. Without a distinct thank-you URL, tracking falls back to click or event triggers that break silently and undercount - see `references/standard-pages.md` for the full build.
+Every form redirects to it (Web3Forms → `/thank-you`), and it is the page conversion tracking fires on. Without a distinct thank-you URL, tracking falls back to click or event triggers that break silently and undercount - see `references/standard-pages.md` for the full build.
 
 It sits OUTSIDE the pyramid on purpose, and all four of these are deliberate, not oversights: **`noindex`** (if it ranks, people land there without converting and the conversion count becomes fiction) · **excluded from `sitemap.xml`** · **not linked from the nav** · **exempt from the 3-click and orphan rules** - it is reached by submitting a form, not by browsing. The gate skips it for exactly this reason.
 
-**The booking calendar lives HERE, not on the money pages.** Set `bookingUrl` in `lib/site.config.ts` (collected on the first `/service-page` run) and the page renders the GHL booking embed automatically. This is deliberate: a money page keeps ONE primary action - the form - and the calendar appears the instant after they convert, when intent is highest. Two competing CTAs on a sales page split the decision and lower both.
+**The booking calendar lives HERE, not on the money pages.** The Calendly link (asked in `/build-website`) goes on this page. This is deliberate: a money page keeps ONE primary action - the form - and the calendar appears the instant after they convert, when intent is highest. Two competing CTAs on a sales page split the decision and lower both.
 
-The full chain: form → `/api/lead` → POST to the GHL inbound webhook (payload carries `source` and the referring page) → 303 redirect to `/thank-you` → conversion tag fires → booking embed offered.
+The full chain: form → Web3Forms → redirect to `/thank-you` → conversion tag fires → booking link offered.
 
-**The template ships it pre-built and pre-wired.** On the import and WordPress lanes it does not exist yet - build it there, with the same four properties, before any form goes live.
+**The template ships it pre-built and pre-wired.** On the import lane it does not exist yet - build it there, with the same four properties, before any form goes live.
 
 ---
 
@@ -119,4 +119,4 @@ The homepage holds the most authority; every layer down holds less. Money pages 
 
 ## Redirect every URL the restructure moves
 
-Restructuring into this pyramid moves URLs, so every old URL gets a 301 to its new home. Static export lane uses `vercel.json` redirects. WordPress uses the redirect plugin. Old ranking URLs never 404. `/build-website` owns this.
+Restructuring into this pyramid moves URLs, so every old URL gets a 301 to its new home. Static export lane uses `vercel.json` redirects. Old ranking URLs never 404. `/build-website` owns this.

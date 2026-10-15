@@ -42,9 +42,8 @@ Mention it in one line at the checkpoint (`3 blogs added as GBP candidates`) and
   > **"Stamping from these: service pages → `/services/local-seo-services` (100/100, optimized 24 Aug) · blogs → `/blog/seo-vs-google-ads` (100/100, optimized 24 Aug). Both good, or name different ones? Every page in this run inherits their structure."**
 
   - **Record the answer in CLAUDE.md "## My setup"** (`template:service = ...`, `template:blog = ...`) so it is asked once, not every batch. A later run confirms the saved choice in one line instead of asking again.
-  - **A page that has NOT been through `/seo-optimization` cannot be the template.** Stamping from an unoptimized page copies its gaps into 60 pages and the fix is then a 60-page rewrite. If neither type has a passing page, stop and run `/seo-optimization` on the best candidate first.
-  - Neither type exists at all? Stop - run `/build-website`, then `/seo-optimization`, then come back.
-  - The specs in `references/service-page-template.md` and `references/blog-post-template.md` explain **why** each section exists and are what `/build-website` uses for page one. Once a real optimized page exists, **the page is the authority and the spec is reference** - if they disagree, the page wins.
+  - **A page that has NOT been through `/seo-optimization` cannot be the template.** Stamping from an unoptimized page copies its gaps into 60 pages and the fix is then a 60-page rewrite.
+  - No optimized page of a type yet? The default is its `_template` page (`app/services/_template`, `app/blog/_template`).
 - Read/create `scale-map-log.md` - resumable across sessions; report progress if a previous run exists ("31 of 52 pages done - continuing").
 
 **The loop (repeats until every approved row has MOVED from `# To build` to `# Written`):**
@@ -71,12 +70,12 @@ Mention it in one line at the checkpoint (`3 blogs added as GBP candidates`) and
 
    **Then the sibling check, also before writing.** For every pair of city pages under the same service, name what will be genuinely different between them BEYOND the city name. If you cannot name it in one sentence per page, they are the same page and only one gets built. **Never write "find and replace the city" as a plan, and never produce two pages whose only difference is a place name** - if that is what the map asks for, the map is wrong and you say so rather than complying.
 
-2. **Build each page with the FULL engine:** top-3 spec → 30+ source research → **the template page confirmed in the preflight** (a real page that scored 100%; the specs in `references/blog-post-template.md` / `references/service-page-template.md` explain WHY each section exists but the page is the authority) → voice pass → proof count (5+ or back it goes) → on-page + GEO rules applied at write time. The template governs the STRUCTURE; every page's content is researched and written fresh. Never copy body copy between pages.
+2. **Build each page with the FULL engine:** top-3 spec → 30+ source research → **the template page confirmed in the preflight** (a real page that scored 100%; `references/blog-post-template.md` explains WHY each blog section exists but the page is the authority) → voice pass → proof count (5+ or back it goes) → on-page + GEO rules applied at write time. The template governs the STRUCTURE; every page's content is researched and written fresh. Never copy body copy between pages.
 3. **Optimize:** run the `/seo-optimization` loop on the batch - the same command taught earlier in the track, not a summary of it - every page to 100% on the 80 checks in `references/on-page-seo.md`. **A page that will not reach 100% does not get waved through with a note.** It goes back, or it is held with the reason. Record each page's score; the checkpoint below has to show it.
 3b. **⛔ Similarity check - the gate's backstop, run on every batch containing 2+ pages under one service:**
    ```
    # substitute the real service slug - [service] is a placeholder, not literal
-   python3 code/check_page_similarity.py --base http://localhost:3000 --pattern /services/local-seo-services/
+   python3 code/check_page_similarity.py --pattern /services/local-seo-services/
    ```
    It strips the site's own boilerplate, then flags DUPLICATE (>=85% overlap) and TEMPLATE CLONE (>=80% of one page contained in another) as failures, and near-duplicates (>=50%, Broder 1997) as warnings. **A failure means the page goes back for real differentiation - never publish through it.** If a page reaches here and fails, the step-1b gate let something through: say so, because it means the research and optimization were spent on a page that was never shippable.
 4. **Wire:** the `/internal-linking` pass over the new pages + affected hubs
@@ -215,14 +214,6 @@ Bulk publishing is what drops indexation from ~87% to ~41% and is the exact prof
 
   **No git remote at all?** `/publish` creates the GitHub repo - that is its job and its only job here. Everything after that (the Git integration, the commit email, the root directory, the Action) belongs to THIS command, per the steps above. Say what is missing, run `/publish` if it is just the repo, then continue - never leave a batch stranded locally without telling me.
 
-- **⛔ WORDPRESS LANE: SKIP ALL OF THE ABOVE.** WordPress schedules natively - set a future `post_date` on the draft and WP publishes it itself. No date wiring, no `publishDate` exports, no sitemap filter, no GitHub Action, no Vercel, no secrets. **Never build the static-lane machinery on a WP site**; it is hundreds of lines solving a problem WP solved in 2005.
-
-  **The one real gap on WP: there is no date-aware link helper**, so a link to a scheduled post is a dead link until it publishes. Two honest options - say which you are doing:
-  - **Link only to published pages now**, and re-run `/internal-linking` after each publish date to wire the new one in. Costs a run per publish day.
-  - **Publish the whole batch immediately** and accept the cadence hit. Only sane for 2-3 pages.
-
-  Never wire a bare link to a future WP post and call it done - that is a 404 on a live site for however many days remain.
-
 - **⛔ WALK THE TEST PHASE WITH ME. Never report the pipeline working on inference.** More can fail here than anywhere else in the track, each failure masks the next, and every one of them looks like success from the outside - pushes land, the Action goes green, and the site sits frozen. Run these IN ORDER and show me each result:
 
   1. **Git integration** - push a trivial commit, then `npx vercel ls`. A new deployment must appear with nobody running a deploy command. Nothing appears → `vercel git connect` did not take.
@@ -239,7 +230,7 @@ Bulk publishing is what drops indexation from ~87% to ~41% and is the exact prof
   ```
   **`gh workflow run` is banned in this command.** Firing it for me replaces the one thing that has to be demonstrated - me watching the mechanism work from the page I will use to check it later. If no run exists yet, that is what the LIVE PROOF step above is for; do not shortcut it here.
 
-- **⛔ THE LIVE PROOF. THIS IS THE LAST STEP OF THE RUN - EVERYTHING ELSE MUST BE DONE FIRST.** You stop here and print this block, and nothing else happens until I reply. **So any step that needs a decision from me - the Business Profile queue above especially - has to be asked BEFORE this point, or it never gets asked at all.** Check you have nothing else outstanding before you print. *(Static lane only - on WordPress skip this entirely and instead show me one scheduled post in the WP admin with its future date, since WP publishes it natively.)*
+- **⛔ THE LIVE PROOF. THIS IS THE LAST STEP OF THE RUN - EVERYTHING ELSE MUST BE DONE FIRST.** You stop here and print this block, and nothing else happens until I reply. **So any step that needs a decision from me - the Business Profile queue above especially - has to be asked BEFORE this point, or it never gets asked at all.** Check you have nothing else outstanding before you print.
 
   Not a description of a test - **three clickable URLs and a stop.** I click a dead page, I click a button on GitHub, I reload the dead page and watch it work. If you have not printed these three links and waited, you have not done this step.
 

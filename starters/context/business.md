@@ -25,7 +25,7 @@ Deliberately blank. Do not copy the example at the bottom - your market, your co
 
 ## My packages
 
-Up to three. Mark ONE as recommended - proposals with a recommended option close better than proposals that make the client choose cold.
+Up to three. Mark ONE as recommended.
 
 | Package | Price | Term | Recommended |
 |---------|------:|------|-------------|
@@ -54,24 +54,9 @@ Up to three. Mark ONE as recommended - proposals with a recommended option close
 
 ## What I never include
 
-The scope boundary. Everything here shows up in section 08 of every proposal, which is what stops a client assuming it was covered.
+The scope boundary.
 
 - 
-
-## Proposal expiry
-
-How many days a proposal stays valid. 14 is the default and it is what creates the deadline.
-
-**Days:** 14
-
----
-
-## How to use this
-
-1. Fill in the table, the inclusions, and the terms above.
-2. Leave anything you genuinely don't offer blank - `/proposal` will skip it rather than invent it.
-3. Run `/proposal [client website]`. Pricing fills itself in from here.
-4. Changing your prices later? Change them here only. Past proposals keep the price they were sent with.
 
 ---
 

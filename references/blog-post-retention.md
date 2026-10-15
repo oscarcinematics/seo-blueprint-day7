@@ -166,21 +166,6 @@ AI-cited content runs about 26% fresher than traditional organic results.
 
 ---
 
-# The humour trade-off, stated honestly
-
-Humour is the default in this repo and the reasoning is in `context/voice.md`. One finding belongs here as a counterweight.
-
-**Eisend's meta-analysis of 369 correlations [E]:** humour has a large effect on attention and positive affect (r = 0.416), roughly twice as much effect on attitude-toward-the-content as attitude-toward-the-business - and it **significantly reduces perceived source credibility.**
-
-So humour buys attention and likeability and costs some authority. That is a real trade, not a free win. Which is why:
-
-- **Proof blocks, prices, FAQ answers and the extractable opener stay straight.** They are carrying the credibility that the humour is spending.
-- **The prose between them goes full standup.** That is where retention is won and nothing is being lifted verbatim.
-
-**Related [E]:** what drives sharing is physiological arousal, not positivity. Awe, anger and anxiety travel; contentment and sadness do not. A calm, pleasant, useful post is the worst-sharing profile there is.
-
----
-
 # Myths - never repeat these
 
 **"Human attention span is 8 seconds, less than a goldfish."** Traced to a Microsoft Canada report that never contains the number. The source could not produce evidence when pressed, and the goldfish figure has no scientific basis either.
@@ -215,6 +200,6 @@ Reading behaviour and formatting: [NN/g on how little users read](https://www.nn
 
 Engagement data: [Chartbeat via TIME](https://time.com/12933/what-you-think-you-know-about-the-web-is-wrong/) · [Slate scroll study](https://slate.com/technology/2013/06/how-people-read-online-why-you-wont-finish-this-article.html) · [Chartbeat engaged time](https://chartbeat.com/resources/research/using-engaged-time-to-understand-your-audience/) · [Backlinko ranking factors](https://backlinko.com/search-engine-ranking)
 
-Psychology: [information-gap theory](https://thedecisionlab.com/insights/society/the-science-behind-curiosity) · [Zeigarnik meta-analysis](https://www.nature.com/articles/s41599-025-05000-w) · [concreteness and engagement](https://pmc.ncbi.nlm.nih.gov/articles/PMC13062457/) · [narrative fluency](https://www.frontiersin.org/journals/communication/articles/10.3389/fcomm.2021.719615/full) · [humour meta-analysis](https://link.springer.com/article/10.1007/s11747-008-0096-y) · [arousal and sharing](https://journals.sagepub.com/doi/10.1509/jmr.10.0353)
+Psychology: [information-gap theory](https://thedecisionlab.com/insights/society/the-science-behind-curiosity) · [Zeigarnik meta-analysis](https://www.nature.com/articles/s41599-025-05000-w) · [concreteness and engagement](https://pmc.ncbi.nlm.nih.gov/articles/PMC13062457/) · [narrative fluency](https://www.frontiersin.org/journals/communication/articles/10.3389/fcomm.2021.719615/full)
 
 CTAs and AI citation: [HubSpot anchor-text CTA study](https://blog.hubspot.com/marketing/blog-anchor-text-call-to-action-study) · [GEO paper](https://arxiv.org/abs/2311.09735) · [Ahrefs on schema and citations](https://www.pravinkumar.co/blog/schema-barely-moves-ai-citations-ahrefs-2026) · [Seer on AIO CTR](https://searchengineland.com/google-ai-overviews-ctr-recovery-study-475566) · [goldfish myth debunked](https://www.linkedin.com/business/marketing/blog/content-marketing/the-great-goldfish-attention-span-myth-and-why-its-killing-cont)

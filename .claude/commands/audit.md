@@ -67,7 +67,7 @@ A site can be fully repaired and still not read 100, because some checks fail fo
 **Every waived item carries three things**, in the report and in `audit-report.md`: the **type** (one of the three below), a one-line **reason**, and the **evidence** that puts it in that type (the header, the log line, the owner's words). A waiver with no evidence is a skipped item wearing a label.
 
 **Three types, and only three:**
-- **Platform limit** - the platform physically cannot do it: a WordPress theme that hard-codes the title, a Wix editor with no file access, a host that controls the server config, a third-party script (booking widget, chat, tracking) the owner needs and cannot modify. Evidence: name the plugin, theme, host or script.
+- **Platform limit** - the platform physically cannot do it: a Wix editor with no file access, a host that controls the server config, a third-party script (booking widget, chat, tracking) the owner needs and cannot modify. Evidence: name the plugin, theme, host or script.
 - **Crawler artifact** - the tool is wrong, the site is not: a Semrush warning on a URL that returns 200 in a browser, a Lighthouse run that flags a lazy-loaded image the page needs, a `site:` count that lags the Search Console export, a duplicate-content flag on a canonicalised page. Evidence: the live check that contradicts the tool, stated so the owner can repeat it.
 - **Owner decision** - fixable, and the owner said no: a brand colour that fails contrast, a deliberately unlinked page, a design choice. Evidence: the owner's yes, recorded on the item. Never waive as an owner decision something the owner has not been asked about.
 
@@ -116,7 +116,7 @@ Prospect mode has no Search Console access and usually no Business Profile acces
 **1. Get the page list. Ask for the sitemap first.** Say: *"Paste your sitemap URL (usually yoursite.com/sitemap.xml) - or paste the list of your page URLs. If you don't have one, say so and I'll find them."* In order:
 - Sitemap pasted → use it, that's the inventory
 - Nothing pasted → fetch `sitemap.xml` myself
-- Missing, broken, or clearly incomplete → crawl from the homepage following every internal link to discover the real inventory, then **CREATE the sitemap on the spot** (static lane: populate `app/sitemap.ts` from the discovered tree; WordPress: enable/fix it via the SEO plugin through Novamira). A missing sitemap is itself a critical finding - fix it first and note it in the report.
+- Missing, broken, or clearly incomplete → crawl from the homepage following every internal link to discover the real inventory, then **CREATE the sitemap on the spot** (populate `app/sitemap.ts` from the discovered tree). A missing sitemap is itself a critical finding - fix it first and note it in the report.
 
 Show me the page count and the list before grading anything, so I can confirm it looks right.
 
@@ -221,7 +221,7 @@ Report the failing checks grouped and counted across the site, not page by page,
 
 Lighthouse: Performance, Accessibility, Best Practices, SEO - target 100 on all four.
 
-- Test the REAL thing: production build, never dev mode (dev scores are meaningless). Static lane: `npm run build`, then serve the build locally - `npx next start -p 4321` on this template's default server build, or `npx serve out` if a member has added `output: "export"` back - and run `npx lighthouse` against it, or against the live deployed URL. WordPress: against the live site.
+- Test the REAL thing: production build, never dev mode (dev scores are meaningless). `npm run build`, then serve the build locally - `npx next start -p 4321` on this template's default server build, or `npx serve out` if a member has added `output: "export"` back - and run `npx lighthouse` against it, or against the live deployed URL.
 - **Test more than the homepage.** One page per template is the minimum: home, one service page, one blog post. City pages are service pages by template, so they never get their own card; the service-page score covers them. Template fixes cascade to every page built from them, and a homepage-only score says nothing about the 40 city pages.
 
 **Lighthouse is lab data, and the report must say so on the line.** It is one throttled run, on one machine, at one moment, on a simulated connection. Two runs on the same page routinely differ by 10 points.
@@ -281,8 +281,6 @@ Next.js App Router, check every one:
 - **Root-layout `canonical` is inherited by every route that doesn't set its own.** If the root sets `canonical: '/'`, every page canonicalises to the homepage and Google drops them. This is silent, total, and latent for every future page.
 - **`robots.ts` / `sitemap.ts` missing** while robots.txt still advertises `/sitemap.xml` - a 404 sitemap Google has been fetching since launch.
 - **Fonts loaded sitewide in the root layout but used on two routes** - render-blocking cost paid on every page for nothing.
-
-WordPress equivalents: the SEO plugin overridden by the theme or builder, canonical set in two places, a caching plugin serving a stale head. Per `references/wordpress-audit.md`, always verify at the RENDERED front-end HTML.
 
 ### Layer 10 - Content the crawler can't see
 
@@ -410,16 +408,14 @@ I might only want the errors. I might want to see the meta rewrites before they 
 
 **Prospect mode ends here** - report only, and never proceed past this gate.
 
-**4. Fix what I approved.** Only what I said yes to, in the order agreed. Work the full list, biggest category first, through my site's lane:
-- Static/Next.js: edit the code, redeploy
-- WordPress: apply fixes through Novamira per `references/wordpress-audit.md` - the #1 rule from that file: verify every fix at the RENDERED front-end HTML (the head may come from the theme, a builder, or a plugin - fix where it actually renders, and keep the stack profile updated)
-  - **Novamira not connected yet? That is step zero, not a reason to hand me a manual list.** Novamira is the WordPress plugin + MCP connection that lets Claude edit the site directly (pages, posts, meta, settings, plugins). Walk me through installing the plugin on my site and connecting it right now, then continue the fix loop through it. Elementor, Gutenberg and custom-theme pages are all editable through it - no migration needed. Only after it is connected does anything on this lane count as fixed.
+**4. Fix what I approved.** Only what I said yes to, in the order agreed. Work the full list, biggest category first:
+- Edit the code, redeploy
 - **THE COPY RULE and THE DELETION RULE hold throughout** (see the top of this file): fix the mechanical issue, never touch the writing, never remove anything. Body sentences altered should be zero; things deleted should be zero
 - Anything genuinely unfixable from here (server config only the host controls, a flag on an external domain) goes on a short WAIVED list with a one-line reason each - waived means consciously skipped, not forgotten
 
 **5. Re-run and loop.** Re-audit only what was in scope. Trigger a fresh Semrush crawl, re-run Lighthouse against a fresh production build, re-run the live index check, re-grade on-page and GEO. Fix whatever remains. **Keep looping** until:
 - Semrush Site Health = 100%
-- Lighthouse = 100 on all four, per template, stated as lab data (WordPress lane: if a plugin or theme hard-blocks the last points, 90+ with the blockers named and waived)
+- Lighthouse = 100 on all four, per template, stated as lab data
 - Every page passes every on-page check
 - GEO site-level checks all pass
 - No manual action in Search Console, and no unexplained gap between the sitemap count, the `site:` count and the Search Console indexed count
@@ -530,7 +526,7 @@ Done 13 Aug. Root layout was pointing every page at the homepage.
 **Every run also writes one self-contained HTML page, in the Automatable design theme, and opens it.** The markdown checklist is the working file; the HTML is the thing you show - on a call, on a screen recording, or to a prospect. Same data, before → after, no jargon.
 
 **How it is built - never hand-write the HTML:**
-1. Copy `references/audit-report-template.html` to `audit-report.html` in the project root (WordPress lane: the project folder).
+1. Copy `references/audit-report-template.html` to `audit-report.html` in the project root.
 2. Replace ONLY the JSON inside `<script id="audit-data" type="application/json">` at the top of the file. Every field in the template's sample JSON is required; keep the same keys and shapes. Do not touch the markup, the CSS or the script below it.
 3. Open it: `open audit-report.html` (Mac). Say the path in chat so the owner can open it themselves.
 4. **Re-write the JSON after every fix pass** (step 5 of the loop) - `after`, `issuesAfter`, `passes`, `minutes`, each layer's `after` and `fixed` line, and each fix's `status` - then say "report refreshed" so the owner reloads and watches the dial climb. The HTML is regenerated in full each time; the markdown file keeps the history.

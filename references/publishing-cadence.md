@@ -92,7 +92,7 @@ That single fact makes everything else fall out:
 
 ### Wire it - one time, done by `/scale-map`'s first scheduling run
 
-**1. Static / Next.js lane - the build wiring (this is the load-bearing part):**
+**1. The build wiring (this is the load-bearing part):**
 
 - Every page carries `publishDate: YYYY-MM-DD`.
 - The page-fetching helper EXCLUDES future-dated pages from routes, listings and `sitemap.xml`.
@@ -101,9 +101,7 @@ That single fact makes everything else fall out:
 
 Record it in CLAUDE.md "## My setup". **Verify before trusting it:** a future-dated page 404s AND appears in no listing; on its date it renders AND its inbound links are live. Without this the schedule is decorative - pages go live the moment they are committed.
 
-**2. WordPress lane:** drafts are created with a future `post_date` and WordPress publishes them itself. No Action, no script, no secret. The date-aware link helper does not apply - wire links when the target is live.
-
-**3. Connect the repo to Vercel - the step everyone misses.** `npx vercel link` ties your LOCAL FOLDER to a project. It does **not** make Vercel watch GitHub, and without that a push deploys nothing. The git root is usually the PARENT of `website/`, so pass the URL explicitly or it fails with "no local Git repository found":
+**2. Connect the repo to Vercel - the step everyone misses.** `npx vercel link` ties your LOCAL FOLDER to a project. It does **not** make Vercel watch GitHub, and without that a push deploys nothing. The git root is usually the PARENT of `website/`, so pass the URL explicitly or it fails with "no local Git repository found":
 
 ```bash
 cd website && npx vercel git connect https://github.com/<user>/<repo> --yes
@@ -113,7 +111,7 @@ cd website && npx vercel git connect https://github.com/<user>/<repo> --yes
 
 **⛔ If it fails, this is the one step a skill cannot do for you.** `git connect` needs your GitHub account authorised on your Vercel account, which is a browser consent screen. When that is the error: vercel.com → the project → Settings → Git → Connect, pick the repo, come back. One click, once, forever. Say exactly that rather than "check the dashboard".
 
-**4. The daily rebuild Action - no hook, no secret, nothing to configure.**
+**3. The daily rebuild Action - no hook, no secret, nothing to configure.**
 
 Vercel has **no reliable public API for minting deploy hooks**, and CLI-created projects are refused outright. Do not try. You do not need one: once the Git integration is live, any push deploys, so the Action just has to cause a push.
 
@@ -151,7 +149,7 @@ An empty commit, nothing more. No `VERCEL_DEPLOY_HOOK`, no token, no `gh secret 
 ```
 # Publish schedule
 Built 2026-08-13 · 18 pages queued · next goes live Tue 19 Aug
-Next: nothing. WordPress publishes these on their own.
+Next: nothing. The daily rebuild publishes these on their own.
 
 ## Going live this week
 

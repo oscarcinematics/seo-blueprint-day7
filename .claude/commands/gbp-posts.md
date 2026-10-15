@@ -160,6 +160,7 @@ Save it to `.env` so nothing asks twice. Then pull with `python3 code/fetch_stoc
 **Ship:** show me the month as a legible list (title + type + week + the hook line) and get ONE yes on the batch. Then:
 
 - **⛔ Scheduled - THE DEFAULT. One approval covers the whole month.** Write each approved post as a dated YAML file in `gbp-queue/` (payload fields per the spec, plus `send_after: YYYY-MM-DD` spaced across the month). The GitHub Action (`.github/workflows/gbp-posts.yml`, Mon/Wed/Fri cron) ships them with no laptop open: **max one post per run**, and `code/publish_due_gbp_posts.py` independently enforces the 2-3/week cap and a minimum gap between posts, so a mistake in the dates cannot cause a burst. On a 200 the post moves to `gbp-queue/sent/` with a `sent_at` stamp and is deleted from the queue - **it can never send twice.** A non-200 leaves it in the queue and turns the run red, so a miss is visible rather than silent. Needs `MAKE_WEBHOOK_URL` saved once as a GitHub Actions secret - walk me through it the first time.
+- **First run only:** copy `references/gbp-posts.yml` to `website/.github/workflows/`, and `code/publish_due_gbp_posts.py`, `code/check_gbp_payload.py` and `code/_site.py` to `website/code/`. A symlink does not exist on GitHub.
 
   **Never ask which lane I want.** Approving the batch means schedule it. A month of posts is written to be read over a month, and firing eight at once buries seven of them - the profile shows the newest and the rest scroll away the same afternoon. Report the dates each post will go out on, then stop.
 

@@ -3,7 +3,7 @@ description: One publish-ready blog post - duplicate the template page, research
 argument-hint: [keyword, optional - pulls next from keyword-map.md]
 ---
 
-**Read first:** `references/blog-post-retention.md` (the 41 retention rules - subhead every 150-300 words, answer in the first 40-50 words, the mid-text CTA does 47-93% of the work), `context/voice.md` Part 1 (the humour bar: full standup on blogs; quick answers and FAQ straight - AI lifts those verbatim), and **`references/hub-spoke-pages.md` when the map row is a pillar or a spoke** - a pillar is a short router with an H2 section per spoke (passage + link inside it, section in the TOC) and it grows a section the same day any new spoke ships; a spoke takes one subtopic deep, never the pillar's head term, and references its pillar by name early.
+**Read first:** `references/blog-post-retention.md` (the 41 retention rules - subhead every 150-300 words, answer in the first 40-50 words, the mid-text CTA does 47-93% of the work), `context/voice.md` Part 1 (quick answers and FAQ stay straight - AI lifts those verbatim), and **`references/hub-spoke-pages.md` when the map row is a pillar or a spoke** - a pillar is a short router with an H2 section per spoke (passage + link inside it, section in the TOC) and it grows a section the same day any new spoke ships; a spoke takes one subtopic deep, never the pillar's head term, and references its pillar by name early.
 
 **⛔ Before writing: check the route does not already exist.** No argument = the next unwritten `## N. Blog post:` row in `keyword-map.md`, lowest N. **But the map row is hand-maintained and drifts - the filesystem is the authority.** If `website/app/blog/<slug>/` already exists, skip it, move the row to `# Written`, say so in one line, and take the next row instead. Never overwrite an existing post: it may have been hand-edited, optimized, linked or already live, and a rebuild silently destroys all of it. All rows written? Say so and point at `/keyword-research expand`.
 
@@ -20,8 +20,7 @@ State the pick in one line and build. The ONLY stop: a keyword I typed is alread
 ## ⛔ Duplicate = `cp` the file
 
 ```
-cp app/<SITE_STYLE>/blog/page.tsx app/blog/[slug]/page.tsx   # first ever
-cp app/blog/[existing]/page.tsx   app/blog/[new-slug]/page.tsx  # every one after
+cp app/blog/_template/page.tsx app/blog/[slug]/page.tsx
 ```
 
 Edit ONLY words, images, metadata, schema. Composing a fresh page from components is designing - banned.
@@ -29,15 +28,12 @@ Edit ONLY words, images, metadata, schema. Composing a fresh page from component
 ## The work
 
 1. **Spec:** top 3 organic results - word count, H2 outline, tables, FAQs. Target = their average ±20%, plus THE GAPS.
-2. **Research, 50+ sources:** parallel sub-agents across ranking articles, YouTube transcripts, Reddit, studies, expert quotes - and MY numbers from `context/proof/proof-inventory.md`. Original data is the citation lever. **`references/examples/research-dossier-example.md` is what the gathered material should look like before you write a word** - match its shape, never its content. WordPress lane: `references/examples/wordpress-blog-example.md` is the finished post.
+2. **Research, 50+ sources:** parallel sub-agents across ranking articles, YouTube transcripts, Reddit, studies, expert quotes - and MY numbers from `context/proof/proof-inventory.md`. Original data is the citation lever. **`references/examples/research-dossier-example.md` is what the gathered material should look like before you write a word** - match its shape, never its content.
 3. **Buyer:** name the ONE buyer from `context/buyers.md`; closest fit if none owns the keyword, say why.
 4. **Write INTO `references/blog-post-template.md`'s skeleton** - quick answer → proof line → main table → cluster H2s → field section → FAQ → bridge CTA → author box. Write it STRAIGHT and correct first. Never a disclaimer about proof you don't have - write from what IS true.
-5. **The humour rewrite - a separate, full pass, and it is the point.** Rewrite every line against `context/voice.md` Part 1 (the four joke shapes, the placement rhythm, the swipe file as calibration - never as source material). The bar: **at least every second line lands a light beat, like a comedy set the whole way through** - then the useful info lands clean right after. Quick answers, FAQ, tables and numbers stay straight. This is a line-by-line rewrite, not a find-and-replace.
-   - **Sweep BOTTOM-UP: last section first, intro last.** Drafts fatigue - the writing copies its own recent output, so humour starts strong and thins through the back half, and a top-down punch-up pass fatigues the exact same way. Working from the end gives the tired sections the freshest attention.
-   - **The floor: every H2 section carries at least one line at the drywall-line bar** (the swipe file's top entries). FAQ, quick answers and the CTA are exempt. After the pass, count per section. A section with zero isn't done - a funny intro doesn't carry a dry section six.
-   - **The density check: three straight sentences in a row, outside the protected zones, means the pass isn't done there.** The target is a beat every second line - mostly SMALL beats (a word choice, a half-sentence aside, a personification), with one or two big builds per section. Ten set pieces per section is exhausting; ten dry sentences is worse.
+5. **Voice pass against `context/voice.md`** - a separate, full pass, line by line. Quick answers, FAQ, tables and numbers stay straight.
    - **Every stat carries a live external link to its source.** An attribution with no link ("per industry data", "Semrush-cited") is not a citation. If the source can't be found and linked, the stat doesn't ship - swap it for one that verifies. Degrade, never decorate.
-6. **Images:** hero + one visual per ~350 words. Ladder: real → `code/fetch_stock_photos.py` (overfetch: pool 2-3x the slots, pick the best per slot, never a photo already used on the site) → none. Look at each. **People photos go where people belong:** body images show the work, the tools, the result - not stock faces. A face appears only in the author box (the real author) or beside a real quoted person, never as decoration.
+6. **Images:** hero + one visual per ~350 words, from `photosShowing()` (`lib/photos.ts`). Look at each. **People photos go where people belong:** body images show the work, the tools, the result - not stock faces. A face appears only in the author box (the real author) or beside a real quoted person, never as decoration.
 7. **On-page while writing:** `references/on-page-seo.md`; 2-3 title/meta variants per `references/meta-info.md`.
 
 ## Gates, then register

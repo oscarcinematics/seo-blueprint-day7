@@ -209,7 +209,7 @@ Report how many threads each query returned and how many were usable, so a dead 
 ### 4g. Slack, CRM and past sessions
 
 - **Slack** - for anyone with a team, this is where wins get posted and praise gets screenshotted
-- **CRM (GHL or equivalent)** - client count, repeat-customer rate, review requests answered
+- **CRM** - client count, repeat-customer rate, review requests answered
 - **Past Claude Code sessions** - run `python3 code/mine_transcripts.py`. It reads `~/.claude/projects/*/*.jsonl` and pulls every line where a real number, result, timeline or client outcome was said in passing. People state real figures conversationally while working and never write them down. Everything it returns is UNCONFIRMED until confirmed, because "say the client is doing 40K a month" is a worked example and reads identically to a result. Owner's own business only, never a credential, never a third party's data
 
 ### ⛔ MEASURE, never read. Every number on a site is a claim.

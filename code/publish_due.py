@@ -8,22 +8,14 @@ publish twice.
 Set up by /scale-map. Run manually any time with:  python3 Code/publish_due.py
 Dry run (shows what it WOULD do, changes nothing):  python3 Code/publish_due.py --dry-run
 
-Lanes:
-  static  - POSTs a Vercel deploy hook. The site build filters out pages whose
-            publishDate is in the future, so a rebuild is all that's needed.
-  wordpress - flips each due post from `future`/`draft` to `publish` via the
-            WordPress REST API.
+POSTs a Vercel deploy hook. The site build filters out pages whose
+publishDate is in the future, so a rebuild is all that's needed.
 
 Env (the engine's .env, then the site's .env, via code/_site.py):
-  SITE_LANE=static | wordpress
   VERCEL_DEPLOY_HOOK=https://api.vercel.com/v1/integrations/deploy/...
-  WP_URL=https://example.com
-  WP_USER=admin
-  WP_APP_PASSWORD=xxxx xxxx xxxx xxxx
 """
 
 import argparse
-import base64
 import json
 import os
 import re
@@ -95,55 +87,10 @@ def post(url: str, data=None, headers=None, method="POST"):
         return r.status, r.read().decode()
 
 
-def wp_headers():
-    user, pw = os.environ.get("WP_USER"), os.environ.get("WP_APP_PASSWORD")
-    if not user or not pw:
-        sys.exit("SITE_LANE=wordpress needs WP_USER and WP_APP_PASSWORD in .env")
-    token = base64.b64encode(f"{user}:{pw}".encode()).decode()
-    return {"Authorization": f"Basic {token}"}
-
-
-def publish_wordpress(due):
-    base = os.environ.get("WP_URL", "").rstrip("/")
-    if not base:
-        sys.exit("SITE_LANE=wordpress needs WP_URL in .env")
-    headers = wp_headers()
-    published = []
-    for row in due:
-        # find the post by title among scheduled/draft posts
-        q = urllib.parse.quote(row["page"])
-        url = f"{base}/wp-json/wp/v2/posts?status=future,draft&search={q}&per_page=5"
-        try:
-            req = urllib.request.Request(url, headers=headers)
-            with urllib.request.urlopen(req, timeout=60) as r:
-                hits = json.loads(r.read().decode())
-        except urllib.error.HTTPError as e:
-            print(f"  ! {row['page']}: lookup failed ({e.code}) - left Scheduled")
-            continue
-        exact = [h for h in hits if h.get("title", {}).get("rendered", "").strip().lower()
-                 == row["page"].lower()] or hits
-        if not exact:
-            print(f"  ! {row['page']}: no matching draft/scheduled post - left Scheduled")
-            continue
-        pid = exact[0]["id"]
-        try:
-            status, _ = post(f"{base}/wp-json/wp/v2/posts/{pid}", {"status": "publish"},
-                             headers, method="POST")
-        except urllib.error.HTTPError as e:
-            print(f"  ! {row['page']}: publish failed ({e.code}) - left Scheduled")
-            continue
-        if 200 <= status < 300:
-            print(f"  published: {row['page']}")
-            published.append(row)
-        else:
-            print(f"  ! {row['page']}: unexpected status {status} - left Scheduled")
-    return published
-
-
 def publish_static(due):
     hook = os.environ.get("VERCEL_DEPLOY_HOOK")
     if not hook:
-        sys.exit("SITE_LANE=static needs VERCEL_DEPLOY_HOOK in .env "
+        sys.exit("Needs VERCEL_DEPLOY_HOOK in .env "
                  "(Vercel > Project > Settings > Git > Deploy Hooks)")
     try:
         status, _ = post(hook)
@@ -207,8 +154,7 @@ def main():
         print("dry run - nothing published")
         return
 
-    lane = os.environ.get("SITE_LANE", "static").lower()
-    published = publish_wordpress(due) if lane == "wordpress" else publish_static(due)
+    published = publish_static(due)
 
     mark_live(published)
     write_log(published, due, today)
@@ -216,5 +162,4 @@ def main():
 
 
 if __name__ == "__main__":
-    import urllib.parse  # used by the WordPress lane
     main()
