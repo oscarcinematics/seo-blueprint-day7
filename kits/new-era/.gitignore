@@ -1,0 +1,13 @@
+node_modules
+.next
+out
+.env.local
+.DS_Store
+*.tsbuildinfo
+.next-dev
+.vercel
+.env*
+
+# Rebuilt from the retained WebP sources before each production build.
+/public/images/optimized/
+!.env.example

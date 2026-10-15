@@ -1,0 +1,158 @@
+/* /about - the layouts and the scroll scenes only this page uses. Shared
+   type, grounds, the Cover, the Close and the accordion come from
+   app/brand.css.
+
+   Round 7 (5 Oct 2026). Between the shared Cover and Close, three scenes,
+   each moving its own way and none shared with the homepage:
+     The split    paper. The screen divides: a photograph fills the left
+                  half edge to edge and tilts slowly down the yard, while the
+                  first paragraph settles and the second arrives (pinned).
+     Where        night. A held photo opens from a horizon line beside the
+                  suburbs, then closes in; each suburb's rule draws in and
+                  its name slides along it.
+     Details      sand. The heading is held while the rows pass; only the
+                  rules draw.
+   Every scene rule is under .h-js, so with JS off or reduced motion the page
+   is the finished static layout below. Desktop pins only from 1000px. */
+
+/* ---------- Cover ----------
+   The shared cover (brand.css "Cover") over the foggy gate. Fog is pale, so
+   at the default evening shade (.2) the first frame measured 84 of 255,
+   against 62 for the services cover and 61 for the homepage hero. At .46 it
+   measures 63 (5 Oct 2026): the same evening depth, and the ivory heading
+   and the glass keep their contrast. */
+.h-page .h-cover{--cv-shade:.46}
+
+/* ---------- The split: the intro ----------
+   Sand, its own ground (the section carries .h-sand): the cover ends on
+   paper, so the split starts at a visible edge rather than running on as one
+   long pale sheet. Static on a phone or tablet: the photograph full bleed,
+   the paragraphs under it. From 1000px: one screen, the photograph on the
+   left half from the screen's edge to the centre line (the content's
+   column 6 line, the container being centred), one column of air, and the
+   words on columns 8 to 12, their block centred on the photograph's height.
+   The first paragraph is the lede: ink, 19 to 21px; the second is body text
+   under a bronze rule. Both share one 28rem measure (about 46 characters a
+   line in the lede, 56 in the body), so the block is one clean column with
+   the rule its full width. Two styles, no colour. */
+.ab-stage{position:relative}
+.ab-ph{position:relative;overflow:hidden;aspect-ratio:var(--ar-port);background:var(--h-night-2)}
+.ab-ph img{position:absolute;left:0;top:0;display:block;width:100%;height:100%;object-fit:cover}
+.ab-intro-g{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:0;padding-top:calc(var(--u) * 2);padding-bottom:var(--h-sec)}
+.ab-txt{grid-column:1/-1;max-width:28rem}
+.ab-first{margin:0;color:var(--h-ink);font:400 clamp(19px,1.45vw,21px)/1.55 var(--font-core);letter-spacing:-.005em;text-wrap:pretty}
+.ab-second{position:relative;margin:calc(var(--u) * 1.5) 0 0;padding-top:var(--u);border-top:1px solid var(--h-bronze);color:var(--h-body);font:400 var(--t-body)/1.7 var(--font-core);text-wrap:pretty}
+@media(min-width:621px) and (max-width:999px){.ab-ph{aspect-ratio:var(--ar-land)}}
+@media(min-width:1000px){
+.ab-stage{height:100svh;min-height:640px;max-height:980px}
+.ab-ph{position:absolute;left:0;top:0;bottom:0;width:50%;aspect-ratio:auto}
+.ab-intro-g{height:100%;align-items:center;padding-top:0;padding-bottom:0}
+.ab-txt{grid-column:8/13}
+}
+
+/* The scene. Everywhere: the photograph is taller than its frame and tilts
+   down it over the section's whole pass (--p), linearly, so it moves only
+   while the page does: the planting as it arrives, the path at its foot as
+   it leaves. The tilt starts a tenth of the way down the photo, so the strip
+   of grey sky at its top stays out of the frame. A different move from every
+   other photograph on the page, which all open, close or rise.
+   Desktop: the section is a 180vh track and the stage holds for 80vh. In
+   the first half of the hold (--a) the first paragraph settles up from the
+   middle of the screen to its place (--ab-d, half the rule's gap and the
+   second paragraph's height, so it starts centred on its own); overlapping its end, the bronze rule
+   draws in from the left (--r) and the second paragraph rises under it
+   (--b). The second only shows once the first has cleared its place, so
+   the two never cross. With the pair finished, the stage lets go. */
+.h-js .ab-ph img{height:124%;translate:0 calc(-8% - var(--p) * 11.35%);will-change:transform}
+@media(min-width:1000px){
+.h-js .ab-intro{height:180vh}
+.h-js .ab-stage{position:sticky;top:0;height:100svh;min-height:0;max-height:none;overflow:hidden;--ab-d:calc(var(--u) * 1.25 + 3.5em);
+  --a0:clamp(0,(var(--pin) - .04) / .46,1);--a:calc(var(--a0) * var(--a0) * (3 - 2 * var(--a0)));
+  --r:clamp(0,(var(--pin) - .3) / .3,1);
+  --b0:clamp(0,(var(--pin) - .38) / .4,1);--b:calc(var(--b0) * var(--b0) * (3 - 2 * var(--b0)))}
+.h-js .ab-ph img{height:130%;translate:0 calc(-10% - var(--p) * 13.08%)}
+.h-js .ab-first{translate:0 calc((1 - var(--a)) * var(--ab-d))}
+.h-js .ab-second{border-top-color:transparent;opacity:var(--b);translate:0 calc((1 - var(--b)) * var(--u))}
+.h-js .ab-second::before{content:"";position:absolute;left:0;right:0;top:-1px;height:1px;background:var(--h-bronze);transform-origin:0 50%;transform:scaleX(var(--r))}
+}
+
+/* ---------- Where we work: a held photo beside the suburb list ---------- */
+.ab-where-g{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));grid-template-rows:auto auto 1fr;column-gap:0;align-items:start}
+.ab-where-h{grid-column:1/span 5;grid-row:1;margin-top:-.12em}
+.ab-where-l{grid-column:1/span 4;grid-row:2;max-width:34ch;margin-top:var(--u)}
+/* The photo column spans every row, so the frame inside it can be held
+   (sticky) while the list passes. */
+.ab-where-ph{grid-column:7/span 6;grid-row:1/span 3;align-self:stretch;position:relative}
+.ab-where-fr{position:relative;overflow:hidden;aspect-ratio:var(--ar-port);border-radius:2px;background:var(--h-night)}
+.ab-where-im{position:absolute;inset:0;overflow:hidden}
+.ab-where-im img{display:block;width:100%;height:100%;object-fit:cover}
+/* The suburbs: one per ruled row, Statement type in ivory, a small bronze
+   numeral drawn by CSS (decorative, not a text node). Bronze is legible on
+   night, so it can be a label here. */
+.ab-subs{position:relative;grid-column:1/span 5;grid-row:3;margin:calc(var(--u) * 2) 0 0;padding:0;list-style:none;counter-reset:sub;border-top:1px solid var(--h-line)}
+.ab-subs li{position:relative;counter-increment:sub;display:flex;align-items:baseline;gap:var(--u);padding:var(--u) 0;border-bottom:1px solid var(--h-line);overflow:hidden}
+.ab-subs li::before{content:counter(sub,decimal-leading-zero);flex:0 0 auto;min-width:2.2em;color:var(--h-bronze);font:500 var(--t-label)/1 var(--font-core);letter-spacing:.16em}
+.ab-subs span{display:block;color:var(--h-on-night);font:300 var(--t-statement)/1.15 var(--font-display);letter-spacing:-.01em}
+
+/* Scenes. The section's --p drives the photo: as the section arrives its
+   window opens from a thin horizon line (--o), then while the list passes
+   it closes in from every side as the photo pushes closer (--s). Each
+   suburb row is its own small scene, read off its arrival (--in): its rule
+   draws in from the left first (--k), then the name slides in along it and
+   brightens (--n), and the numeral rises into place. The list's top rule
+   draws with the photo's opening. */
+.h-js .ab-where{--o:clamp(0,(var(--p) - .04) / .26,1);--oe:calc(var(--o) * var(--o) * (3 - 2 * var(--o)));
+  --s:clamp(0,(var(--p) - .4) / .42,1);--se:calc(var(--s) * var(--s) * (3 - 2 * var(--s)))}
+.h-js .ab-where-fr{position:sticky;top:calc(50svh - min(38svh,(100vw - 2 * var(--h-gut)) * .25));aspect-ratio:auto;height:min(76svh,calc((100vw - 2 * var(--h-gut)) * .5))}
+.h-js .ab-where-im{clip-path:inset(calc((1 - var(--oe)) * 49.5% + var(--se) * 6%) calc(var(--se) * 9%) calc((1 - var(--oe)) * 49.5% + var(--se) * 6%) calc(var(--se) * 9%))}
+.h-js .ab-where-im img{will-change:transform;scale:calc(1.18 - var(--oe) * .14 + var(--se) * .12);translate:0 calc(var(--se) * -3%)}
+.h-js .ab-where{padding-bottom:calc(var(--u) * 3)}
+.h-js .ab-subs{border-top-color:transparent}
+.h-js .ab-subs::before{content:"";position:absolute;left:0;right:0;top:-1px;height:1px;background:var(--h-line);transform-origin:0 50%;transform:scaleX(var(--oe))}
+.h-js .ab-subs li{border-bottom-color:transparent;
+  --k0:clamp(0,var(--in) * 2.2,1);--k:calc(var(--k0) * var(--k0) * (3 - 2 * var(--k0)));
+  --n0:clamp(0,(var(--in) - .12) * 2.4,1);--n:calc(1 - (1 - var(--n0)) * (1 - var(--n0)))}
+.h-js .ab-subs li::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:var(--h-line);transform-origin:0 50%;transform:scaleX(var(--k))}
+.h-js .ab-subs span{opacity:calc(.18 + var(--n) * .82);transform:translate3d(calc((1 - var(--n)) * -2.4em),0,0)}
+.h-js .ab-subs li::before{opacity:var(--n);transform:translate3d(0,calc((1 - var(--n)) * 1.6em),0)}
+
+@media(max-width:900px){
+  .ab-where-g{grid-template-columns:minmax(0,1fr);grid-template-rows:none}
+  .ab-where-h,.ab-where-l,.ab-where-ph,.ab-subs{grid-column:1/-1;grid-row:auto}
+  .ab-where-h{margin-top:0}
+  .ab-where-l{margin-top:var(--u)}
+  .ab-where-ph{margin:calc(var(--u) * 2) calc(var(--h-gut) * -1) 0}
+  .ab-where-fr{border-radius:0}
+  .ab-subs{margin-top:calc(var(--u) * 2)}
+  /* Phones: the photo is held at the top of the screen and the list runs
+     up under it. Both sit in the same grid row; the list is pushed down by
+     the photo's height and stacked below it. */
+  .h-js .ab-where-ph{grid-row:3;z-index:2;pointer-events:none}
+  .h-js .ab-where-fr{top:0;height:52svh}
+  .h-js .ab-subs{grid-row:3;position:relative;z-index:1;margin-top:calc(52svh + 48px);padding-bottom:0}
+  .h-js .ab-where{--o:clamp(0,(var(--p) - .02) / .18,1);--s:clamp(0,(var(--p) - .3) / .45,1)}
+  .h-js .ab-where-im{clip-path:inset(calc((1 - var(--oe)) * 49.5% + var(--se) * 7%) calc(var(--se) * 10%) calc((1 - var(--oe)) * 49.5% + var(--se) * 7%) calc(var(--se) * 10%))}
+}
+
+/* ---------- Business details: the heading held, the rows ruled ----------
+   The homepage FAQ's layout on sand: the heading holds (sticky) on the
+   first four columns while the rows pass on the last seven. In the scene
+   the rules are drawn instead of set: each row's rule draws in from the
+   left as the row arrives (its own --in), and the closing rule under the
+   last row as the list passes. Nothing else moves. */
+.ab-biz-g{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:0;align-items:start}
+.ab-biz-head{grid-column:1/5;position:sticky;top:120px}
+.ab-biz-head .h-h2{margin:0}
+.ab-biz .h-faqs{position:relative;grid-column:6/13;max-width:none;margin:0}
+.h-js .ab-biz .h-faq{border-color:transparent}
+.h-js .ab-biz .h-faq summary::before{content:"";position:absolute;left:0;right:0;top:-1px;height:1px;background:var(--h-line);transform-origin:0 50%;transform:scaleX(clamp(0,(var(--in) - .08) / .5,1))}
+.h-js .ab-biz .h-faqs::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:1px;background:var(--h-line);transform-origin:0 50%;transform:scaleX(clamp(0,(var(--p) - .3) / .25,1))}
+@media(max-width:1100px){
+  .ab-biz-head{grid-column:1/-1;position:static}
+  .ab-biz .h-faqs{grid-column:1/-1;margin-top:calc(var(--u) * 1.5)}
+}
+
+/* ---------- Close ----------
+   The rendered wall behind the heading is pale render: the shared Close's
+   evening shade rises from .2 so the ivory heading holds its contrast. */
+.h-close{--cl-shade:.38}

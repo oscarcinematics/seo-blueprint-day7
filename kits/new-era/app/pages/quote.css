@@ -1,0 +1,127 @@
+/* /quote only. Inlined by <PageCss file="quote.css" />.
+
+   6 Oct 2026: rebuilt on /contact's frontend (app/pages/contact.css), so
+   the two forms read as one pair. The opening is the shared Cover; the
+   middle is contact's night section, the form on a paper panel beside the
+   held direct line; then the questions on paper. The fields (underline
+   inputs, eyebrow labels, the ink pill) are the shared form styles in
+   brand.css part 4.
+
+   The scene (desktop): the direct line and the photo under it are one
+   column, held (sticky) beside the form while the form passes, so the
+   number never leaves the screen while someone is typing, and the photo
+   pans sideways across the view as the section passes. In the questions
+   the heading holds while the rows' hairlines draw. Every rule that reads
+   a scene, and the holds, is under .h-js; without the script (or with
+   reduced motion) it is the same layout, still. */
+
+/* ---------- Cover ----------
+   Raised from .2 (brand.css "Cover"), as on /contact, so the ivory lockup
+   holds over a bright frame. Set it back to .2 for a photo already in
+   shade. */
+.h-cover{--cv-shade:.32}
+
+/* ---------- Section ---------- */
+.qt-main{padding:calc(var(--u) * 3) 0 calc(var(--u) * 4)}
+.qt-grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:0;align-items:start}
+
+/* ---------- The direct line ----------
+   Columns 1 to 5, one column of air, the form on 7 to 12. The number is
+   Display size, cut to whatever fits the column (cqi: the column's own
+   width, so it never wraps or overflows between 1000 and 1440). */
+.qt-side{grid-column:1/span 5;grid-row:1;container-type:inline-size}
+.qt-direct{display:flex;flex-direction:column}
+.qt-label{margin:0}
+.qt-tel{display:block;margin-top:var(--u);color:var(--h-ink)!important;font:300 min(var(--t-display),15.2cqi)/1 var(--font-display);letter-spacing:-.02em;font-variant-numeric:tabular-nums;text-decoration:none!important;white-space:nowrap;transition:color .4s}
+.qt-tel:hover{color:var(--h-sage)!important}
+.qt-lines{margin-top:calc(var(--u) * 1.5);border-top:1px solid var(--h-line)}
+.qt-line{display:flex;align-items:center;gap:calc(var(--u) * .5);padding:calc(var(--u) * .5) 0;border-bottom:1px solid var(--h-line);color:var(--h-ink)!important;font:400 var(--t-body)/1.4 var(--font-core);text-decoration:none!important;overflow-wrap:anywhere;transition:color .4s}
+.qt-line i{flex:0 0 auto;display:grid;place-items:center;width:18px;color:var(--h-bronze)}
+a.qt-line:hover{color:var(--h-sage)!important}
+
+/* ---------- The photo ----------
+   Under the direct line, bled off the left edge of the screen: the frame
+   runs from the screen's edge to the column's right edge, so it reads as
+   a window in the night ground rather than one more box. The image inside
+   (.qt-ph-sc) is wider than the frame so it has room to pan. Static: a
+   3:2 frame showing the middle of the view. */
+.qt-ph{position:relative;overflow:hidden;margin:calc(var(--u) * 1.5) 0 0 calc(var(--h-gut) * -1 - max(0px,(100vw - 1440px) / 2));aspect-ratio:var(--ar-land);background:var(--h-night-2)}
+.qt-ph-sc{position:absolute;top:0;bottom:0;left:-12.5%;width:125%}
+.qt-ph img{display:block;width:100%;height:100%;object-fit:cover}
+
+/* ---------- The form panel ----------
+   Paper on the night ground. The tokens are set back to the paper values
+   here, so the shared field styles (ink underline, muted labels, ink pill)
+   and the steps read as they do on every paper page. No border and no
+   shadow: the ground change is the edge. */
+.qt-form{grid-column:7/-1;grid-row:1;--h-paper:#f2f0eb;--h-ink:#141714;--h-body:#3b3f3a;--h-muted:#676b64;--h-line:rgba(20,23,20,.12);--h-accent:#3d5a3a;color:var(--h-body)}
+.qt-main .qt-form{padding:calc(var(--u) * 2) calc(var(--u) * 1.5);border:0;border-radius:2px;background:var(--h-paper)}
+.qt-form .c-intro{margin:var(--u) 0 calc(var(--u) * 1.5);max-width:46ch}
+.qt-form .h-lead{display:grid;gap:var(--u)}
+
+/* The steps: a small numbered process row at the head of the panel, three
+   equal columns joined by one hairline, the current step in ink on a
+   heavier rule. Label type throughout (the numbers are CSS counters, so
+   they add no words), so it reads as a caption to the form, not a heading. */
+.qt-steps{counter-reset:qs;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;margin:0 0 calc(var(--u) * 1.5);padding:0}
+.qt-steps li{counter-increment:qs;display:flex;align-items:baseline;gap:12px;padding:calc(var(--u) * .5) var(--u) 0 0;border-top:1px solid color-mix(in srgb,var(--h-ink) 22%,transparent);color:var(--h-muted)}
+.qt-steps i{flex:0 0 auto;width:auto;height:auto;border-radius:0;background:none;color:inherit;font-style:normal;font-variant-numeric:tabular-nums}
+.qt-steps i::before{content:counter(qs,decimal-leading-zero)}
+.qt-steps .is-now{margin-top:-1px;border-top:2px solid var(--h-ink);color:var(--h-ink)}
+.qt-steps .is-now i{background:none;color:inherit}
+
+/* ---------- The scene (desktop) ----------
+   The column is held 1u under the scrolled header and is exactly one
+   screen tall less its margins; the photo takes whatever height the
+   details leave, so the held column always fits the screen. It holds for
+   as long as the form is taller than it, and lets go at the form's foot.
+   The pan: across the middle of the section's pass (--p .12 to .88) the
+   image travels from its left edge to its right, linear, so the view
+   moves exactly as fast as the page. */
+@media(min-width:1000px){
+.h-js .qt-side{position:sticky;top:calc(72px + var(--u));display:flex;flex-direction:column;height:calc(100svh - 72px - var(--u) * 2);min-height:520px}
+.h-js .qt-ph{flex:1 1 auto;min-height:200px;aspect-ratio:auto}
+.h-js .qt-main{--pan:clamp(0,(var(--p) - .12) / .76,1)}
+.h-js .qt-ph-sc{left:0;width:132%;translate:calc(var(--pan) * -24.24%) 0;will-change:translate}
+}
+
+/* ---------- The questions ----------
+   The homepage's FAQ scene: the heading holds (sticky) on the first four
+   columns while the questions pass on the last seven, and in the scene
+   the rows' hairlines draw as each question arrives. No .h-cv here:
+   containment breaks sticky. */
+.qt-faq-g{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:0;align-items:start}
+.qt-faq-head{grid-column:1/span 4}
+.qt-faq-head .h-kicker{margin:0}
+.qt-faq-head .h-h2s{margin:var(--u) 0 0}
+.qt-faq .h-faqs{position:relative;grid-column:6/-1;max-width:none;margin:0}
+@media(min-width:1000px){
+.h-js .qt-faq-head{position:sticky;top:calc(72px + var(--u))}
+}
+.h-js .qt-faq .h-faq{border-color:transparent}
+.h-js .qt-faq .h-faq summary::before{content:"";position:absolute;left:0;right:0;top:-1px;height:1px;background:var(--h-line);transform-origin:left;transform:scaleX(clamp(0,(var(--in) - .08) / .5,1))}
+.h-js .qt-faq .h-faqs::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:1px;background:var(--h-line);transform-origin:left;transform:scaleX(clamp(0,(var(--p) - .3) / .25,1))}
+
+/* ---------- Tablet and phone ----------
+   One column: the direct line, the photo (full bleed), then the form panel
+   (full bleed paper), as on /contact. The source keeps the form first;
+   order moves it. The pan stays, smaller, over the photo's own pass. */
+@media(max-width:999px){
+.qt-main{padding:calc(var(--u) * 3) 0 0}
+.qt-grid,.qt-faq-g{grid-template-columns:minmax(0,1fr)}
+.qt-side,.qt-form,.qt-faq-head,.qt-faq .h-faqs{grid-column:1/-1;grid-row:auto}
+.qt-side{order:-1}
+.qt-tel{font-size:min(var(--t-display),15.2cqi)}
+.qt-ph{margin:calc(var(--u) * 2) calc(var(--h-gut) * -1) 0;aspect-ratio:var(--ar-land)}
+.qt-main .qt-form{margin:0 calc(var(--h-gut) * -1);padding:calc(var(--u) * 2) var(--h-gut) calc(var(--u) * 3);border-radius:0}
+.h-js .qt-main{--pan:clamp(0,(var(--p) - .05) / .5,1)}
+.h-js .qt-ph-sc{left:0;width:116%;translate:calc(var(--pan) * -13.79%) 0}
+.qt-faq .h-faqs{margin-top:calc(var(--u) * 1.5)}
+}
+@media(min-width:621px) and (max-width:999px){
+.qt-direct,.qt-form>*{max-width:640px}
+.qt-ph{aspect-ratio:2/1}
+}
+@media(max-width:620px){
+.qt-steps li{flex-direction:column;gap:6px;padding-right:calc(var(--u) * .5)}
+}

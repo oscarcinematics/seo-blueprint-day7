@@ -1,0 +1,216 @@
+/* Blog posts only (app/blog/<slug>/page.tsx). Inlined by
+   <PageCss file="post.css" />. Every class is po-; the masthead, answer
+   box, contents list and heading sizes are brand.css (.n-art-*, .n-answer,
+   .n-toc, .h-h2s) and are only placed here.
+
+   Round 7 (5 Oct 2026): a reading page. The article is ONE paper ground
+   (it used to alternate paper and sand stripes every section, which cut a
+   long read into bands that meant nothing). Its rhythm comes from type,
+   rules and photographs instead:
+     the rail     on a desktop, "On this page" is a sticky column beside
+                  the text with a reading-progress line down its left edge
+     the column   720px of body text from column 5 of the 12-column grid
+     the breaks   photographs and price tables one column WIDER than the
+                  text, out to column 12, each section opened by a hairline
+     the bridge   one night band after the article, then the Close
+   Motion is quiet where people read: no words move. The photos settle,
+   pan or drift as they pass, each shape its own way and never the same
+   move twice in a row; the ledgers' top rules draw across as they arrive;
+   the rail's line fills as you read. Every rule that reads the scroll
+   numbers is under .h-js, so with JS off or reduced motion the page is the
+   finished layout below. */
+
+/* ---------- The grid ----------
+   Desktop: 12 zero-gutter columns. Rail on 1 to 3, column 4 is air, the
+   text on 5 to 11 (at most 720px), the wide pieces on 5 to 12. */
+/* The page clips sideways (clip, not hidden: it makes no scroll container,
+   so the rail still sticks to the screen), so a photo mid-pan can never
+   widen a phone's page. */
+.po{overflow-x:clip}
+.po-g{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:0;align-items:start}
+
+/* ---------- Masthead ----------
+   The kicker line, H1 and standfirst in the text column, on brand.css's
+   reading scale; the hero across the full width under them, 2:1, its
+   caption back on the text column. */
+.po-mast{padding-bottom:calc(var(--u) * 2)}
+.po .n-art-head{grid-column:5/span 7;max-width:720px;margin:0}
+.po .n-art-lede{margin-left:0}
+.po .po-hero{grid-column:1/-1;max-width:none;margin:calc(var(--u) * 2) 0 0;display:grid;grid-template-columns:repeat(12,minmax(0,1fr))}
+.po .po-hero .n-svc-ph{grid-column:1/-1;aspect-ratio:2/1}
+.po .po-hero figcaption{grid-column:5/span 7}
+
+/* Captions everywhere: small, muted, one measure. */
+.po figcaption{margin-top:12px;max-width:60ch;color:var(--h-muted);font-size:var(--t-small);line-height:1.5}
+
+/* ---------- The answer and the rail ---------- */
+.po .n-answer{grid-column:5/span 7;max-width:720px;margin:0}
+/* The rail spans every row of the body grid (40 is more rows than a post
+   has sections, and the spare rows are empty, so they take no height):
+   it is placed before the auto-placed column, and the answer and each
+   section fill the text column one row at a time beside it. align-self
+   start keeps it its own height, so it can stick inside that tall area. */
+.po .po-rail{grid-column:1/span 3;grid-row:1/span 40;align-self:start;position:sticky;top:calc(72px + var(--u));max-width:none;margin:0;padding:0 var(--u) 0 0;background:none;border-radius:0}
+.po .po-rail ol{position:relative;margin:0;padding:0 0 0 calc(var(--u) * .75);list-style:none;counter-reset:po;font-size:var(--t-small);color:var(--h-body)}
+.po .po-rail li{display:flex;gap:12px;margin:0;padding:7px 0;counter-increment:po;line-height:1.4}
+.po .po-rail li::before{content:counter(po,decimal-leading-zero);flex:0 0 auto;padding-top:2px;color:var(--h-muted);font:500 var(--t-label)/1.4 var(--font-core);letter-spacing:.08em;font-variant-numeric:tabular-nums}
+.po .po-rail a{color:var(--h-body);text-decoration:none}
+.po .po-rail a:hover{color:var(--h-ink)}
+/* The progress line: a hairline down the list's left edge, and an ink line
+   over it that fills from the top as the article's --pin runs 0 to 1. */
+.po .po-rail ol::before,.po .po-rail ol::after{content:"";position:absolute;left:0;top:7px;bottom:7px;width:1px;background:var(--h-line)}
+.po .po-rail ol::after{display:none;background:var(--h-ink);transform-origin:50% 0}
+.h-js .po .po-rail ol::after{display:block;scale:1 var(--pin)}
+
+/* ---------- Sections ----------
+   Each opens on a hairline across the wide measure, then the kicker and
+   the heading (.h-h2s, Epilogue 500, 40px at most). Body text is held to
+   the 720px column (7 of the section's 8 columns); photos and tables take
+   all 8. */
+.po-body{padding:calc(var(--u) * 2) 0 var(--h-sec)}
+.po-sec{grid-column:5/-1;margin-top:calc(var(--u) * 2.5);padding-top:calc(var(--u) * 1.5);border-top:1px solid var(--h-line);scroll-margin-top:calc(72px + var(--u))}
+.po-sec>*{max-width:min(720px,87.5%)}
+/* The answer box's own rules close the opening, so the first section
+   needs no hairline of its own. */
+.po-rail+.po-sec{margin-top:calc(var(--u) * 2);padding-top:0;border-top:0}
+.po-sec>:is(.po-fig,.po-strip,.po-tbl){max-width:none}
+.po-sec .h-h2s{margin:0 0 var(--u)}
+.po-sec p,.po-sec li{color:var(--h-body);font-size:var(--t-body);line-height:1.7}
+.po-sec>p{margin:0 0 1em}
+.po .po-sec h3{margin:32px 0 10px;color:var(--h-ink);font:500 22px/1.25 var(--font-display);letter-spacing:-.01em}
+.po-sec ol{margin:0 0 1em;padding-left:22px}
+.po-sec ol li{margin-bottom:10px;padding-left:4px}
+.po-sec ol li::marker{color:var(--h-muted);font:500 .85em var(--font-core)}
+.po-sec .h-faqs{margin:var(--u) 0 0;max-width:min(720px,87.5%)}
+
+/* ---------- Photos ----------
+   All absolute inside a box that sets the shape, so a file's own shape
+   never bends the layout. */
+.po-ph,.po-strip{position:relative;overflow:hidden;border-radius:2px;background:var(--h-sand)}
+.po-ph img,.po-strip img{position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:cover}
+.po-sec>:is(.po-fig,.po-strip,.po-side,.po-inset){margin:calc(var(--u) * 1.5) 0}
+/* Wide, captioned: 3:2 across 8 columns. */
+.po-fig .po-ph{aspect-ratio:3/2}
+/* Wide, uncaptioned: a 2:1 strip, so a run of photos never repeats one
+   shape. */
+.po-strip{aspect-ratio:2/1}
+/* Half the wide measure, with its caption or its one paragraph beside it,
+   their foot on the photo's foot. A portrait frame for a captioned photo,
+   a landscape one where a paragraph sits beside it. */
+.po-sec>.po-side{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:end;max-width:none}
+.po-side .po-ph{aspect-ratio:var(--ar-port)}
+div.po-side .po-ph{aspect-ratio:var(--ar-land)}
+.po-side>:is(figcaption,p){margin:0;padding-left:var(--u)}
+/* Small: the photo held to 420px (the stone seat wall's file is only 601px
+   wide), its caption beside it. */
+.po-sec>.po-inset{display:grid;grid-template-columns:minmax(0,420px) minmax(0,1fr);align-items:end}
+.po-inset .po-ph{aspect-ratio:4/3}
+.po-inset figcaption{margin:0;padding-left:var(--u)}
+
+/* ---------- Ledgers ----------
+   The price tables as ruled ledgers: the caption above, an ink rule, the
+   column labels, hairline rows, and an ink rule to close. Figures set in
+   lining tabular numerals so the amounts stack; the job in ink, the
+   source quieter. The worked example's total sits under a double rule, as
+   a sum does. brand.css .n-tbl stacks them label over value under 700px. */
+.po .po-tbl{margin:calc(var(--u) * 1.5) 0;border-top:0;font-size:15px}
+.po .po-tbl caption{margin:0;padding:0 0 12px;color:var(--h-muted);font-size:var(--t-small);line-height:1.5;text-align:left}
+.po .po-tbl thead th{position:relative;padding:14px 20px 12px 0}
+.po .po-tbl thead th::before{content:"";position:absolute;left:0;right:0;top:0;height:1px;background:var(--h-ink);transform-origin:0 50%}
+.po .po-tbl tbody th,.po .po-tbl td{padding:14px 20px 14px 0;line-height:1.55}
+.po .po-tbl :is(th,td):last-child{padding-right:0}
+.po .po-tbl tbody th{color:var(--h-ink);font-weight:500}
+.po .po-tbl td{color:var(--h-ink);font-variant-numeric:lining-nums tabular-nums}
+.po .po-tbl:not(.po-sum) td:last-child:not(:nth-child(2)){color:var(--h-muted);font-size:var(--t-small)}
+.po .po-tbl tbody tr:last-child{border-bottom-color:var(--h-ink)}
+.po .po-sum tbody tr:last-child{border-top:3px double var(--h-ink)}
+.po .po-sum tbody tr:last-child :is(th,td){padding-top:16px;color:var(--h-ink);font-weight:500;font-size:15px}
+.po-tbl+p{margin-top:calc(var(--u) * .25)}
+/* Each ledger's top rule is ruled across as the table arrives, one column
+   after another: --rk is the table's arrival, and column n draws over the
+   nth quarter of it. */
+.h-js .po-tbl{--rk:clamp(0,(var(--in) - .08) / .6,1)}
+.h-js .po-tbl thead th:nth-child(1){--c0:0}
+.h-js .po-tbl thead th:nth-child(2){--c0:.25}
+.h-js .po-tbl thead th:nth-child(3){--c0:.5}
+.h-js .po-tbl thead th:nth-child(4){--c0:.75}
+.h-js .po-tbl thead th::before{scale:clamp(0,(var(--rk) - var(--c0)) * 4,1) 1}
+
+/* ---------- Photo motion ----------
+   Four shapes, four quiet moves, so neighbouring photos never move alike:
+     .po-fig    settles from a 1.1 crop over its arrival (--in)
+     .po-strip  pans sideways across its whole pass (--p): oversized 1.12,
+                so the 4% travel each way never shows an edge
+     .po-side   drifts upward inside its frame over its pass, oversized
+                1.14 against a 5% travel each way
+     .po-inset  rises 32px and comes up from transparent as it arrives */
+.h-js .po-fig{--a:clamp(0,var(--in) / .9,1);--ae:calc(var(--a) * var(--a) * (3 - 2 * var(--a)))}
+.h-js .po-fig img{scale:calc(1.1 - .1 * var(--ae))}
+.h-js .po-strip img{scale:1.12;translate:calc((var(--p) - .5) * -8%) 0}
+.h-js .po-side img{scale:1.14;translate:0 calc((.5 - var(--p)) * 10%)}
+.h-js .po-inset{--a:clamp(0,(var(--in) - .05) / .6,1)}
+.h-js .po-inset .po-ph{opacity:var(--a);translate:0 calc((1 - var(--a)) * 32px)}
+
+/* ---------- The bridge: night ----------
+   After the article, one band on the night ground: the photo on columns 1
+   to 6, the heading and words on 8 to 12, the heading's foot level with
+   the middle of the photo. The photo opens from its centre line outward,
+   both sides parting, as the band arrives; the words hold still. */
+.po-plan{padding:var(--h-sec) 0;overflow:clip}
+.po-plan-g{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));grid-template-rows:1fr auto;column-gap:0}
+.po-plan .h-h2s{grid-column:8/-1;grid-row:1;align-self:end;margin:0 0 var(--u)}
+.po-plan-ph{grid-column:1/span 6;grid-row:1/span 2;align-self:center}
+.po-plan-ph .po-ph{aspect-ratio:4/3;background:var(--h-night-2)}
+.po-plan-b{grid-column:8/-1;grid-row:2}
+.po-plan-b p{margin:0 0 1em;max-width:46ch;color:var(--h-body);font-size:var(--t-body);line-height:1.7}
+.po-plan-b .po-plan-act{margin:calc(var(--u) * 1.5) 0 0}
+.h-js .po-plan{--s:clamp(0,(var(--p) - .06) / .34,1);--e:calc(var(--s) * var(--s) * (3 - 2 * var(--s)))}
+.h-js .po-plan-ph .po-ph{clip-path:inset(0 calc((1 - var(--e)) * 50%) round 2px);will-change:clip-path}
+.h-js .po-plan-ph img{scale:calc(1.14 - .14 * var(--e))}
+
+/* The author note (components/site/AuthorNote.tsx, read-only) is the one
+   .h-sec left in this page: its ruled line moves onto the text column. */
+@media(min-width:1000px){.po>.h-sec>.h-w>div{margin-left:calc(100% / 12 * 4)}}
+
+/* ---------- Below 1000px ----------
+   No rail: the contents list is brand.css's boxed list again, in its
+   source place after the answer. Everything sits in one 720px column; the
+   photos run edge to edge of the screen on a phone. */
+@media(max-width:999px){
+.h-w.po-g{display:block;max-width:calc(720px + var(--h-gut) * 2)}
+.po .po-hero{display:block;margin-top:calc(var(--u) * 1.5)}
+.po .po-hero .n-svc-ph{aspect-ratio:16/9}
+.po .n-answer{margin-top:0}
+.po .po-rail{position:static;margin:calc(var(--u) * 1.5) 0 0;padding:var(--u);background:var(--h-sand);border-radius:2px}
+.po .po-rail ol{padding-left:0}
+.po .po-rail ol::before,.h-js .po .po-rail ol::after{display:none}
+.po-sec{margin-top:calc(var(--u) * 2.5)}
+.po-sec>*,.po-sec .h-faqs{max-width:none}
+.po-plan-g{display:block}
+.po-plan-ph{margin:var(--u) 0 calc(var(--u) * 1.5)}
+.po-plan-b p{max-width:60ch}
+.po>.h-sec>.h-w{max-width:calc(720px + var(--h-gut) * 2)}
+}
+@media(max-width:700px){
+.po-sec>:is(.po-fig,.po-strip,.po-side),.po-plan-ph{margin-left:calc(var(--h-gut) * -1);margin-right:calc(var(--h-gut) * -1)}
+.po-sec>:is(.po-fig,.po-side) .po-ph,.po-strip,.po-plan-ph .po-ph{border-radius:0}
+.po-sec>:is(.po-fig,.po-side) figcaption{padding:0 var(--h-gut)}
+.po-strip{aspect-ratio:var(--ar-land)}
+.po-sec>.po-side,.po-sec>.po-inset{display:block}
+.po-side>:is(figcaption,p){padding:0 var(--h-gut);margin-top:12px}
+div.po-side>p{margin-top:var(--u)}
+.po-inset figcaption{padding:0;margin-top:12px}
+.po .po-hero .n-svc-ph{aspect-ratio:4/3}
+/* The ledgers stack (brand.css): each row is the job, then its price, then
+   its source, tight together, rows apart. The column labels are hidden
+   there, so the ink rule moves to the top of the rows. */
+.po .po-tbl tbody{border-top:1px solid var(--h-ink)}
+.po .po-tbl tbody th{padding:14px 0 4px}
+.po .po-tbl td{padding:0 0 4px}
+.po .po-tbl td:last-child{padding-bottom:14px}
+}
+
+/* On a phone .n-tbl stacks each row and hides the header row, so a cell
+   names its own column from data-label, as the service tables do. Cells
+   without one stay as they were. */
+@media(max-width:700px){.po .po-tbl td[data-label]::before{content:attr(data-label);display:block;margin-bottom:2px;color:var(--h-muted);font:500 var(--t-label)/1.5 var(--font-core);letter-spacing:.16em;text-transform:uppercase}}

@@ -1,0 +1,105 @@
+/* /contact only. Inlined by <PageCss file="contact.css" />.
+
+   Round 7 (5 Oct 2026). The opening and the close are the shared Cover and
+   Close (brand.css); this file is the middle: one night section that does
+   the page's job. The fields themselves (underline inputs, eyebrow labels,
+   the ink pill) are the shared form styles in brand.css part 4.
+
+   Night, because the page needs one dark ground between the cover's paper
+   title row and the close's paper, and because the number set large in
+   ivory on near-black is the strongest thing on the screen, which is what
+   the fastest way to reach the owner should be. The form sits on a paper panel
+   on it: the one calm, bright surface, so the eye knows where to write.
+
+   The scene (desktop): the details and the photo under them are one column,
+   held (sticky) beside the form while the form passes, so the number never
+   leaves the screen while someone is typing. Inside its frame the photo
+   pans sideways across the yard as the section passes, a slow camera move
+   tied straight to the scroll. Not a reveal, not a zoom: the cover closes a
+   window and the close raises one, so the middle travels sideways. Every
+   rule that reads the scene, and the hold, is under .h-js; without the
+   script (or with reduced motion) it is the same layout, still. */
+
+/* ---------- Cover ----------
+   The backyard is a sunny midday frame, brighter than the shaded photos
+   the cover's evening shade was set against (.2, brand.css "Cover"); a
+   little more of it brings it down to the same depth as /services. */
+.h-cover{--cv-shade:.3}
+
+/* ---------- Section ---------- */
+.ct-main{padding:calc(var(--u) * 3) 0 calc(var(--u) * 4)}
+.ct-grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:0;align-items:start}
+
+/* ---------- The details ----------
+   Columns 1 to 5, one column of air, the form on 7 to 12. The number is
+   Display size, cut to whatever fits the column (cqi: the column's own
+   width, so it never wraps or overflows between 1000 and 1440). */
+.ct-side{grid-column:1/span 5;grid-row:1;container-type:inline-size}
+.ct-direct{display:flex;flex-direction:column}
+.ct-label{margin:0}
+.ct-tel{display:block;margin-top:var(--u);color:var(--h-ink)!important;font:300 min(var(--t-display),15.2cqi)/1 var(--font-display);letter-spacing:-.02em;font-variant-numeric:tabular-nums;text-decoration:none!important;white-space:nowrap;transition:color .4s}
+.ct-tel:hover{color:var(--h-sage)!important}
+.ct-lines{margin-top:calc(var(--u) * 1.5);border-top:1px solid var(--h-line)}
+.ct-line{display:flex;align-items:center;gap:calc(var(--u) * .5);padding:calc(var(--u) * .5) 0;border-bottom:1px solid var(--h-line);color:var(--h-ink)!important;font:400 var(--t-body)/1.4 var(--font-core);text-decoration:none!important;overflow-wrap:anywhere;transition:color .4s}
+.ct-line i{flex:0 0 auto;display:grid;place-items:center;width:18px;color:var(--h-bronze)}
+a.ct-line:hover{color:var(--h-sage)!important}
+
+/* ---------- The photo ----------
+   Under the details, and bled off the left edge of the screen: the frame
+   runs from the screen's edge to the column's right edge, so it reads as
+   a window in the night ground rather than one more box. The image inside
+   (.ct-ph-sc) is wider than the frame so it has room to pan. Static: a
+   3:2 frame showing the middle of the yard. */
+.ct-ph{position:relative;overflow:hidden;margin:calc(var(--u) * 1.5) 0 0 calc(var(--h-gut) * -1 - max(0px,(100vw - 1440px) / 2));aspect-ratio:var(--ar-land);background:var(--h-night-2)}
+.ct-ph-sc{position:absolute;top:0;bottom:0;left:-12.5%;width:125%}
+.ct-ph img{display:block;width:100%;height:100%;object-fit:cover}
+
+/* ---------- The form panel ----------
+   Paper on the night ground. The tokens are set back to the paper values
+   here, so the shared field styles (ink underline, muted labels, ink pill)
+   read as they do on every paper page. No border and no shadow: the ground
+   change is the edge. */
+.ct-form{grid-column:7/-1;grid-row:1;--h-paper:#f2f0eb;--h-ink:#141714;--h-body:#3b3f3a;--h-muted:#676b64;--h-line:rgba(20,23,20,.12);--h-accent:#3d5a3a;color:var(--h-body)}
+.ct-main .ct-form{padding:calc(var(--u) * 2) calc(var(--u) * 1.5);border:0;border-radius:2px;background:var(--h-paper)}
+.ct-form .c-intro{margin:var(--u) 0 calc(var(--u) * 1.5);max-width:46ch}
+.ct-form .h-lead{display:grid;gap:var(--u)}
+
+/* ---------- The scene (desktop) ----------
+   The column is held 1u under the scrolled header and is exactly one
+   screen tall less its margins; the photo takes whatever height the
+   details leave, so the held column always fits the screen. It holds for
+   as long as the form is taller than it, and lets go at the form's foot.
+   The pan: across the middle of the section's pass (--p .12 to .88) the
+   image travels from its left edge to its right, linear, so the yard
+   moves exactly as fast as the page. */
+@media(min-width:1000px){
+.h-js .ct-side{position:sticky;top:calc(72px + var(--u));display:flex;flex-direction:column;height:calc(100svh - 72px - var(--u) * 2);min-height:520px}
+.h-js .ct-ph{flex:1 1 auto;min-height:200px;aspect-ratio:auto}
+.h-js .ct-main{--pan:clamp(0,(var(--p) - .12) / .76,1)}
+.h-js .ct-ph-sc{left:0;width:132%;translate:calc(var(--pan) * -24.24%) 0;will-change:translate}
+}
+
+/* ---------- Tablet and phone ----------
+   One column: the details, the photo (full bleed), then the form panel
+   (full bleed paper). The source keeps the form first; order moves it. The
+   pan stays, smaller, over the photo's own pass. */
+@media(max-width:999px){
+.ct-main{padding:calc(var(--u) * 3) 0 0}
+.ct-grid{grid-template-columns:minmax(0,1fr)}
+.ct-side,.ct-form{grid-column:1/-1;grid-row:auto}
+.ct-side{order:-1}
+.ct-tel{font-size:min(var(--t-display),15.2cqi)}
+.ct-ph{margin:calc(var(--u) * 2) calc(var(--h-gut) * -1) 0;aspect-ratio:var(--ar-land)}
+.ct-main .ct-form{margin:0 calc(var(--h-gut) * -1);padding:calc(var(--u) * 2) var(--h-gut) calc(var(--u) * 3);border-radius:0}
+.h-js .ct-main{--pan:clamp(0,(var(--p) - .05) / .5,1)}
+.h-js .ct-ph-sc{left:0;width:116%;translate:calc(var(--pan) * -13.79%) 0}
+}
+@media(min-width:621px) and (max-width:999px){
+.ct-direct,.ct-form>*{max-width:640px}
+.ct-ph{aspect-ratio:2/1}
+}
+
+/* ---------- Close ----------
+   The entry steps run up to a white weatherboard front: the shared Close's
+   evening shade rises from .2 so the ivory heading holds its contrast. */
+.h-close{--cl-shade:.4}

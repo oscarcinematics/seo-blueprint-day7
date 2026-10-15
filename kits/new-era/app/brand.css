@@ -1,0 +1,901 @@
+/* The site look, shared by every page.
+   Inlined in <head> by app/layout.tsx AFTER ds.css, so its tokens win.
+
+   Redesign 2, 3 Oct 2026 ("Quiet Stone"). The client found the ivory and
+   Didone version bland, so the page is now architectural: limestone paper,
+   sandstone and near-black night grounds, two grotesques (Epilogue set light
+   and large for display, Instrument Sans for everything else), photographs
+   full-bleed or in big frames, hairlines instead of boxes. The logo's Didone
+   lives ONLY in the logo artwork now. Motion is one raw script,
+   components/HomeReveal.tsx; everything it moves is armed here under .h-js.
+
+   Part 1  chrome: tokens, type, grounds, buttons, header, footer
+   Part 2  page blocks: label, statement, inner hero, the mark, stats, FAQ,
+           closing band, breadcrumbs, motion
+   Part 3  legacy photo blocks the service pages and the blog post still use
+   Part 4  forms and prose
+
+   Every page builds on these classes and on the --h-* tokens below (pages use
+   them in inline styles too), so a re-skin is this file. Every --h-* name the
+   first redesign defined still exists, re-pointed, so nothing goes undefined. */
+
+/* ---------- 1. Tokens ---------- */
+/* Palette from the brief, section 3. Bronze fails text contrast on paper, so
+   it is ornament there (hairlines, small rules) and only text on night. Moss
+   is the logo's green and is not used for UI. The legacy names at the end
+   (cta, forest, tint, soft, dark, serif) alias the new ones. */
+.h-page{--h-paper:#f2f0eb;--h-sand:#e8e4da;--h-ink:#141714;--h-body:#3b3f3a;--h-muted:#676b64;--h-line:rgba(20,23,20,.12);--h-night:#0e1210;--h-night-2:#171d19;--h-on-night:#ece8df;--h-on-night-mute:rgba(236,232,223,.64);--h-accent:#3d5a3a;--h-sage:#a3b095;--h-bronze:#a3825a;--h-moss:#72a951;
+--h-gut:calc(var(--u) * 1.5);--h-sec:calc(var(--u) * 4);--h-head-h:88px;
+--ease-soft:cubic-bezier(.29,.52,.5,1);--dur-soft:1.4s;--ease-ui:cubic-bezier(.7,0,.3,1);--dur-ui:.4s;
+--h-ease:var(--ease-soft);--h-ease-io:var(--ease-ui);
+--h-cta:var(--h-accent);--h-cta-hover:var(--h-ink);--h-tint:var(--h-sand);--h-soft:var(--h-sand);--h-forest:var(--h-night-2);--h-dark:var(--h-night);--h-serif:var(--font-display);
+background:var(--h-paper);color:var(--h-body);font:400 var(--t-body)/1.7 var(--font-core)}
+/* Type roles (round 4, 4 Oct 2026). Six sizes and nothing between them, the
+   way the Sobha reference holds a whole site to five. Each role is one size,
+   one weight, one leading and one tracking, everywhere:
+     Display    every h1 and section h2      300, leading 1, tracking -.02em
+     Statement  phrases of 8 words or fewer, card titles   300, 1.15, -.01em
+     Body       running text, 17px (16px on phones)        400, 1.7
+     Small      captions, meta, links in chrome, 14px      400 or 500
+     Label      12px caps, .16em tracking                  500, 1.3
+     Poster     2.4 times display (2 on phones), only the walk heading and
+                the one-word h1s of Gallery and Blog
+                                                            300, .9, -.02em
+   Display tracking is never tighter than -.02em: tighter read as a tech
+   brand, not a stone yard. */
+.h-page{--t-display:clamp(44px,6.4vw,108px);--t-statement:clamp(24px,2.3vw,36px);--t-body:17px;--t-small:14px;--t-label:12px;--t-poster:calc(var(--t-display) * 2.4);
+/* One spacing ruler. --u is the only unit: 20px on a phone, 40px from a
+   1600px screen, fluid between. Every padding, margin and gap is
+   calc(var(--u) * N), N from .5 1 1.5 2 3 4 6 8, so text, photographs and
+   air grow and shrink together. Component insides (the pill, chips, inputs,
+   icon gaps) keep fixed pixels: they are parts, not rhythm. */
+--u:clamp(20px,2.5vw,40px)}
+/* Motion values HomeReveal writes at runtime, declared at rest so the page is
+   right before (or without) the script: no drift (--py), no oversize (--pk),
+   no delay (--i word index, --d stagger index), nothing held (--hh a held
+   block's height, --cv how far the next block has slid over it). --ar is a
+   photo's own shape, set inline per tile by pages that need it. */
+.h-page{--py:0px;--pk:0;--i:0;--d:0;--ar:4/3;--p:0;--pin:0;--in:0;--hh:0px;--cv:0}
+/* Photo shapes (round 4). Every framed photograph on the redesigned pages is
+   one of three: portrait, landscape, or the square close-up. Full-bleed bands
+   and the gallery's uncropped tiles are the only exceptions. */
+.h-page{--ar-port:4/5;--ar-land:3/2;--ar-sq:1/1}
+@media(max-width:700px){.h-page{--t-body:16px;--t-poster:calc(var(--t-display) * 2);--h-gut:var(--u);--h-head-h:68px}}
+
+/* Grounds. Inside a night ground the tokens flip, so headings, body, lines,
+   links and the ink pill all turn over without per-block rules. The sand
+   ground darkens muted a touch: #676b64 on sand is 4.3:1, under AA. */
+.h-sand,.h-soft{background:var(--h-sand);--h-muted:#5c6059}
+.h-night,.h-foot,.h-final,.h-hero{--h-paper:#0e1210;--h-sand:#171d19;--h-ink:#ece8df;--h-body:rgba(236,232,223,.8);--h-muted:rgba(236,232,223,.64);--h-line:rgba(236,232,223,.16);--h-accent:#a3b095}
+.h-night{background:var(--h-night);color:var(--h-body)}
+
+/* Container and section rhythm (brief section 4). */
+.h-w{max-width:1440px;margin:0 auto;padding:0 var(--h-gut)}
+.h-sec{padding:var(--h-sec) 0}
+.h-page main>section{border-top:0}
+
+/* Type (brief section 2). Headings are Epilogue light, tight, sentence or
+   title case exactly as written: never text-transform on a heading, with
+   one exception: the lockup's caps words (.lk-c, Part 2 "Lockup"), where the
+   caps are a CSS style and the source text stays as written. */
+.h-page h1,.h-page h2,.h-page h3{font-family:var(--font-display);font-weight:300;color:var(--h-ink);font-optical-sizing:auto;text-wrap:balance}
+.h-page h1,.h-page h2{font-size:var(--t-display);line-height:1;letter-spacing:-.02em}
+.h-page h3{font-size:var(--t-statement);line-height:1.15;letter-spacing:-.01em}
+.h-page a{color:var(--h-accent);text-decoration-color:color-mix(in srgb,currentColor 35%,transparent);text-decoration-thickness:1px;text-underline-offset:4px;transition:color .3s,text-decoration-color .3s}
+.h-page a:hover{color:var(--h-ink);text-decoration-color:currentColor}
+.h-page em{font-style:italic}
+.h-page b,.h-page strong{font-weight:600;color:var(--h-ink)}
+
+/* The named sizes. .h-d1 is the hero display; it is display:block so it can
+   sit on a span inside an h1 under the eyebrow. */
+.h-d1{display:block;font:300 var(--t-display)/1 var(--font-display);letter-spacing:-.02em;color:var(--h-ink)}
+.h-page .h-h2,.h-h2{margin:0;max-width:20ch;color:var(--h-ink);font:300 var(--t-display)/1 var(--font-display);letter-spacing:-.02em;text-wrap:balance}
+/* The lede is body size now, set apart by colour and its column, never by an
+   in-between size. */
+.h-lede{margin:0;max-width:60ch;color:var(--h-body);font:400 var(--t-body)/1.7 var(--font-core);text-wrap:pretty}
+.h-statement{margin:0;max-width:30ch;color:var(--h-ink);font:300 var(--t-statement)/1.15 var(--font-display);letter-spacing:-.01em;text-wrap:balance}
+/* The eyebrow. The bronze hairline before it is the house ornament. */
+.h-label,.h-kicker{display:flex;align-items:center;gap:14px;margin:0 0 var(--u);color:var(--h-muted);font:500 var(--t-label)/1.3 var(--font-core);letter-spacing:.16em;text-transform:uppercase}
+.h-label::before,.h-kicker::before{content:"";flex:0 0 28px;height:1px;background:var(--h-bronze)}
+/* NOTE for this file: layout.tsx minifies it by deleting spaces around ":"
+   so a descendant selector must never start with a colon. Write
+   ".x *:is(...)" or ".x *::placeholder", never ".x :is(...)". */
+/* Spacing between the stacked pieces: label to heading 1u, heading to text
+   1u, text to action 1.5u. Pages only set what differs. */
+:is(h1,h2,h3,.h-h2,.h-d1,.h-statement)+:is(.h-lede,.h-statement){margin-top:var(--u)}
+.h-lede+.h-btn,.h-lede+.h-more{margin-top:calc(var(--u) * 1.5)}
+/* The grid: 12 columns with no gutter (4 on phones), so every edge placed on
+   it sits on a column line and the air between things is whole columns, the
+   way the reference builds its spreads. Layout grids on the pages use the
+   same zero-gutter 12 columns. */
+.h-grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:0}
+@media(max-width:700px){.h-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+
+/* ---------- Buttons and links ---------- */
+/* The pill: label plus a small round badge with an arrow, both drawn here
+   (::after is the badge, ::before the arrow, masked so it takes any colour).
+   On hover the arrow slips out to the right and back in from the left. --bb
+   and --bf are the pill and its text; on a night ground the tokens flip, so
+   the ink pill becomes a light one by itself. Inline <svg> chevrons that
+   older pages put inside buttons are hidden: the badge replaces them. */
+.h-btn{--bb:var(--h-ink);--bf:var(--h-paper);--bh:var(--h-accent);position:relative;display:inline-flex;align-items:center;justify-content:space-between;gap:18px;min-height:56px;padding:0 9px 0 28px;border:0;border-radius:999px;background:var(--bb);color:var(--bf)!important;font:500 var(--t-small)/1 var(--font-core);letter-spacing:.005em;text-decoration:none!important;white-space:nowrap;cursor:pointer;transition:background-color .5s var(--h-ease),transform .5s var(--h-ease)}
+.h-btn::after{content:"";flex:0 0 38px;width:38px;height:38px;border-radius:50%;background:var(--bf);transition:transform .6s var(--h-ease)}
+.h-btn::before{content:"";position:absolute;right:21px;top:50%;width:14px;height:14px;margin-top:-7px;z-index:1;background:var(--bb);-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 12h16M14 6l6 6-6 6'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 12h16M14 6l6 6-6 6'/%3E%3C/svg%3E") center/contain no-repeat;transition:background-color .5s var(--h-ease)}
+.h-btn:hover{background:var(--bh)}
+.h-btn:hover::before{background:var(--bh);animation:h-arrow .7s var(--h-ease)}
+.h-btn:hover::after{transform:scale(1.08)}
+.h-btn:active{transform:scale(.98)}
+.h-btn:disabled{opacity:.6;cursor:wait}
+.h-btn>svg{display:none}
+@keyframes h-arrow{0%{translate:0;opacity:1}45%{translate:12px;opacity:0}46%{translate:-12px;opacity:0}100%{translate:0;opacity:1}}
+/* Paper pill, for dark and photographic grounds. Literal colours, so it
+   stays light inside a night ground where the tokens have flipped. */
+.h-btn-light{--bb:#f2f0eb;--bf:#141714;--bh:#fff}
+/* Header size. */
+.h-btn-sm{min-height:44px;gap:14px;padding:0 6px 0 20px;font-size:var(--t-small)}
+.h-btn-sm::after{flex-basis:32px;width:32px;height:32px}
+.h-btn-sm::before{right:15px;width:13px;height:13px;margin-top:-6.5px}
+.h-btn-ghost{--bb:transparent;--bf:var(--h-ink);--bh:transparent;box-shadow:inset 0 0 0 1px var(--h-line)}
+.h-btn-ghost::before{background:var(--h-paper)}
+/* The text link: a faint hairline at rest, an ink one that draws across on
+   hover. */
+.h-more{display:inline-block;padding-bottom:7px;color:var(--h-ink)!important;font:500 var(--t-small)/1.3 var(--font-core);letter-spacing:.005em;text-decoration:none!important;background:linear-gradient(currentColor,currentColor) 0 100%/0 1px no-repeat,linear-gradient(var(--h-line),var(--h-line)) 0 100%/100% 1px no-repeat;transition:background-size .7s var(--h-ease)}
+.h-more:hover{background-size:100% 1px,100% 1px}
+/* Focus: a visible ring everywhere, ink on paper, light on dark. */
+.h-page a:focus-visible,.h-page button:focus-visible,.h-page summary:focus-visible,.h-page input:focus-visible,.h-page select:focus-visible,.h-page textarea:focus-visible{outline:2px solid var(--h-ink);outline-offset:4px;box-shadow:none}
+.h-btn:focus-visible{outline:2px solid var(--h-ink);outline-offset:3px}
+
+/* ---------- Header ---------- */
+/* Sticky paper bar. HomeReveal adds .is-scrolled past 40px (blurred paper and
+   a hairline) and .is-hidden while scrolling down, so it gets out of the way
+   and comes back on the way up.
+
+   data-head="over" on the page wrapper: the bar sits fixed and transparent
+   over a dark first section with the light logo and light links, and turns
+   to the paper bar once scrolled. Keyed on .h-on (the script is running), so
+   without JS the bar stays an ordinary paper bar above the hero rather than
+   a transparent one nothing ever turns solid. */
+.h-head{position:sticky;top:0;z-index:60;transition:transform .7s var(--h-ease)}
+.h-head.is-hidden{transform:translateY(-100%)}
+/* .h-snap is on for the script's first frame only: a reload part way down
+   takes the scrolled bar at once, not by shrinking it in front of you. */
+.h-snap,.h-snap *{transition:none!important}
+.h-nav{background:var(--h-paper);transition:background-color .5s,box-shadow .5s}
+.is-scrolled .h-nav{background:rgba(242,240,235,.84);box-shadow:0 1px 0 var(--h-line);-webkit-backdrop-filter:blur(16px) saturate(1.2);backdrop-filter:blur(16px) saturate(1.2)}
+.h-nav-in{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:var(--u);height:var(--h-head-h);transition:height .5s var(--h-ease)}
+.is-scrolled .h-nav-in{height:72px}
+.h-on[data-head="over"] .h-head{position:fixed;left:0;right:0}
+.h-on[data-head="over"] .h-head:not(.is-scrolled) .h-nav{background:linear-gradient(rgba(14,18,16,.42),rgba(14,18,16,0))}
+/* The logo (components/site/Logo.tsx): a light-ground and a dark-ground version,
+   one shown at a time. Sized by height only so it never distorts. */
+.h-logo{display:flex;align-items:center;justify-self:start;position:relative;z-index:2;text-decoration:none!important;transition:opacity .3s}
+.h-logo:hover{opacity:.78}
+.h-logo picture{display:block}
+.h-logo .h-logo-light{display:none}
+.h-logo-img{display:block;width:auto;height:44px;transition:height .5s var(--h-ease)}
+.is-scrolled .h-logo-img{height:38px}
+.h-links{display:flex;gap:var(--u)}
+.h-links a{position:relative;padding:8px 0;color:var(--h-ink)!important;font:500 var(--t-small)/1 var(--font-core);letter-spacing:.005em;text-decoration:none!important;white-space:nowrap}
+.h-links a::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:currentColor;transform:scaleX(0);transform-origin:right;transition:transform .6s var(--h-ease)}
+.h-links a:hover::after,.h-links a[aria-current]::after{transform:scaleX(1);transform-origin:left}
+.h-act{display:flex;align-items:center;justify-content:flex-end;gap:calc(var(--u) * .5);position:relative;z-index:2}
+.h-tel{display:inline-flex;align-items:center;gap:10px;color:var(--h-ink)!important;font:500 var(--t-small)/1 var(--font-core);text-decoration:none!important;white-space:nowrap;transition:opacity .3s}
+.h-tel:hover{opacity:.7}
+.h-menu{display:none}
+/* Light chrome: over a dark hero, and while the phone menu is open. */
+.h-on[data-head="over"] .h-head:not(.is-scrolled),.h-head:has(.h-menu[open]){--h-ink:#ece8df;--h-paper:#0e1210;--h-line:rgba(236,232,223,.2)}
+.h-on[data-head="over"] .h-head:not(.is-scrolled) .h-logo-ink,.h-head:has(.h-menu[open]) .h-logo-ink{display:none}
+.h-on[data-head="over"] .h-head:not(.is-scrolled) .h-logo-light,.h-head:has(.h-menu[open]) .h-logo-light{display:block}
+.h-on[data-head="over"] .h-head:not(.is-scrolled) .h-btn-sm{--bb:#f2f0eb;--bf:#141714;--bh:#fff}
+@media(max-width:1180px){.h-tel span{display:none}.h-tel{justify-content:center;width:44px;height:44px;border-radius:50%;box-shadow:inset 0 0 0 1px var(--h-line)}}
+
+/* Phones and small tablets: logo, phone, and a CSS-only menu. The <details>
+   holds only the burger; the SAME <nav> that is the desktop link row is its
+   next sibling, and opening the details turns that nav into a full-screen
+   night panel. One set of links in the HTML, no script needed to open it
+   (HomeReveal only adds Escape-to-close). */
+@media(max-width:999px){
+.h-nav-in{display:flex;gap:10px;height:68px}
+.is-scrolled .h-nav-in{height:64px}
+.h-logo{margin-right:auto}
+.h-logo-img,.is-scrolled .h-logo-img{height:38px}
+.h-links{display:none}
+.h-act{order:2;gap:10px}
+.h-act .h-btn-sm{display:none}
+.h-menu{display:block;order:3;position:relative;z-index:2}
+.h-menu summary{display:grid;place-items:center;width:44px;height:44px;border-radius:50%;box-shadow:inset 0 0 0 1px var(--h-line);color:var(--h-ink);cursor:pointer;list-style:none}
+.h-menu summary::-webkit-details-marker{display:none}
+.h-menu summary::before,.h-menu summary::after{content:"";grid-area:1/1;width:18px;height:1.5px;background:currentColor;transition:transform .5s var(--h-ease)}
+.h-menu summary::before{transform:translateY(-3.5px)}
+.h-menu summary::after{transform:translateY(3.5px)}
+.h-menu[open] summary::before{transform:rotate(45deg)}
+.h-menu[open] summary::after{transform:rotate(-45deg)}
+.h-head:has(.h-menu[open]),.h-head:has(.h-menu[open]) .h-nav{transform:none;-webkit-backdrop-filter:none;backdrop-filter:none}
+.h-menu[open]~.h-links{position:fixed;inset:0;z-index:1;display:flex;flex-direction:column;justify-content:center;gap:0;padding:calc(var(--u) * 4) var(--h-gut) calc(var(--u) * 6);background:var(--h-night);counter-reset:mi;overflow-y:auto;animation:h-fade .5s var(--h-ease) both}
+.h-menu[open]~.h-links a{display:flex;align-items:baseline;gap:18px;padding:14px 0;border-bottom:1px solid rgba(236,232,223,.14);color:#ece8df!important;font:300 var(--t-display)/1.1 var(--font-display);letter-spacing:-.02em;counter-increment:mi;animation:h-up .7s var(--h-ease) both}
+.h-menu[open]~.h-links a:nth-child(2){animation-delay:.04s}.h-menu[open]~.h-links a:nth-child(3){animation-delay:.08s}.h-menu[open]~.h-links a:nth-child(4){animation-delay:.12s}.h-menu[open]~.h-links a:nth-child(5){animation-delay:.16s}.h-menu[open]~.h-links a:nth-child(6){animation-delay:.2s}
+.h-menu[open]~.h-links a::before{content:"0" counter(mi);color:#a3825a;font:500 var(--t-label)/1 var(--font-core);letter-spacing:.16em}
+.h-menu[open]~.h-links a::after{display:none}
+.h-menu[open]~.h-links a[aria-current]{color:#a3b095!important}
+.h-menu[open]~.h-act .h-btn-sm{display:inline-flex;position:fixed;left:var(--h-gut);right:var(--h-gut);bottom:32px;min-height:56px;padding:0 9px 0 28px;font-size:var(--t-small);--bb:#f2f0eb;--bf:#141714;--bh:#fff;animation:h-up .7s .25s var(--h-ease) both}
+.h-menu[open]~.h-act .h-btn-sm::after{flex-basis:38px;width:38px;height:38px}
+.h-menu[open]~.h-act .h-btn-sm::before{right:21px}
+}
+html:has(.h-menu[open]){overflow:hidden}
+@media(max-width:470px){.h-logo-img,.is-scrolled .h-logo-img{height:40px}}
+
+/* ---------- Footer ---------- */
+/* Night ground, columns on a 12-column grid, each headed by a hairline, and
+   the logo lockup as a full-width sign-off (decorative, empty alt: the name
+   is already in the brand column). */
+.h-foot{position:relative;overflow:hidden;background:var(--h-night);color:var(--h-on-night-mute)}
+.h-foot a{color:var(--h-on-night);text-decoration:none}
+/* The one 12-column grid that keeps a gutter: each column is headed by its
+   own hairline, and with no gutter the four would run together as one rule. */
+.h-foot-grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:calc(var(--u) * 1.5) calc(var(--u) * .5);padding:calc(var(--u) * 4) 0 calc(var(--u) * 3)}
+.h-foot-brand{grid-column:span 4}
+.h-foot-grid>nav{grid-column:span 2}
+.h-foot-contact{grid-column:9/-1}
+.h-foot-brand b{display:block;color:var(--h-on-night);font:300 var(--t-statement)/1.15 var(--font-display);letter-spacing:-.01em}
+.h-foot-brand p{margin:calc(var(--u) * .5) 0 0;max-width:34ch;font-size:var(--t-small);line-height:1.7}
+.h-badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:var(--u)}
+.h-badges span{padding:9px 14px;border:1px solid rgba(236,232,223,.18);border-radius:999px;color:var(--h-on-night);font-size:var(--t-label);font-weight:500;letter-spacing:.16em;line-height:1;text-transform:uppercase}
+.h-foot-col{display:flex;flex-direction:column;align-items:flex-start;gap:calc(var(--u) * .5);padding-top:calc(var(--u) * .5);border-top:1px solid rgba(236,232,223,.16);font-size:var(--t-small)}
+.h-foot-h{margin-bottom:10px;color:var(--h-bronze);font-size:var(--t-label);font-weight:500;letter-spacing:.16em;text-transform:uppercase}
+.h-foot-col a{position:relative;color:rgba(236,232,223,.86);font-size:var(--t-small);line-height:1.3;transition:color .3s}
+.h-foot-col a::after{content:"";position:absolute;left:0;right:0;bottom:-4px;height:1px;background:currentColor;transform:scaleX(0);transform-origin:right;transition:transform .6s var(--h-ease)}
+.h-foot-col a:hover{color:var(--h-sage)}
+.h-foot-col a:hover::after{transform:scaleX(1);transform-origin:left}
+.h-foot-col a.h-foot-tel{color:var(--h-on-night);font:300 var(--t-statement)/1.15 var(--font-display);letter-spacing:-.01em}
+.h-foot-tbl{width:100%;margin-top:10px;border-collapse:collapse;font-size:var(--t-small)}
+.h-foot-tbl th{padding:11px 0;text-align:left;color:var(--h-on-night-mute);font-weight:400}
+.h-foot-tbl td{padding:11px 0;text-align:right;color:var(--h-on-night)}
+.h-foot-tbl tr{border-top:1px solid rgba(236,232,223,.12)}
+.h-foot-bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px var(--u);padding:var(--u) 0;border-top:1px solid rgba(236,232,223,.16);color:var(--h-on-night-mute);font-size:var(--t-small)}
+.h-foot-bar a{color:rgba(236,232,223,.8);transition:color .3s}
+.h-foot-bar a:hover{color:var(--h-sage)}
+.h-foot a:focus-visible{outline-color:var(--h-on-night)}
+/* The sign-off: the logo lockup edge to edge of the content, between the
+   columns and the legal bar. Whole, never cut by the page: it is the
+   client's artwork, never the name set huge in a webfont. */
+.h-foot-mark{display:block;width:100%;height:auto;margin:0 0 calc(var(--u) * 2);user-select:none}
+@media(max-width:1000px){.h-foot-brand{grid-column:1/-1}.h-foot-grid>nav{grid-column:span 3}.h-foot-contact{grid-column:span 6}}
+@media(max-width:700px){.h-foot-grid{gap:calc(var(--u) * 2) var(--u);padding-top:calc(var(--u) * 3)}.h-foot-grid>nav{grid-column:span 6}.h-foot-contact{grid-column:1/-1}.h-foot-bar span{flex-basis:100%}
+  /* Thumb-sized links: each one owns a 40px row instead of an 18px line
+     with dead gaps between, so a tap lands on the link it is aimed at. */
+  .h-foot-col{gap:0}.h-foot-h{margin-bottom:2px}
+  .h-foot-col a{padding:11px 0}.h-foot-col a::after{bottom:7px}
+  .h-foot-bar{padding:6px 0}.h-foot-bar a{padding:10px 0}}
+
+/* ---------- 2. Page blocks ---------- */
+/* Below-the-fold sections. The browser skips rendering them, and so skips
+   fetching their lazy photos, until they are near the screen. Measured 2 Oct
+   2026: without it a phone pulled ~400KB of photos during load in contention
+   with the hero, and Lighthouse mobile LCP went from 2.6s to 2.9s. The HTML
+   is untouched, so crawlers and find-in-page see everything. */
+.h-cv{content-visibility:auto;contain-intrinsic-size:auto 1100px}
+
+/* Inner-page hero (.h-ihero, and the older .h-phero the service pages use):
+   the h1 large and LEFT aligned over 7 columns, one empty column, the lede
+   in the last 4, its last baseline on the h1's last baseline, and a
+   hairline under both. Breadcrumbs sit just above it, or inside it as the
+   first child. Zero gutter: the empty eighth column is the air.
+   The baseline padding, from the fonts' metrics: the h1's last line (plain,
+   or the lockup's caps line) is set at leading 1 in Epilogue (ascent .79,
+   descent .235), so its baseline stands .2225 of the display size above the
+   h1's foot; the lede (Instrument Sans at leading 1.7) carries its own
+   baseline .5em above its foot. The padding is the difference. On desktop
+   the lockup caps are always exactly --t-display. */
+.h-ihero,.h-phero{position:relative;padding:calc(var(--u) * 2) 0 0}
+.h-ihero>.h-w,.h-phero>.h-w{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:0;align-items:end}
+.h-ihero>.h-w>*,.h-phero>.h-w>*{grid-column:1/-1;margin:0}
+.h-ihero>.h-w>h1,.h-phero>.h-w>h1{grid-column:1/span 7;max-width:none}
+.h-ihero>.h-w>h1+p,.h-phero>.h-w>h1+p,.h-ihero>.h-w>.h-lede,.h-phero>.h-w>.h-lede{grid-column:9/-1;margin:0;padding-bottom:max(0px,calc(var(--t-display) * .2225 - .5em));color:var(--h-body);font:400 var(--t-body)/1.7 var(--font-core)}
+.h-ihero>.h-w::after,.h-phero>.h-w::after{content:"";grid-column:1/-1;height:1px;margin-top:calc(var(--u) * 3);background:var(--h-line);transform-origin:left;animation:h-line 1.6s .3s var(--h-ease-io) both}
+.h-ihero .h-crumb,.h-phero .h-crumb{margin-bottom:calc(var(--u) * 1.5)}
+.h-ihero .h-crumb .h-w,.h-phero .h-crumb .h-w{padding:0}
+.h-crumb+.h-ihero,.h-crumb+.h-phero{padding-top:calc(var(--u) * 2)}
+/* The hairline already closes the hero, so the next section starts closer. */
+:is(.h-ihero,.h-phero)+.h-sec{padding-top:calc(var(--u) * 3)}
+.h-phero .n-chips{margin-top:var(--u);justify-content:flex-start}
+@media(max-width:1000px){.h-ihero>.h-w>h1,.h-phero>.h-w>h1{grid-column:1/-1}.h-ihero>.h-w>h1+p,.h-phero>.h-w>h1+p,.h-ihero>.h-w>.h-lede,.h-phero>.h-w>.h-lede{grid-column:1/-1;max-width:60ch;margin-top:var(--u);padding:0}}
+
+/* Inner-page openings (.h-open, round 6, 5 Oct 2026): Services, Gallery,
+   Blog and About all open the same way, so the site reads as one hand.
+     the title row  the breadcrumb, then the h1 on the first seven columns,
+                    one empty column of air, and its line of intro on the
+                    last four, the line's last baseline on the h1's
+     the plate      one photograph the full width of the content, inside
+                    the margins, 2:1 (on About the pool window is the plate,
+                    on Blog the newest post's photo, on Gallery the rooms)
+   Round 5 put five type styles and two colours in each hero (tracked caps,
+   a green italic, a poster word, labels) and a different layout on every
+   page; it read as decoration, not design. Here there are two styles and
+   no colour. The h1 is Epilogue at its heaviest (500), 80% of Display
+   (72px at 1440): set Light it read thin and cheap, and at full Display a
+   500 weight shouts. The line is 20px (18 below 1300), so the pair keeps
+   the 3.6 to 1 proportion of a magazine headline and standfirst instead of
+   a heading and a footnote. One ruler: 2 units above, 1 from the
+   breadcrumb to the h1, 2 from the title row to the plate. Rows that span
+   the full width cannot leave an empty corner, which the side-by-side
+   spreads did. Contact keeps .h-ihero, the service pages .h-phero. */
+.h-open{--ht:min(calc(var(--t-display) * .8),72px);padding-top:calc(var(--u) * 2)}
+.h-open>.h-w{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:0;align-items:end}
+.h-open .h-crumb{grid-column:1/-1;margin:0 0 var(--u);padding-top:0}
+.h-open .h-crumb .h-w{padding:0}
+.h-open>.h-w>h1{grid-column:1/span 7;margin:0;max-width:none;font-size:var(--ht);font-weight:500;line-height:1.02;letter-spacing:-.03em}
+.h-open>.h-w>h1:not([data-split]){animation:h-nudge var(--dur-soft) var(--ease-soft) backwards}
+/* The line's last baseline on the h1's: at leading 1.02 the h1's baseline
+   stands .252 of its size above its foot (measured on the rendered glyphs),
+   and the line's stands .415em above its own (Instrument Sans at 1.55). */
+.h-open>.h-w>.h-lede{grid-column:9/-1;margin:0;max-width:40ch;padding-bottom:max(0px,calc(var(--ht) * .252 - .415em));color:var(--h-body);font:400 clamp(18px,1.4vw,20px)/1.55 var(--font-core);text-wrap:pretty;animation:h-nudge var(--dur-soft) .2s var(--ease-soft) backwards}
+/* The plate. Its image is absolute, so the box's shape (2:1, 3:2 under
+   900px, 4:5 on phones) never bends to the file's; it settles from a
+   closer crop as the page loads and is never hidden (it is the LCP image). */
+.h-plate{position:relative;overflow:hidden;aspect-ratio:2/1;border-radius:2px;background:var(--h-sand)}
+.h-plate img{position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:cover;animation:h-settle 2.4s var(--ease-soft) backwards}
+.h-open>.h-w>.h-plate{grid-column:1/-1;margin-top:calc(var(--u) * 2)}
+@media(max-width:900px){
+.h-open>.h-w>h1,.h-open>.h-w>.h-lede{grid-column:1/-1}
+.h-open>.h-w>.h-lede{max-width:44ch;margin-top:var(--u);padding-bottom:0}
+.h-plate{aspect-ratio:var(--ar-land)}
+}
+@media(max-width:620px){.h-plate{aspect-ratio:var(--ar-port)}}
+
+/* ---------- Cover (round 7, 5 Oct 2026) ----------
+   The inner-page opening that replaces the title row and plate
+   (components/site/Cover.tsx). The homepage hero's materials: one photo
+   full bleed under the same night gradient, the h1 as the lockup in ivory,
+   the intro on a glass panel. Its move is the homepage's in reverse: the
+   window there opens from a frame on paper to full bleed; here it starts
+   full bleed and closes in from below to a framed plate at the top of the
+   screen. Its lower edge rises through the heading and the intro, so every
+   line turns from ivory to ink as the photo leaves it and the glass is cut
+   away with the photo. It ends on the round 6 title row under a plate:
+   heading on the left, intro on the right, no empty corner.
+   Static (JS off, reduced motion, phones, and the scene's first frame):
+   the full-bleed cover. The page sets data-head="over" so the header sits
+   clear over the photo until the page scrolls. */
+.h-cover{position:relative;height:100svh;min-height:600px;max-height:1100px;background:var(--h-night);--hb:clamp(56px,9vh,104px);--cv-shade:.2}
+.h-cv-stage{position:relative;height:100%;overflow:hidden;isolation:isolate}
+.h-cv-ph,.h-cv-sc,.h-cv-type,.h-cv-ghost{position:absolute;inset:0}
+.h-cv-ph{overflow:hidden;background:var(--h-night)}
+.h-cv-ph img{display:block;width:100%;height:100%;object-fit:cover;animation:h-settle 2.4s var(--ease-soft) backwards}
+/* The photo waits for itself (12 Oct 2026). On a first visit the cover's
+   photo lands 0.3 to 1s after the first paint, and it used to cut in hard
+   over an empty window (ivory under the night gradients on desktop, black
+   on phones) with its settle already spent. Now the window is night until
+   the photo has decoded, then the photo fades up and settles from there
+   (HomeReveal adds .is-lit). A photo already in the cache is lit before
+   the first paint with no fade (.is-snap). Safe for LCP: on every Cover
+   page the LCP element is the h1, never this photo (measured 12 Oct 2026),
+   and the h1 is still never hidden. */
+.h-js .h-cv-ph img{opacity:0;animation:none;transition:opacity .9s var(--ease-soft)}
+.h-js .h-cv-ph.is-lit img{opacity:1;animation:h-settle 2.4s var(--ease-soft) backwards}
+.h-js .h-cv-ph.is-snap img{transition:none}
+/* The homepage hero's night gradients: darkest low on the left where the
+   words sit, a lighter band at the top for the header, a floor. Over them,
+   an even evening shade (--cv-shade): job photos are mostly midday, and the
+   homepage's pool sits in shade, so at .2 a typical cover lands at the
+   hero's depth (mean brightness 61 of 255 on both, measured 5 Oct 2026). A
+   page whose photo is already dark can lower it. */
+.h-cv-ph::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(rgba(14,18,16,var(--cv-shade)),rgba(14,18,16,var(--cv-shade))),linear-gradient(20deg,rgba(14,18,16,.8) 0%,rgba(14,18,16,.48) 34%,rgba(14,18,16,.08) 62%,rgba(14,18,16,0) 80%),linear-gradient(180deg,rgba(14,18,16,.42) 0%,rgba(14,18,16,0) 24%),linear-gradient(0deg,rgba(14,18,16,.4) 0%,rgba(14,18,16,0) 36%)}
+/* Dusk: a shade from the top that deepens as the window closes, so the
+   framed plate keeps the cover's evening mood and the breadcrumb in its
+   corner stays legible when brighter ground slides under it. */
+.h-cv-ph::before{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(180deg,rgba(14,18,16,.55) 0%,rgba(14,18,16,.18) 26%,rgba(14,18,16,.1) 100%);opacity:0}
+/* The words: the heading low on the left over columns 1 to 8, the intro
+   on the last four, both feet --hb above the bottom. The ivory copy and
+   the glass layer are laid out by the same rules, so all three line up. */
+.h-cv-in{position:absolute;left:0;right:0;bottom:var(--hb);margin:0 auto;display:grid;grid-template-columns:repeat(12,minmax(0,1fr));align-items:end}
+.h-cover h1,.h-cv-gh{grid-column:1/9;position:relative;margin:0;color:#fff}
+.h-cv-gh{font-family:var(--font-display)}
+.h-cover .lk-a{color:inherit}
+.h-cv-gh .si::before{content:attr(data-t)}
+.h-cv-lede,.h-cv-pane i{grid-column:9/13;justify-self:end;box-sizing:border-box;width:100%;max-width:380px;margin:0;padding:var(--u);border:1px solid rgba(255,255,255,.22);border-radius:2px;font:400 var(--t-body)/1.7 var(--font-core);text-wrap:pretty}
+/* Static, the real intro carries the glass itself. */
+.h-cv-lede{background:rgba(242,240,235,.1);-webkit-backdrop-filter:blur(20px) saturate(1.15);backdrop-filter:blur(20px) saturate(1.15);color:var(--h-on-night)}
+.h-cv-ghost .h-cv-lede::before{content:attr(data-t)}
+.h-cv-pane i::before{content:attr(data-t);visibility:hidden}
+.h-cv-ghost,.h-cv-pane{display:none}
+/* The breadcrumb: small caps in the photo's top left corner, under the
+   header. */
+.h-cv-crumb{position:absolute;left:0;right:0;top:calc(var(--h-head-h) + var(--u) * .75);z-index:2}
+.h-cv-crumb .h-crumb{padding:0;font:500 var(--t-label)/1.3 var(--font-core);letter-spacing:.16em;text-transform:uppercase;text-shadow:0 1px 12px rgba(14,18,16,.55);--h-ink:#fff;--h-muted:rgba(236,232,223,.78)}
+.h-cv-crumb .h-crumb a:focus-visible{outline-color:#fff}
+/* Scroll cue: a light falling down the centre line in the bottom margin. */
+.h-cv-cue{position:absolute;left:50%;bottom:0;width:1px;height:clamp(28px,5vh,52px);overflow:hidden}
+.h-cv-cue::after{content:"";position:absolute;left:0;top:0;width:1px;height:60%;background:linear-gradient(rgba(255,255,255,0),#fff);transform:translateY(-100%);animation:h-fall 2.6s 1.2s var(--ease-ui) infinite}
+@keyframes h-fall{0%{transform:translateY(-100%)}60%,100%{transform:translateY(170%)}}
+
+/* The scene, desktop only. The section is a 200vh track and the stage
+   holds for one screen of scroll. --e (eased, first 72% of the pin) closes
+   the window: its top comes down one unit, its sides in to the content
+   edges (the gutter, or the 1440px container's edge on wider screens), and
+   its foot up --cb, clear above the tallest heading. The photo moves up by
+   half the difference, so the plate keeps the middle of the frame, and
+   pushes in slightly. The ink words are clipped to everything outside the
+   window and the ivory copy to the window (an evenodd polygon, as on the
+   homepage), so a word changes colour exactly where the edge crosses it.
+   The glass is cut by the same edge: its own clip takes off whatever part
+   of it the window's foot has passed (--wb less its own foot, --hb). The
+   breadcrumb steps in from the plate's left edge as the sides close. */
+@media(min-width:1000px){
+.h-js .h-cover{height:200vh;min-height:0;max-height:none;background:var(--h-paper);
+  --k:clamp(0,var(--pin) / .72,1);--e:calc(var(--k) * var(--k) * (3 - 2 * var(--k)));
+  --ct:var(--u);--cx:calc(50% - min(50%,720px) + var(--h-gut));--cb:46svh;
+  --wt:calc(var(--ct) * var(--e));--wx:calc(var(--cx) * var(--e));--wb:calc(var(--cb) * var(--e))}
+.h-js .h-cv-stage{position:sticky;top:0;height:100svh;background:var(--h-paper)}
+.h-js .h-cv-ph,.h-js .h-cv-ghost{clip-path:inset(var(--wt) var(--wx) var(--wb) var(--wx) round 2px)}
+.h-js .h-cv-sc{translate:0 calc(var(--e) * (var(--ct) - var(--cb)) / 2);scale:calc(1 + .06 * var(--e));will-change:transform}
+.h-js .h-cv-ph::before{opacity:var(--e)}
+.h-js .h-cv-type{clip-path:polygon(evenodd,0 0,100% 0,100% 100%,0 100%,0 0,var(--wx) var(--wt),var(--wx) calc(100% - var(--wb)),calc(100% - var(--wx)) calc(100% - var(--wb)),calc(100% - var(--wx)) var(--wt),var(--wx) var(--wt))}
+.h-js .h-cv-ghost{display:block;pointer-events:none}
+.h-js .h-cover h1{color:var(--h-ink)}
+.h-js .h-cv-lede{border-color:transparent;background:none;-webkit-backdrop-filter:none;backdrop-filter:none;color:var(--h-body)}
+.h-js .h-cv-ghost .h-cv-lede{color:var(--h-on-night)}
+.h-js .h-cv-pane{display:grid;pointer-events:none}
+.h-js .h-cv-pane i{background:rgba(242,240,235,.1);-webkit-backdrop-filter:blur(20px) saturate(1.15);backdrop-filter:blur(20px) saturate(1.15);clip-path:inset(0 0 clamp(0px,calc(var(--wb) - var(--hb)),100%) 0)}
+.h-js .h-cv-crumb{translate:calc(var(--e) * var(--u)) 0}
+.h-js .h-cv-cue{opacity:calc(1 - var(--k) * 4)}
+}
+
+/* Below 1000px nothing is pinned: the heading and the intro stack low on
+   the photograph in normal flow, and the photo drifts slower than the page
+   as it leaves (oversized by scale, so no edge ever shows). */
+@media(max-width:999px){
+.h-cover{min-height:560px}
+.h-cv-stage{display:flex;flex-direction:column;justify-content:flex-end;padding-bottom:var(--u)}
+.h-cv-type{position:relative;inset:auto}
+.h-cv-in{position:static;display:block}
+.h-cv-lede{max-width:520px;margin-top:var(--u)}
+.h-cv-cue{display:none}
+/* A tall screen shows a landscape-cropped photo's whole height, sky and
+   all; the zoom is anchored near the foot, where the work is, so the top
+   of the frame falls away instead. */
+.h-cv-sc{transform-origin:50% 90%;scale:1.24}
+.h-js .h-cv-sc{translate:0 calc((var(--p) - .5) * 8svh)}
+}
+/* Phones: the accent's hanging indent would push "in Your City" onto two
+   lines, so it starts flush under the caps. */
+@media(max-width:700px){.h-page .h-cover .lk>.lk-c+.lk-a{margin-left:0}}
+/* Long caps words. The lockup's size rule (brand.css "Lockup") keeps
+   LANDSCAPING, 6.78em with its tracking, inside a phone's gutters. A cover
+   whose longest caps word is wider passes Cover's `fit` (that word's width
+   in em, measured on the page), which sets --cw. */
+.h-page .h-cover h1.lk,.h-page .h-cv-gh.lk{font-size:min(var(--t-display),calc((100vw - 2 * var(--h-gut,20px)) / var(--cw,6.9)))}
+
+/* ---------- Close (round 7, 5 Oct 2026) ----------
+   The inner-page close (components/site/Close.tsx), the Cover's bookend:
+   the heading on paper in ink, and one photograph rising from the foot of
+   the screen behind it until it fills the screen, its top edge passing up
+   through the heading so each line turns ink to ivory as the photo reaches
+   it. The page's own action settles in on the right once the photo is up.
+   Static (JS off, reduced motion, phones): the finished band, photo full
+   bleed under the night gradients, heading low left, action low right, as
+   the Cover's opening frame is laid out. */
+.h-cl{position:relative;height:100svh;min-height:560px;max-height:1000px;overflow:hidden;isolation:isolate;background:var(--h-night);--hb:clamp(56px,9vh,104px)}
+.h-cl-ph,.h-cl-type,.h-cl-ghost,.h-cl-acts{position:absolute;inset:0}
+.h-cl-ph{overflow:hidden}
+/* The even evening shade over the photo is --cl-shade (default .2, as the
+   Cover's --cv-shade): a page whose close photo has a pale wall behind the
+   heading raises it in its own CSS. */
+.h-cl-ph img{display:block;width:100%;height:100%;object-fit:cover}
+.h-cl-ph::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(rgba(14,18,16,var(--cl-shade,.2)),rgba(14,18,16,var(--cl-shade,.2))),linear-gradient(20deg,rgba(14,18,16,.8) 0%,rgba(14,18,16,.48) 34%,rgba(14,18,16,.08) 62%,rgba(14,18,16,0) 80%),linear-gradient(0deg,rgba(14,18,16,.4) 0%,rgba(14,18,16,0) 36%)}
+.h-cl-in{position:absolute;left:0;right:0;bottom:var(--hb);margin:0 auto;display:grid;grid-template-columns:repeat(12,minmax(0,1fr));align-items:end}
+.h-page .h-cl-h{grid-column:1/9;margin:0;max-width:none;color:#fff;font:300 var(--t-display)/1 var(--font-display);letter-spacing:-.02em}
+.h-cl-h>span{display:block}
+.h-cl-ghost .h-cl-h>span::before{content:attr(data-t)}
+.h-cl-ghost{display:none}
+.h-cl-act{grid-column:9/13;justify-self:end;width:100%;max-width:380px;--h-ink:#ece8df;--h-muted:rgba(236,232,223,.72)}
+.h-cl-act>.h-btn:first-child{margin-top:0}
+.h-cl-act small{display:block;margin-top:calc(var(--u) * .5);color:var(--h-muted);font-size:var(--t-small)}
+.h-cl-act .h-lede{margin:0 0 var(--u);color:var(--h-on-night)}
+.h-cl-act a:not(.h-btn){color:var(--h-on-night)}
+.h-cl-act a:not(.h-btn):hover{color:var(--h-sage)}
+.h-cl-acts{pointer-events:none}
+.h-cl-act{pointer-events:auto}
+
+/* The scene, desktop only. The wrapper is a 200vh track and the band its
+   sticky stage, on paper. --r raises the photo: its clip opens from the
+   foot to the top while the photo settles from a closer crop. It runs on
+   the track's whole pass (--p), starting once the band is half way up the
+   screen, so the heading meets the rising edge as it arrives and the
+   screen is never a blank sheet of paper; the photo is full by two thirds
+   of the pin. The ink heading is clipped to the paper above the photo's
+   edge and the ivory copy to the photo, so the edge turns each line as it
+   passes. --b then brings the action in. */
+@media(min-width:1000px){
+.h-js .h-close{height:200vh;background:var(--h-paper)}
+.h-js .h-cl{position:sticky;top:0;min-height:0;max-height:none;background:var(--h-paper);
+  --rk:clamp(0,(var(--p) - .14) / .38,1);--r:calc(var(--rk) * var(--rk) * (3 - 2 * var(--rk)));--rt:calc((1 - var(--r)) * 100%);
+  --b0:clamp(0,(var(--p) - .55) / .08,1);--b:calc(var(--b0) * var(--b0) * (3 - 2 * var(--b0)))}
+.h-js .h-cl-ph,.h-js .h-cl-ghost{clip-path:inset(var(--rt) 0 0 0)}
+.h-js .h-cl-ph img{scale:calc(1.12 - .12 * var(--r));transform-origin:50% 100%;will-change:transform}
+.h-js .h-cl-type{clip-path:inset(0 0 calc(100% - var(--rt)) 0)}
+.h-js .h-cl-type .h-cl-h{color:var(--h-ink)}
+/* In the scene the heading waits higher, its foot 42% up the screen, so it
+   arrives with the photo already rising under it and the edge reaches it
+   as the band pins. The action keeps the foot of the screen. */
+.h-js .h-cl-type .h-cl-in,.h-js .h-cl-ghost .h-cl-in{bottom:42%}
+.h-js .h-cl-ghost{display:block;pointer-events:none}
+.h-js .h-cl-act{opacity:var(--b);translate:0 calc((1 - var(--b)) * 24px)}
+.h-js .h-cl-act:focus-within{opacity:1;translate:none}
+}
+/* Below 1000px: nothing pinned. The heading and the action stack low on
+   the photo, and the photo settles from a closer crop as the band arrives. */
+@media(max-width:999px){
+.h-cl{display:flex;flex-direction:column;justify-content:flex-end;padding-bottom:calc(var(--u) * 1.5)}
+.h-cl-type,.h-cl-acts{position:relative;inset:auto}
+.h-cl-in{position:static;display:block}
+.h-cl-act{max-width:520px;margin-top:var(--u)}
+.h-js .h-close{--f0:clamp(0,var(--in) / .8,1)}
+.h-js .h-cl-ph img{scale:calc(1.12 - .12 * var(--f0) * var(--f0) * (3 - 2 * var(--f0)))}
+}
+
+/* ---------- Section headings (round 7, 5 Oct 2026) ----------
+   Display (92px at 1440) is for short headings of about six words or
+   fewer that stand alone in a scene. Every longer heading, and every
+   heading inside running copy (the service pages' question h2s, articles),
+   takes .h-h2s: Epilogue 500 at 40px at most, two lines on a desktop and
+   three on a phone. First used on the blog post (.n-article). */
+.h-page .h-h2s{margin:0;max-width:26ch;color:var(--h-ink);font:500 clamp(28px,2.8vw,40px)/1.1 var(--font-display);letter-spacing:-.025em;text-wrap:balance}
+:is(.h-h2s)+:is(.h-lede,p){margin-top:var(--u)}
+
+/* The business name inside a heading (<span class="n-ne">). Real text, so
+   it stays part of the heading search engines and screen readers read. In a
+   running heading it is just the heading face in the accent colour (sage on
+   night, where the accent token flips). At the top of a hero h1 it becomes
+   the eyebrow label on its own line above the title. */
+.n-ne{color:var(--h-accent);font:inherit;letter-spacing:inherit}
+.h-ihero h1 .n-ne,.h-phero h1 .n-ne,.h-hero h1 .n-ne{display:block;margin:0 0 var(--u);word-spacing:-.12em;color:var(--h-muted);font:500 var(--t-label)/1.3 var(--font-core);letter-spacing:.16em;text-transform:uppercase}
+.h-ihero h1 .n-ne::before,.h-phero h1 .n-ne::before,.h-hero h1 .n-ne::before{content:"";display:inline-block;width:28px;height:1px;margin-right:14px;vertical-align:middle;background:var(--h-bronze)}
+/* Split into words, the eyebrow stays one unit: the word boxes sit inline,
+   so the gap is a normal (slightly tightened) word space. */
+.h-ihero h1 .n-ne .sw,.h-phero h1 .n-ne .sw,.h-hero h1 .n-ne .sw{vertical-align:baseline;overflow:visible;padding:0;margin:0}
+.h-hero h1 .n-ne{color:rgba(236,232,223,.82)}
+
+/* Stats: quiet columns between hairlines, light figures. */
+.h-stats{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--h-line);border-bottom:1px solid var(--h-line)}
+.h-stat{position:relative;padding:var(--u) calc(var(--u) * .5)}
+.h-stat+.h-stat{border-left:1px solid var(--h-line)}
+.h-stat svg{color:var(--h-bronze)!important}
+.h-stat b{display:block;color:var(--h-ink);font:300 var(--t-statement)/1.15 var(--font-display);letter-spacing:-.01em}
+.h-stat span{display:block;margin-top:calc(var(--u) * .5);color:var(--h-muted);font-size:var(--t-small);line-height:1.5}
+
+/* FAQ: hairline rows, the question in Epilogue at Statement size (every
+   question is under eight words), a thin plus that turns to a cross. */
+.h-faqs{max-width:960px;margin:calc(var(--u) * 2) 0 0}
+.h-faq{border-bottom:1px solid var(--h-line)}
+.h-faq:first-child{border-top:1px solid var(--h-line)}
+.h-faq summary{position:relative;display:flex;align-items:center;justify-content:space-between;gap:var(--u);padding:var(--u) 0;color:var(--h-ink);font:300 var(--t-statement)/1.15 var(--font-display);letter-spacing:-.01em;cursor:pointer;list-style:none;transition:color .3s}
+.h-faq summary:hover{color:var(--h-accent)}
+.h-faq summary::-webkit-details-marker{display:none}
+.h-faq summary::after{content:"";flex:0 0 16px;height:16px;background:linear-gradient(currentColor,currentColor) center/100% 1px no-repeat,linear-gradient(currentColor,currentColor) center/1px 100% no-repeat;transition:transform .6s var(--h-ease)}
+.h-faq[open] summary::after{transform:rotate(135deg)}
+.h-faq p{margin:0;padding:0 calc(var(--u) * 2) var(--u) 0;max-width:60ch;color:var(--h-body);font-size:var(--t-body);line-height:1.7}
+.h-faq[open] p{animation:h-up .7s var(--h-ease) both}
+
+/* The closing band. Night ground, the heading big and left aligned, the
+   button and one small line. Pages pass a photograph as any direct child
+   div that is not the .h-w container (or .h-final-ph); it fills the band
+   under a night gradient and drifts with data-par. */
+.h-final{position:relative;isolation:isolate;overflow:hidden;background:var(--h-night);color:var(--h-body);padding:var(--h-sec) 0}
+.h-final::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none}
+/* Without a photo: the raised night ground, so it never merges with the
+   night footer below, and faint hairlines on the container's quarter lines
+   (the architect's grid, drawn by CSS on the .h-w). No glow: on phones the
+   old radial read as a soft rectangle. */
+.h-final:not(:has(>div:not(.h-w))){background:var(--h-night-2)}
+.h-final:not(:has(>div:not(.h-w)))>.h-w{position:relative}
+.h-final:not(:has(>div:not(.h-w)))>.h-w::before{content:"";position:absolute;top:calc(var(--h-sec) * -1);bottom:calc(var(--h-sec) * -1);left:var(--h-gut);right:var(--h-gut);z-index:-1;pointer-events:none;background:linear-gradient(90deg,transparent calc(25% - .5px),rgba(236,232,223,.07) calc(25% - .5px),rgba(236,232,223,.07) calc(25% + .5px),transparent calc(25% + .5px),transparent calc(50% - .5px),rgba(236,232,223,.07) calc(50% - .5px),rgba(236,232,223,.07) calc(50% + .5px),transparent calc(50% + .5px),transparent calc(75% - .5px),rgba(236,232,223,.07) calc(75% - .5px),rgba(236,232,223,.07) calc(75% + .5px),transparent calc(75% + .5px))}
+.h-final>div:not(.h-w),.h-final-ph{position:absolute;inset:-12% 0;z-index:-2;translate:0 var(--py)}
+.h-final>div:not(.h-w) img,.h-final-ph img{width:100%;height:100%;object-fit:cover}
+.h-final:has(>div:not(.h-w)){display:flex;align-items:flex-end;min-height:clamp(560px,86vh,900px)}
+.h-final:has(>div:not(.h-w))>.h-w{width:100%}
+.h-final:has(>div:not(.h-w))::before{background:linear-gradient(90deg,rgba(14,18,16,.82),rgba(14,18,16,.46) 60%,rgba(14,18,16,.28)),linear-gradient(0deg,rgba(14,18,16,.6),rgba(14,18,16,0) 55%)}
+.h-final .h-h2{max-width:14ch;font-size:var(--t-display);line-height:1;letter-spacing:-.02em}
+.h-final .h-lede{margin-top:var(--u);color:var(--h-body)}
+.h-final .h-btn{margin-top:calc(var(--u) * 1.5)}
+.h-final small{display:block;margin-top:calc(var(--u) * .5);color:var(--h-muted);font-size:var(--t-small)}
+.h-final a:not(.h-btn){color:var(--h-on-night)}
+.h-final a:not(.h-btn):hover{color:var(--h-sage)}
+
+/* Breadcrumbs: small, muted, left aligned, a slash between. */
+.h-crumb{padding-top:var(--u);font-size:var(--t-small);line-height:1.4}
+.h-crumb ol{display:flex;flex-wrap:wrap;gap:6px 0;margin:0;padding:0;list-style:none;color:var(--h-muted)}
+.h-crumb a{color:var(--h-muted)!important;text-decoration:none!important;transition:color .3s}
+.h-crumb a:hover{color:var(--h-ink)!important}
+.h-crumb [aria-current]{color:var(--h-ink)}
+.h-crumb li+li::before{content:"/";margin:0 10px;color:var(--h-line);color:color-mix(in srgb,var(--h-muted) 50%,transparent)}
+
+/* ---------- Motion ----------
+   HomeReveal adds .h-on to the page wrapper as soon as it runs, and .h-js as
+   well unless the visitor prefers reduced motion. Only opacity, transforms
+   and clip-path move.
+
+   LCP RULE (3 Oct 2026, round 2). Nothing in the first screen may start
+   hidden: a clipped frame or an opacity-0 block there holds the page's
+   Largest Contentful Paint until its animation ends. So the hidden starting
+   states are keyed on .is-wait, which the script adds ONLY to blocks below
+   the first screen (they cannot be seen yet, so nothing blinks). Blocks in
+   the first screen get .is-now instead: fully painted from the first frame,
+   with a transform-only settle on top. With JS off or reduced motion neither
+   class exists and nothing is ever hidden.
+
+   TEMPO (4 Oct 2026, round 4). One slow, soft motion, after the Sobha Privy
+   reference: every reveal, wipe and rise runs --dur-soft (1.4s) on
+   --ease-soft, a gentle ease-out with no snap at the start. Hovers and other
+   small responses use --dur-ui on --ease-ui. --h-ease and --h-ease-io point
+   at these two curves, so every older rule follows. */
+@keyframes h-up{from{opacity:0;translate:0 32px}to{opacity:1;translate:none}}
+@keyframes h-fade{from{opacity:0}to{opacity:1}}
+@keyframes h-line{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes h-nudge{from{translate:0 24px}to{translate:none}}
+@keyframes h-settle{from{scale:1.06}}
+/* Inner hero load-in, CSS only, so it plays with or without the script.
+   Transform-only: the h1 or lede is often the LCP element. */
+.h-ihero h1:not([data-split]),.h-phero h1:not([data-split]){animation:h-nudge var(--dur-soft) var(--ease-soft) backwards}
+.h-ihero h1+p,.h-phero h1+p,.h-ihero .h-lede,.h-phero .h-lede{animation:h-nudge var(--dur-soft) .2s var(--ease-soft) backwards}
+
+/* .h-rv: below the fold it fades and rises on first entry; in the first
+   screen it only rises. Inside .h-stagger (and .h-faqs) the script numbers
+   the blocks that arrive together (--d), 90ms apart. */
+.h-js .h-rv{transition:opacity var(--dur-soft) var(--ease-soft),translate var(--dur-soft) var(--ease-soft);transition-delay:calc(var(--d) * 90ms)}
+.h-js .h-rv.is-wait:not(.is-in){opacity:0;translate:0 32px}
+.h-js .h-rv.is-now{animation:h-nudge var(--dur-soft) var(--ease-soft) backwards;animation-delay:calc(var(--d) * 90ms)}
+
+/* [data-split]: each word rises from behind its own mask, 45ms apart. In the
+   first screen the mask is off and the words only nudge up, fully visible. */
+.sw{display:inline-block;overflow:hidden;vertical-align:top;padding:.06em 0 .16em;margin:-.06em 0 -.16em}
+.si{display:inline-block}
+.h-js [data-split] .si{transition:translate var(--dur-soft) var(--ease-soft) calc(var(--i) * 45ms)}
+.h-js [data-split].is-wait:not(.is-in) .si{translate:0 108%}
+.h-js [data-split].is-now .sw{overflow:visible}
+.h-js [data-split].is-now .si{animation:h-nudge var(--dur-soft) var(--ease-soft) backwards;animation-delay:calc(var(--i) * 45ms)}
+
+/* .h-frame: a photo wrapper (overflow hidden, a set aspect-ratio). Below the
+   fold it wipes open from the bottom while the photo settles from 1.14; in
+   the first screen it is open from the start and the photo only settles
+   from 1.06. Either way the photo then drifts inside the frame as the page
+   scrolls (--py, strength data-par, default .06). The photo is oversized by
+   scale, not by size (--pk top and bottom), so the drift never shows an edge
+   and nothing shifts layout (no CLS). The older wrappers (.n-split-ph and
+   friends) are given .h-frame by the script, so they behave the same. */
+.h-frame{position:relative;overflow:hidden}
+.h-frame img{transition:scale 1.2s var(--h-ease)}
+.h-js .h-frame img{scale:calc(1 + var(--pk) * 2);translate:0 var(--py);transition:scale 2.2s var(--h-ease)}
+.h-js .h-frame.h-rv{opacity:1;translate:none;animation:none}
+.h-js .h-frame.is-wait:not(.is-in){clip-path:inset(100% 0 0 0)}
+.h-js .h-frame.is-wait:not(.is-in) img{scale:calc(1.14 + var(--pk) * 2)}
+.h-js .h-frame.is-wait{transition:clip-path var(--dur-soft) var(--ease-soft)}
+.h-js .h-frame.is-now img{animation:h-settle 2s var(--h-ease) backwards}
+/* .h-zoom: on a link or card, its framed photo pushes in slowly on hover. */
+.h-zoom:hover .h-frame img{scale:1.04;transition-duration:1.2s}
+.h-js .h-zoom:hover .h-frame img{scale:calc(1.04 + var(--pk) * 2)}
+
+/* .h-hero intro. The photo and the h1 paint in the first frame and are
+   never hidden (round 4). The photo settles from 1.08 once the page has
+   loaded (.is-ready, scale only). The heading's split words are marked
+   .is-now by the script, so like the eyebrow they only nudge up into place.
+   Anything marked .h-rv inside (a side panel) is .is-wait and fades in 600ms
+   after .is-ready, released by the load rather than by scrolling. */
+.h-hero img{transition:scale 2.4s var(--h-ease)}
+.h-js .h-hero:not(.is-ready) img{scale:1.08}
+.h-js .h-hero.is-ready .h-rv.is-wait{opacity:1;translate:none;transition-delay:calc(.6s + var(--d) * 90ms)}
+.h-js .h-hero h1 .n-ne{animation:h-nudge var(--dur-soft) var(--ease-soft) backwards}
+
+@media(max-width:800px){.h-stats{grid-template-columns:1fr 1fr}.h-stat:nth-child(3){border-left:0}.h-stat:nth-child(n+3){border-top:1px solid var(--h-line)}.h-faq p{padding-right:0}.h-btn{max-width:100%}}
+@media(prefers-reduced-motion:reduce){.h-page *,.h-page *::before,.h-page *::after{animation:none!important;transition:none!important}}
+
+/* ---------- Lockup ----------
+   The signature headline (round 4, 4 Oct 2026): an accent word in Epilogue
+   Light Italic, kept exactly as written, set tight against a line of
+   wide-tracked caps, the way a magazine sets a title. Seven headings carry
+   it and no others: the home hero h1, the home "About <name>" h2, and the
+   h1 of About, Services, Gallery, Blog and Contact.
+
+     <h1 class="lk"><span class="lk-a">accent</span> <span class="lk-c">caps</span></h1>
+
+   The words are the heading's own. The caps are text-transform and the
+   italic is a font style, so search engines, screen readers and the page
+   text read the heading exactly as it is written. Under [data-split] the
+   script wraps each word inside these spans, which changes nothing here.
+
+   Sizes come from the type tokens. The caps sit at --t-display, capped on
+   narrow screens so the longest caps word (LANDSCAPING, 6.78em wide with
+   its tracking) always fits inside the gutters. The accent is 1.16 times
+   the caps. The lines stack tight but never touch (5 Oct 2026: they used
+   to overlap by a third of the accent's height, and that was dropped). Set
+   solid at leading 1, an accent line and a caps line would stand about .27
+   to .30 of the caps size apart; the pulls below close every gap between
+   the letters to about an eighth of the caps size (11px on desktop, 5 to
+   6px on a phone, measured on the rendered glyphs). They are worked out
+   from Epilogue's metrics (ascent .79, descent .235, cap height .738) and
+   assume an accent with no descenders, as "Across" is; an
+   accent with a g, p or y needs its gap rechecked. On paper the accent
+   takes the accent green; in the hero it follows the heading's own colour,
+   ink outside the photo window and ivory inside it. */
+.h-page h1.lk,.h-page h2.lk,.h-page .hm-gh1.lk,.h-page .h-cv-gh.lk{font-size:min(var(--t-display),calc((100vw - 2 * var(--h-gut,20px)) / 6.9));font-weight:300;line-height:1;letter-spacing:0}
+.h-page .lk .h-d1{font-size:inherit;line-height:inherit;letter-spacing:inherit}
+.lk-c{font-style:normal;letter-spacing:.05em;text-transform:uppercase}
+.lk-a{color:var(--h-accent);font-size:1.16em;font-style:italic;font-weight:300;line-height:1;letter-spacing:0;text-transform:none}
+.h-page .lk>.lk-a,.h-page .lk>.lk-c{display:block}
+/* Accent first (the inner-page h1s): the caps sit just under it. The pull
+   is .16 of the caps size, so with one line of caps the lockup stands
+   exactly twice the caps size tall (blog.css lifts its photo by that). */
+.h-page .lk>.lk-a:first-child{margin-bottom:-.138em}
+/* Accent last (About <name>): it hangs to the right, just under the caps. */
+.h-page .lk>.lk-c+.lk-a{margin:-.11em 0 0 1.1em}
+/* Two caps lines in a row (the cover headings, components/site/Cover.tsx):
+   set solid they stand .262 of the caps size apart, so the pull closes the
+   gap to the same eighth as the rest of the lockup. */
+.h-page .lk>.lk-c+.lk-c{margin-top:-.13em}
+/* The name as the accent: the mark's eyebrow look (see .n-ne) is undone,
+   so it is simply the accent word. Outside a .lk-a it stays the eyebrow.
+   Inline-block, so a scene can still move it (transforms skip inlines). */
+.h-page .lk-a .n-ne{display:inline-block;margin:0;color:inherit;font:inherit;letter-spacing:inherit;word-spacing:normal;text-transform:none}
+.h-page .lk-a .n-ne::before{content:none}
+/* The hero, TRADE / Across / CITY, one word to a line (.hm-l), the
+   business-name eyebrow above as before. The accent line's margins are in
+   the caps' em: they close the gaps above and below it to the same eighth
+   as above, so the capital A clears the first line's baseline and the last
+   line clears the accent's. */
+.h-page .lk .hm-l2{margin:-.13em 0 -.16em}
+.h-page .hm-hero .lk-a{color:inherit}
+/* The word masks ([data-split] .sw) widen sideways for the italic, whose
+   slanted capital A reaches just past its own box. Padding and margin
+   cancel, so nothing moves. */
+.lk-a .sw{padding-left:.06em;padding-right:.06em;margin-left:-.06em;margin-right:-.06em}
+
+/* ---------- 3. Legacy photo blocks ----------
+   The service pages, the blog post, /quote and /thank-you still use these.
+   They are redesigned later; until then they take the new tokens, type and
+   2px corners so they sit coherently beside the new pages. The homepage
+   marquee, the word lighting, the expanding hero and the pinned work strip
+   were removed in this redesign. */
+
+/* Split band: one photo beside one block of text */
+.n-split{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:calc(var(--u) * 3);align-items:center;margin:calc(var(--u) * 2) 0 0}
+@media(min-width:801px){.n-split:has(>.n-split-ph:last-child){grid-template-columns:minmax(0,5fr) minmax(0,7fr)}}
+.h-sec>.h-w>.n-split:first-child{margin-top:0}
+.n-split+.n-split{margin-top:calc(var(--u) * 3)}
+.n-split-ph{overflow:hidden;border-radius:2px;aspect-ratio:4/5;background:var(--h-sand)}
+.n-split-wide .n-split-ph{aspect-ratio:3/2}
+.n-split-ph img{width:100%;height:100%;object-fit:cover}
+.n-split p{margin:0 0 1.1em;max-width:60ch;color:var(--h-body);font-size:var(--t-body);line-height:1.7}
+.n-split p:last-child{margin-bottom:0}
+.n-split h3{margin-bottom:6px}
+.n-split ul,.h-sec ul:not([class]){padding-left:0;list-style:none}
+.h-sec ul:not([class])>li{position:relative;padding-left:26px}
+.h-sec ul:not([class])>li::before{content:"";position:absolute;left:0;top:.85em;width:12px;height:1px;background:var(--h-bronze)}
+.h-sec ol:not([class])::marker,.h-sec ol:not([class]) li::marker{color:var(--h-muted);font-family:var(--font-core);font-size:.85em}
+
+/* Generic photo box and the 3-up grid built on it (service pages, blog
+   article). The box sets the shape and the photo is cropped into it. */
+.n-svcs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--u);margin-top:calc(var(--u) * 2)}
+.n-svc p{margin:calc(var(--u) * .5) 0 0;color:var(--h-body);font-size:var(--t-body);line-height:1.7}
+.n-svc-ph{overflow:hidden;border-radius:2px;aspect-ratio:4/3;background:var(--h-sand)}
+.n-svc-ph img{display:block;width:100%;height:100%;object-fit:cover}
+.h-page figure img{border-radius:2px}
+.h-page figcaption{margin-top:calc(var(--u) * .5);color:var(--h-muted);font-size:var(--t-small)}
+
+/* Work grid (/thank-you): four jobs, editorial rather than uniform. */
+.n-work{display:grid;grid-template-columns:repeat(12,1fr);gap:calc(var(--u) * .5);margin-top:calc(var(--u) * 2)}
+.n-work>*{position:relative;display:block;margin:0;overflow:hidden;border-radius:2px}
+.n-work img{width:100%;height:100%;object-fit:cover}
+.n-work>*:nth-child(1){grid-column:span 7;aspect-ratio:4/3}
+.n-work>*:nth-child(2){grid-column:span 5;aspect-ratio:3/4}
+.n-work>*:nth-child(3){grid-column:span 5;aspect-ratio:3/4}
+.n-work>*:nth-child(4){grid-column:span 7;aspect-ratio:4/3}
+.n-cap{position:absolute;left:0;right:0;bottom:0;z-index:1;padding:calc(var(--u) * 1.5) calc(var(--u) * .5) calc(var(--u) * .5);background:linear-gradient(transparent,rgba(14,18,16,.78));color:var(--h-on-night);font:300 var(--t-statement)/1.15 var(--font-display);letter-spacing:-.01em}
+.n-cap i{display:block;margin-top:6px;color:var(--h-on-night-mute);font:500 var(--t-label)/1.3 var(--font-core);font-style:normal;letter-spacing:.16em;text-transform:uppercase}
+
+/* Chips: the suburb list and the 404 page's links. */
+.n-chips{display:flex;flex-wrap:wrap;gap:10px;margin:var(--u) 0 0;padding:0;list-style:none}
+.n-chips a,.n-chips span{display:inline-block;padding:11px 18px;border:1px solid var(--h-line);border-radius:999px;color:var(--h-ink);font-size:var(--t-small);font-weight:500;text-decoration:none;transition:border-color .4s,color .4s,background-color .4s}
+.n-chips a:hover{border-color:var(--h-ink);background:var(--h-ink);color:var(--h-paper)}
+.n-split .n-chips{margin-top:0}
+
+/* Body tables. Stacks to label-over-value below 700px: a two-column table
+   with a sentence in the second column is unreadable on a phone. */
+.n-tbl{width:100%;margin-top:calc(var(--u) * .5);border-collapse:collapse;border-top:1px solid var(--h-ink);font-size:var(--t-small);text-align:left}
+.n-tbl caption{margin-bottom:12px;color:var(--h-muted);font-size:var(--t-small);text-align:left}
+.n-tbl th{padding:16px 16px 16px 0;color:var(--h-ink);font-weight:500;vertical-align:top}
+.n-tbl td{padding:16px 16px 16px 0;color:var(--h-body);line-height:1.65;vertical-align:top}
+.n-tbl thead th{font-size:var(--t-label);font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--h-muted)}
+.n-tbl tr{border-bottom:1px solid var(--h-line)}
+@media(max-width:700px){.n-tbl,.n-tbl caption,.n-tbl tbody,.n-tbl tr,.n-tbl th,.n-tbl td{display:block;width:100%}.n-tbl thead{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}.n-tbl th{padding-bottom:2px}.n-tbl td{padding-top:0}}
+/* Plain tables the service pages style inline (border-collapse set there). */
+.h-page table:not([class]) th,.h-page table:not([class]) td{border-bottom:1px solid var(--h-line)}
+.h-page table:not([class]) thead th{font-weight:500;color:var(--h-ink)}
+
+@media(max-width:1000px){.n-svcs{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:800px){.n-svcs{grid-template-columns:1fr}.n-work>*:nth-child(n){grid-column:span 6;aspect-ratio:1}.n-split{grid-template-columns:1fr;gap:calc(var(--u) * 1.5);margin-top:calc(var(--u) * 2)}.n-split-ph,.n-split-wide .n-split-ph{width:100%;aspect-ratio:4/3}}
+
+/* ---------- 4. Forms and prose ---------- */
+/* Forms: no box, a hairline across the top, underline-only fields, labels
+   in the eyebrow style, the ink pill to send. .c-* is the quote and contact
+   markup; .h-form/.h-field are the same thing under the new names, and
+   .h-lead is every LeadForm's <form>, so a form anywhere gets the fields. */
+.c-grid{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:calc(var(--u) * 2);align-items:start}
+.c-form,.h-form{padding:var(--u) 0 0;border-top:1px solid var(--h-ink)}
+.h-sec>.h-w>.c-form{max-width:880px}
+.c-steps{display:flex;flex-wrap:wrap;gap:10px var(--u);margin:0 0 var(--u);padding:0;list-style:none;color:var(--h-muted);font-size:var(--t-label);font-weight:500;letter-spacing:.16em;text-transform:uppercase}
+.c-steps li{display:flex;align-items:center;gap:10px}
+.c-steps i{width:7px;height:7px;border-radius:999px;background:var(--h-line)}
+.c-steps .is-now{color:var(--h-ink)}
+.c-steps .is-now i{background:var(--h-bronze)}
+.c-title{margin:0;color:var(--h-ink);font:300 var(--t-display)/1 var(--font-display)!important;letter-spacing:-.02em;text-wrap:balance}
+.c-intro{margin:calc(var(--u) * .5) 0 var(--u);max-width:52ch;color:var(--h-body);font-size:var(--t-body);line-height:1.7}
+.c-row{display:grid;grid-template-columns:1fr 1fr;gap:var(--u)}
+.c-field,.h-field{display:grid;gap:6px;color:var(--h-muted);font:500 var(--t-label)/1.3 var(--font-core);letter-spacing:.16em;text-transform:uppercase}
+.c-field em,.h-field em{color:var(--h-bronze);font-style:normal}
+:is(.c-form,.h-form,.h-lead) *:is(input:not([type=checkbox]):not([type=radio]),textarea,select){width:100%;min-height:52px;padding:12px 0;border:0;border-bottom:1px solid color-mix(in srgb,var(--h-ink) 30%,transparent);border-radius:0;background:transparent;color:var(--h-ink);font:400 var(--t-body)/1.4 var(--font-core);letter-spacing:0;text-transform:none;transition:border-color .4s,box-shadow .4s}
+:is(.c-form,.h-form,.h-lead) select{appearance:none;background:linear-gradient(45deg,transparent 50%,var(--h-ink) 50%) calc(100% - 10px) 50%/5px 5px no-repeat,linear-gradient(-45deg,transparent 50%,var(--h-ink) 50%) calc(100% - 5px) 50%/5px 5px no-repeat}
+:is(.c-form,.h-form,.h-lead) select option{color:#141714;background:#f2f0eb}
+:is(.c-form,.h-form,.h-lead) textarea{min-height:120px;resize:vertical;line-height:1.6}
+:is(.c-form,.h-form,.h-lead) *:is(input,textarea,select):hover{border-bottom-color:var(--h-ink)}
+:is(.c-form,.h-form,.h-lead) *:is(input,textarea,select):focus,:is(.c-form,.h-form,.h-lead) *:is(input,textarea,select):focus-visible{outline:none;border-bottom-color:var(--h-ink);box-shadow:0 1px 0 var(--h-ink)}
+:is(.c-form,.h-form,.h-lead) *::placeholder{color:color-mix(in srgb,var(--h-muted) 80%,transparent)}
+:is(.c-form,.h-form) .h-btn{margin-top:calc(var(--u) * .5);justify-self:start}
+.c-form small,.h-form small{display:block;color:var(--h-muted);font-size:var(--t-small)}
+.c-direct{display:grid;gap:calc(var(--u) * .5);padding:var(--u);background:var(--h-night);border-radius:2px;color:var(--h-on-night-mute);--h-ink:#ece8df;--h-line:rgba(236,232,223,.16)}
+.c-direct .n-split-ph{border-radius:2px!important}
+.c-label{display:flex;align-items:center;gap:14px;color:var(--h-sage);font-size:var(--t-label);font-weight:500;letter-spacing:.16em;text-transform:uppercase}
+.c-label::before{content:"";flex:0 0 28px;height:1px;background:var(--h-bronze)}
+.c-line{display:flex;align-items:center;gap:calc(var(--u) * .5);min-width:0;color:var(--h-on-night)!important;font-size:var(--t-body);font-weight:400;text-decoration:none!important;overflow-wrap:anywhere}
+.c-line i{flex:0 0 44px;display:grid;place-items:center;width:44px;height:44px;border:1px solid rgba(236,232,223,.22);border-radius:999px;color:var(--h-on-night);transition:background-color .4s,color .4s,border-color .4s}
+a.c-line:hover i{background:var(--h-on-night);border-color:var(--h-on-night);color:var(--h-night)}
+.c-tel{font:300 var(--t-statement)/1.15 var(--font-display)!important;letter-spacing:-.01em}
+@media(max-width:860px){.c-grid{grid-template-columns:1fr;gap:calc(var(--u) * 2)}.c-direct{order:-1}}
+@media(max-width:480px){.c-row{grid-template-columns:1fr}}
+
+/* Blog ARTICLE opening: left-aligned masthead, then the photo with a label
+   over its corner, then the answer block. */
+.n-art-head{max-width:720px;margin:0 auto;padding:calc(var(--u) * 1.5) 0 0}
+.n-art-meta{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:0 0 var(--u);color:var(--h-muted);font:500 var(--t-label)/1.3 var(--font-core);letter-spacing:.16em;text-transform:uppercase}
+.n-art-meta b{color:var(--h-ink);font-weight:500}
+.n-art-meta a{color:var(--h-muted)}
+.n-art-meta a:hover{color:var(--h-ink)}
+/* The h1 is on the article's reading scale (5 Oct 2026), not Display: at
+   92px a 44-character question broke into four lines of the 720px column.
+   Epilogue 500 like the round 6 openings, 60px at most, so it sits in two
+   or three lines. */
+.n-art-head h1{margin:0;color:var(--h-ink);font:500 clamp(34px,4.2vw,60px)/1.04 var(--font-display);letter-spacing:-.03em;text-wrap:balance;animation:h-nudge 1.4s var(--h-ease) backwards}
+.n-art-lede{max-width:720px;margin:var(--u) auto 0;color:var(--h-body);font-size:var(--t-body);line-height:1.7}
+.n-art-hero{position:relative;max-width:1040px;margin:calc(var(--u) * 2) auto 0}
+.n-art-hero .n-svc-ph{aspect-ratio:16/9}
+.n-art-tag{position:absolute;top:-16px;left:28px;z-index:2;padding:11px 18px;background:var(--h-ink);color:var(--h-paper);font:500 var(--t-label)/1 var(--font-core);letter-spacing:.16em;text-transform:uppercase}
+/* The liftable answer. It reads as a deliberate block, not a stray paragraph:
+   ruled top and bottom, in ink, at body size (it runs past eight words, so
+   it never takes a big size). */
+.n-answer{max-width:720px;margin:calc(var(--u) * 2) auto 0;padding:var(--u) 0;border-top:1px solid var(--h-ink);border-bottom:1px solid var(--h-line)}
+.n-answer span{display:flex;align-items:center;gap:14px;margin-bottom:calc(var(--u) * .5);color:var(--h-muted);font:500 var(--t-label)/1 var(--font-core);letter-spacing:.16em;text-transform:uppercase}
+.n-answer span::before{content:"";flex:0 0 28px;height:1px;background:var(--h-bronze)}
+.n-answer p{margin:0;max-width:60ch;color:var(--h-ink);font:400 var(--t-body)/1.7 var(--font-core)}
+.n-toc{max-width:720px;margin:calc(var(--u) * 1.5) auto 0;padding:var(--u);background:var(--h-sand);border-radius:2px;--h-muted:#5c6059}
+.n-toc p{margin:0 0 calc(var(--u) * .5);color:var(--h-muted);font:500 var(--t-label)/1.3 var(--font-core);letter-spacing:.16em;text-transform:uppercase}
+.n-toc ol{margin:0;padding-left:22px;font-size:var(--t-body);color:var(--h-body)}
+.n-toc li{margin:7px 0}
+/* The article reads down one centred 720px column (the page sets its
+   paragraphs to it inline), so its labels, headings, FAQ and splits line up
+   on that column instead of the container edge. */
+.n-article .h-sec>.h-w>:is(.h-kicker,.h-label,.h-h2,.h-faqs){max-width:720px;margin-left:auto;margin-right:auto}
+.n-article .h-sec>.h-w>.n-split{max-width:1040px;margin-left:auto;margin-right:auto}
+/* Section headings on the same scale: an article's h2s are questions of
+   six to eleven words, which Display (made for two- and three-word scene
+   titles) set five lines deep. 40px at most fills the column in two. The
+   closing band is not an .h-sec and keeps its Display heading. */
+.n-article .h-sec>.h-w>.h-h2{font:500 clamp(28px,2.8vw,40px)/1.1 var(--font-display);letter-spacing:-.025em}
+
+/* Legal pages: plain prose on the site's type. Their h2s are prose subheads
+   inside one long document, so they take Statement, not Display. */
+.n-prose{max-width:780px;margin:0 auto;padding:calc(var(--u) * 2) var(--h-gut) calc(var(--u) * 4);font-size:var(--t-body);line-height:1.7;color:var(--h-body)}
+.n-prose h1{margin:0 0 calc(var(--u) * .5);font-size:var(--t-display);line-height:1}
+.n-prose h2{margin:calc(var(--u) * 1.5) 0 calc(var(--u) * .5);font-size:var(--t-statement);line-height:1.15}
+.n-prose p,.n-prose ul,.n-prose ol{margin:0 0 1.1em;max-width:60ch}
+.n-prose ul,.n-prose ol{padding-left:22px}
+.n-prose li{margin:7px 0}
+.n-prose .h-crumb{padding-top:0}
+.n-prose .h-crumb ol{padding:0 0 var(--u)}

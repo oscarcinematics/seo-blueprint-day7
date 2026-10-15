@@ -1,0 +1,486 @@
+/* The service page kit (round 7, 5 Oct 2026). Every page under /services/
+   loads it with <PageCss file="service.css" />, and every class is sp-.
+   Built on app/services/_template, the template page: read that
+   page's header comment for the section order and the SEO rules, and this
+   one for the blocks. Nothing in here is specific to one trade: copy,
+   photos and how many parts a block has all come from the page.
+
+   The page is the homepage's materials (paper, sand and night grounds, the
+   zero-gutter 12-column grid, framed photos, the one scroll engine in
+   components/HomeReveal.tsx) with its own, calmer choreography. It opens
+   on the shared Cover and ends on the shared Close (brand.css). Between
+   them, these blocks, each a scroll scene of its own:
+
+     HELD    sp-held        a large photo frame held beside the text while
+                            it is read, swapping to the next photo as each
+                            new part of the text arrives. sp-flip puts the
+                            frame on the left; on sand the swap runs
+                            sideways instead of up, so two held blocks in a
+                            row never move the same way.
+       <section class="sp-sec sp-held [sp-flip] [h-sand]"><div class="h-w sp-held-g">
+         <figure class="sp-hf" data-scene><div class="sp-hf-in"><Shot/></div></figure>
+         <div class="sp-hp"> part 1: paragraphs, headings, lists </div>
+         <figure class="sp-hf" data-scene data-hold><div class="sp-hf-in"><Shot/></div>[<figcaption/>]</figure>
+         <div class="sp-hp"> part 2 </div>
+         ...figure + part, as many as the copy has
+       </div></section>
+       Each photo sits in the SOURCE straight before the part it belongs to,
+       so check_page_rhythm sees a photo between every stretch of words
+       exactly where a reader meets one. Every figure after the first takes
+       data-hold: the engine then writes --cv on it, how far the part after
+       it has risen up the screen, and that drives the swap. A figure's
+       part must follow it directly (the engine reads nextElementSibling).
+       Text in a part: .sp-big on a part sets its paragraphs at lede size
+       (the opening only); .sp-act holds a button.
+
+     RULES   sp-rules       a list as ruled rows: each row's hairline draws
+                            in as the row arrives, so they rule themselves
+                            one after another down the list.
+       <ul class="sp-rules"><li data-scene>..</li>...</ul>
+
+     STEPS   sp-proc + sp-steps   the signature scene, on night: a bronze
+                            line draws down the numbered steps, its tip held
+                            just past the middle of the screen, and each step
+                            lights up as the tip reaches it. Pure CSS: the
+                            tip is a sticky pseudo-element clipped to the
+                            list, so it is tied to the scroll with no lag.
+       <section class="sp-sec h-night sp-proc"><div class="h-w">
+         <p class="h-kicker"/> <h2 class="h-h2 sp-proc-h"/>
+         <div class="sp-proc-g">  (one per list: the lede holds beside it)
+           <div class="sp-proc-hd"> lede [ <figure class="sp-dev" data-scene><Shot/></figure> ] </div>
+           <ol class="sp-steps"><li data-scene><b>Title.</b> Text</li>...</ol>
+         </div>
+         ...another sp-proc-g for the next list
+       </div></section>
+       Numbers are CSS counters (decoration); the <ol> is the real order.
+       sp-dev is a photo that develops out of the night as it arrives.
+
+     ROW     sp-row         recent jobs as a row of equal frames that
+                            travels sideways while the stage is held
+                            (desktop), a native swipe row on phones.
+       <section class="sp-row" data-scene><div class="sp-row-stage">
+         <div class="h-w sp-row-hd"><div> kicker, h2 </div> lede </div>
+         <div class="sp-row-vp"><div class="sp-jobs">
+           <div class="sp-job"><div class="sp-job-ph"><Shot/></div><p>caption</p></div>...
+         </div></div>
+       </div></section>
+       Built for three frames; --n on .sp-row sets another count.
+
+     WHY     sp-why         the case for the business and its trust facts,
+                            on sand. The facts sit in a 2 by 2 ledger whose
+                            cross of hairlines draws out from its centre.
+       <section class="sp-sec h-sand sp-why"><div class="h-w sp-why-g">
+         <div class="sp-why-txt"> kicker, h2, paragraphs </div>
+         <div class="sp-facts h-stagger" data-scene><div class="sp-fact"><svg/><b/><span/></div>x4</div>
+       </div></section>
+       The facts' inline SVG icons count as a visual for check_page_rhythm.
+
+     FAQ     sp-faq         the heading held (sticky) beside the questions,
+                            each question's hairline drawing as it arrives.
+       <section class="sp-sec sp-faq"><div class="h-w sp-faq-g">
+         <div class="sp-faq-hd"> kicker, h2 </div>
+         <div class="h-faqs" data-scene><details class="h-faq" data-scene>..</details>...</div>
+       </div></section>
+       A source line under an answer: <p class="sp-cite">.
+
+     AREA    sp-area        where the crew works: a framed photo beside the
+                            text (the stock .h-frame wipe and drift). Put the
+                            photo FIRST in the source: it breaks the FAQ's run
+                            of words for check_page_rhythm.
+       <div class="h-sand"><section class="sp-sec sp-area"><div class="h-w sp-area-g">
+         <div class="sp-area-ph h-frame"><Shot/></div><div class="sp-area-txt">..</div>
+       </div></section><AuthorNote /></div>
+
+     QUOTE   sp-quote       the form in a calm panel on paper: title and
+                            intro on the left, the fields on the right.
+       <section id="quote" class="sp-sec sp-quote"><div class="h-w">
+         <div class="c-form sp-panel"> h2.c-title, p.c-intro, <LeadForm/> </div>
+       </div></section>
+
+     TABLE   sp-table       a comparison table, ruled like the lists (for
+                            the pages that have one; stacks into rows on a
+                            phone, each td carrying data-label="<its column
+                            heading>"). <div class="sp-table h-rv"><table>..</table></div>
+
+     TEXT    sp-text        a reading section with no photo of its own (the
+                            materials, finishes or turf types): the heading
+                            and lede held on the left, the prose on the
+                            right, then the table across the full width.
+       <section class="sp-sec sp-text [h-sand]"><div class="h-w sp-text-g">
+         <div class="sp-text-hd"> kicker, h2, lede </div>
+         <div class="sp-text-bd"> paragraphs [, sub-headings, lists] </div>
+       </div>
+       [ <div class="h-w sp-text-g"><div class="sp-table h-rv"><table/></div></div> ]
+       </section>
+       Either column may be left out. A table goes in a grid of its own (see
+       the sticky note below) and takes the full row.
+       A sp-text-bd after the table, in the table's grid, carries what follows it (the
+       consultation and its button) on the same right-hand column. A
+       drawing (sp-fig) may lead the prose column, and a framed photo
+       (<div class="sp-text-ph h-frame"><Shot/></div>) may follow the lede.
+
+     FIG     sp-fig         a drawn section (inline SVG) in place of a
+                            photo: under a lede, in a part, or in the night
+                            process above its steps (sp-proc-g > sp-fig, the
+                            steps then run under it). The drawing's own
+                            colours are the page tokens, so on night it turns
+                            over with the ground; the accent is bronze there.
+       <figure class="sp-fig h-rv"><svg role="img" ../><figcaption/></figure>
+
+   Grounds alternate so every section has an edge: paper, sand, night,
+   paper, sand... and the page needs one night section (the steps).
+   Headings: a question or anything past six words is .h-h2s; a short
+   heading that stands alone may be Display (.h-h2). Body text stays at
+   body size in columns of about 60 characters.
+
+   Motion: every rule that reads the engine's numbers (--p --pin --in --cv)
+   and every sticky stage or tall track is under .h-js, so with JS off or
+   reduced motion the page is the finished static layout. Desktop scenes
+   start at 1000px; phones get no sideways pin and lighter moves. Only
+   transform, opacity and clip-path move. */
+
+/* ---------- Base ---------- */
+/* .sp-held, .sp-why and the other block names are the hooks the rules
+   below hang from; a block's own box needs nothing but the section padding. */
+.sp-sec{padding:var(--h-sec) 0}
+.sp-held,.sp-why{position:relative}
+.sp-sec img,.sp-row img{display:block;width:100%;height:100%;object-fit:cover}
+.sp-sec .h-kicker{margin-bottom:var(--u)}
+.sp-sec .h-h2s{margin:0}
+/* Running text inside the blocks: body size, 60 characters, one rhythm. */
+/* Kickers are <p> too, and keep their own label style: hence :not(). */
+.sp-hp p:not(.h-kicker),.sp-why-txt p:not(.h-kicker),.sp-area-txt p:not(.h-kicker){margin:0 0 1.1em;max-width:60ch;color:var(--h-body);font-size:var(--t-body);line-height:1.7;text-wrap:pretty}
+.sp-hp p:last-child,.sp-why-txt p:last-child,.sp-area-txt p:last-child{margin-bottom:0}
+.sp-hp .h-h2s+p,.sp-why-txt .h-h2s+p,.sp-area-txt .h-h2s+p,.sp-hp .h-h2s+.h-lede{margin-top:var(--u)}
+.sp-hp h3{margin:calc(var(--u) * 1.5) 0 calc(var(--u) * .5)}
+.sp-hp>h3:first-child{margin-top:0}
+.sp-act{margin-top:calc(var(--u) * 1.5)!important}
+
+/* A Cover photo shot in bright midday sun: the page wrapper takes sp-shade
+   and the Cover's even evening shade rises from .2 to .32 (Contact uses .3). */
+.sp-shade .h-cover{--cv-shade:.32}
+
+/* ---------- HELD: the photo held beside the text ----------
+   Static (and below 1000px): each photo sits beside, or on phones above,
+   its own part. Dense flow pairs every figure with the part after it on
+   one grid row, the frame on 6 columns and the words on 5, one column of
+   air between. */
+.sp-held-g{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));grid-auto-flow:row dense;align-items:center;row-gap:calc(var(--u) * 3)}
+.sp-hf{grid-column:7/-1;margin:0}
+.sp-hp{grid-column:1/span 5}
+.sp-flip .sp-hf{grid-column:1/span 6}
+.sp-flip .sp-hp{grid-column:8/-1}
+.sp-hf-in{position:relative;overflow:hidden;aspect-ratio:var(--ar-port);border-radius:2px;background:var(--h-sand)}
+.h-sand .sp-hf-in{background:var(--h-paper)}
+.sp-hf figcaption{margin-top:calc(var(--u) * .5);color:var(--h-muted);font-size:var(--t-small);line-height:1.5}
+/* The opening's words at the lede size (Instrument Sans 18 to 20px): still
+   body text, set a step larger because they are the page's first answer. */
+.sp-big p:not(.h-kicker){color:var(--h-ink);font-size:clamp(18px,1.4vw,20px);line-height:1.65}
+
+/* The scene, desktop. Every frame moves into one grid area spanning all
+   the rows and is held there (sticky, centred on the screen) while the
+   parts pass beside it; later frames lie on top of earlier ones. Each part
+   is at least one frame tall with its words centred, so a part reads
+   beside its photo. A held frame (data-hold) is uncovered by --cv, how far
+   the part after it has risen: it starts as that part's words enter the
+   lower screen and is done by the time they reach the middle.
+     paper   the new photo rises from the foot of the frame
+     sand    it slides in from the side the words are on
+   The first frame needs no swap: it opens out from a slightly inset
+   window as the section arrives (--in). */
+@media(min-width:1000px){
+.h-js .sp-held-g{--ft:max(96px,11svh);--fh:min(calc((min(100vw,1440px) - 2 * var(--h-gut)) * .625),calc(100svh - 2 * var(--ft)));row-gap:0;align-items:stretch}
+.h-js .sp-hf{grid-row:1/span 24;align-self:start;position:sticky;top:calc((100svh - var(--fh)) / 2);z-index:1}
+.h-js .sp-hf-in{aspect-ratio:auto;height:var(--fh)}
+.h-js .sp-hf figcaption{position:absolute;left:0;right:0;top:100%;opacity:var(--s,1)}
+.h-js .sp-hp{display:flex;flex-direction:column;justify-content:center;min-height:var(--fh);padding:calc(var(--u) * 1.5) 0}
+.h-js .sp-hf[data-hold]{--s0:clamp(0,(var(--cv) - .42) / .4,1);--s:calc(var(--s0) * var(--s0) * (3 - 2 * var(--s0)))}
+.h-js .sp-hf[data-hold] .sp-hf-in{clip-path:inset(calc((1 - var(--s)) * 100%) 0 0 0);will-change:clip-path}
+.h-js .sp-hf[data-hold] img{scale:calc(1.14 - .14 * var(--s));transform-origin:50% 100%}
+.h-js .h-sand .sp-hf[data-hold] .sp-hf-in{clip-path:inset(0 0 0 calc((1 - var(--s)) * 100%))}
+.h-js .h-sand .sp-hf[data-hold] img{scale:1.08;translate:calc((1 - var(--s)) * 12%) 0;transform-origin:50% 50%}
+.h-js .sp-flip.h-sand .sp-hf[data-hold] .sp-hf-in{clip-path:inset(0 calc((1 - var(--s)) * 100%) 0 0)}
+.h-js .sp-flip.h-sand .sp-hf[data-hold] img{translate:calc((1 - var(--s)) * -12%) 0}
+}
+/* The first frame's arrival, every width: a window inset into the frame
+   opens to its edges while the photo settles from a closer crop. */
+.h-js .sp-hf:not([data-hold]){--o0:clamp(0,(var(--in) - .05) / .7,1);--o:calc(var(--o0) * var(--o0) * (3 - 2 * var(--o0)))}
+.h-js .sp-hf:not([data-hold]) .sp-hf-in{clip-path:inset(calc((1 - var(--o)) * 7%) calc((1 - var(--o)) * 9%) round 2px)}
+.h-js .sp-hf:not([data-hold]) img{scale:calc(1.16 - .16 * var(--o))}
+/* Below 1000px the later frames are not held: each rises open from its
+   foot as it comes up the screen, scrubbed by its own --in. */
+@media(max-width:999px){
+.h-js .sp-hf[data-hold]{--o0:clamp(0,(var(--in) - .05) / .6,1);--o:calc(var(--o0) * var(--o0) * (3 - 2 * var(--o0)))}
+.h-js .sp-hf[data-hold] .sp-hf-in{clip-path:inset(calc((1 - var(--o)) * 100%) 0 0 0)}
+.h-js .sp-hf[data-hold] img{scale:calc(1.12 - .12 * var(--o));transform-origin:50% 100%}
+}
+
+/* ---------- RULES: ruled list ----------
+   Rows between hairlines with a short bronze rule (the house ornament)
+   leading each. In the scene each row's top hairline draws across from
+   the left as the row arrives (--in) and its bronze rule follows. */
+.sp-rules{margin:var(--u) 0 0;padding:0;list-style:none;border-bottom:1px solid var(--h-line)}
+.sp-rules li{position:relative;padding:calc(var(--u) * .5) 0 calc(var(--u) * .5) 32px;border-top:1px solid var(--h-line);color:var(--h-ink);font-size:var(--t-body);line-height:1.5}
+.sp-rules li::before{content:"";position:absolute;left:0;top:calc(var(--u) * .5 + .75em);width:14px;height:1px;background:var(--h-bronze);transform-origin:left}
+.h-js .sp-rules{border-bottom-color:transparent}
+.h-js .sp-rules li{border-top-color:transparent;--r0:clamp(0,(var(--in) - .06) / .4,1);--r:calc(var(--r0) * var(--r0) * (3 - 2 * var(--r0)))}
+.h-js .sp-rules li::after{content:"";position:absolute;left:0;right:0;top:-1px;height:1px;background:var(--h-line);transform-origin:left;transform:scaleX(var(--r))}
+.h-js .sp-rules li:last-child{box-shadow:inset 0 -1px 0 var(--h-line)}
+.h-js .sp-rules li::before{transform:scaleX(clamp(0,(var(--r) - .5) * 2,1))}
+
+/* ---------- STEPS: the process on night ----------
+   The section heading runs across the top; under it each lede (and its
+   photo) holds on the left (columns 1 to 4) while its numbered list passes
+   on the right (6 to 12). Each step is a counter numeral in bronze over a
+   short title at Statement size and the text at body size, hung off a
+   rail on the left: a faint track with a dot at every step. */
+.sp-proc{overflow:clip}
+.sp-proc .h-kicker{margin-bottom:var(--u)}
+.sp-proc-h{max-width:none!important}
+/* One grid per lede and list: a sticky grid item is held for the length of
+   its whole grid, so a shared grid would hold the first lede over the
+   second. */
+.sp-proc-g{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));align-items:start;margin-top:calc(var(--u) * 2)}
+.sp-proc-g+.sp-proc-g{margin-top:calc(var(--u) * 4)}
+.sp-proc-hd{grid-column:1/span 4}
+.sp-proc-hd .h-lede{max-width:36ch;color:var(--h-body)}
+.sp-proc-hd .h-h2s+.h-lede{margin-top:var(--u)}
+.sp-steps{grid-column:6/-1;position:relative;margin:0;padding:0;list-style:none;counter-reset:sp-s;background:linear-gradient(var(--h-line),var(--h-line)) 5px 0/1px 100% no-repeat}
+.sp-steps li{position:relative;max-width:62ch;padding:0 0 calc(var(--u) * 1.5) calc(var(--u) * 1.5);color:var(--h-body);font-size:var(--t-body);line-height:1.7;counter-increment:sp-s}
+.sp-steps li:last-child{padding-bottom:0}
+/* The numeral, a label in bronze (legible on night), and the dot. */
+.sp-steps li::before{content:counter(sp-s,decimal-leading-zero);display:block;margin-bottom:calc(var(--u) * .5);color:var(--h-bronze);font:500 var(--t-label)/1.3 var(--font-core);letter-spacing:.16em}
+.sp-steps li::after{content:"";position:absolute;left:0;top:2px;width:11px;height:11px;box-sizing:border-box;border-radius:50%;border:1px solid var(--h-bronze);background:var(--h-night)}
+.sp-steps b::before{content:"";position:absolute;z-index:1;left:3px;top:5px;width:5px;height:5px;border-radius:50%;background:var(--h-bronze)}
+.sp-steps b{display:block;margin-bottom:calc(var(--u) * .25);color:var(--h-ink);font:300 var(--t-statement)/1.15 var(--font-display);letter-spacing:-.01em}
+/* The photo under a lede: framed, and in the scene it develops out of the
+   night (opacity) while it settles from a closer crop. */
+.sp-dev{margin:calc(var(--u) * 1.5) 0 0;overflow:hidden;aspect-ratio:var(--ar-port);border-radius:2px;background:var(--h-night-2)}
+.h-js .sp-dev{--d0:clamp(0,(var(--in) - .08) / .7,1);--dv:calc(var(--d0) * var(--d0) * (3 - 2 * var(--d0)))}
+.h-js .sp-dev img{opacity:var(--dv);scale:calc(1.1 - .1 * var(--dv))}
+
+/* The scene. The bronze line is the list's ::before: a bar far taller
+   than any list, parked with its foot on the list's top (net height zero)
+   and made sticky with its foot at --yr (55% down the screen). Until the
+   list's top passes that line the bar sits wholly above the list and the
+   list's clip hides it; after, it is held with its foot on the line, so
+   the visible part runs from the list's top down to the line; once the
+   list's foot passes the line the bar is stopped by the list's own foot
+   and the line is whole. No script, so it never lags the scroll.
+   Each step (data-scene) lights as its dot reaches the line: its top at
+   --yr is --in .6, so --lt runs from just before to just after. Unlit
+   steps rest at a low opacity and their dots are hollow. */
+.h-js .sp-steps{--yr:55svh;--ly:.575;--bar:400svh;clip-path:inset(0)}
+.h-js .sp-steps::before{content:"";display:block;position:sticky;top:calc(var(--yr) - var(--bar));width:2px;height:var(--bar);margin:calc(-1 * var(--bar)) 0 0 4.5px;background:var(--h-bronze);pointer-events:none}
+.h-js .sp-steps li{--l0:clamp(0,(var(--in) - var(--ly)) / .05,1);--lt:calc(var(--l0) * var(--l0) * (3 - 2 * var(--l0)));opacity:calc(.38 + .62 * var(--lt))}
+.h-js .sp-steps b::before{transform:scale(var(--lt))}
+@media(min-width:1000px){
+.h-js .sp-proc-hd{position:sticky;top:calc(var(--h-head-h) + var(--u))}
+}
+
+/* ---------- ROW: recent jobs travelling sideways ----------
+   Static (no script, reduced motion, desktop): the frames side by side in
+   the container. Phones: a native swipe row, the next frame peeking in.
+   Desktop scene: the section is a tall track; its stage holds for the
+   whole pass while the row of equal frames walks left (--t), from the
+   first frame on the content's left edge to the last on its right edge,
+   then the page moves on. Even frames, even gaps, one steady speed, no
+   heading behind them. */
+.sp-row{--n:3;padding:var(--h-sec) 0}
+.sp-row-hd{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));align-items:end}
+.sp-row-hd>div{grid-column:1/span 6}
+.sp-row-hd>.h-lede{grid-column:8/-1;max-width:52ch}
+.sp-row-vp{max-width:1440px;margin:calc(var(--u) * 2) auto 0;padding:0 var(--h-gut)}
+.sp-jobs{display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr));gap:var(--u)}
+.sp-job{margin:0}
+.sp-job-ph{overflow:hidden;aspect-ratio:4/3;border-radius:2px;background:var(--h-sand)}
+.sp-job p{display:flex;gap:12px;margin:calc(var(--u) * .5) 0 0;max-width:46ch;color:var(--h-body);font-size:var(--t-small);line-height:1.5}
+.sp-job p::before{content:"";flex:0 0 20px;height:1px;margin-top:.75em;background:var(--h-bronze)}
+@media(min-width:1000px){
+.h-js .sp-row{--jh:min(54svh,560px);--jw:calc(var(--jh) * 4 / 3);--travel:max(0px,calc(var(--n) * var(--jw) + (var(--n) - 1) * var(--u) - min(100vw,1440px) + 2 * var(--h-gut)));--t:clamp(0,(var(--pin) - .06) / .88,1);height:calc(100svh + var(--travel) * 1.4);padding:0}
+.h-js .sp-row-stage{position:sticky;top:0;height:100svh;overflow:hidden;display:flex;flex-direction:column;justify-content:center}
+.h-js .sp-row-vp{width:100%;margin-top:calc(var(--u) * 1.5)}
+.h-js .sp-jobs{display:flex;width:max-content;translate:calc(var(--t) * -1 * var(--travel)) 0;will-change:translate}
+.h-js .sp-job{flex:0 0 var(--jw)}
+.h-js .sp-job-ph{aspect-ratio:auto;height:var(--jh)}
+}
+@media(max-width:999px){
+.sp-row{overflow:clip}
+.sp-row-hd>div,.sp-row-hd>.h-lede{grid-column:1/-1}
+.sp-row-hd>.h-lede{margin-top:var(--u)}
+.sp-row-vp{padding:0}
+.sp-jobs{display:flex;gap:calc(var(--u) * .5);padding:0 var(--h-gut) 4px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding:0 var(--h-gut);scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.sp-jobs::-webkit-scrollbar{display:none}
+.sp-job{flex:0 0 min(78vw,520px);scroll-snap-align:start}
+.sp-job-ph{aspect-ratio:var(--ar-port)}
+}
+
+/* ---------- WHY: the case and the facts, on sand ----------
+   The words on columns 1 to 5; the facts on 7 to 12 as a 2 by 2 ledger
+   framed by hairlines top and bottom and divided by a cross. In the scene
+   the cross draws out from its centre as the ledger arrives, and the
+   facts rise into their cells one after another (.h-stagger). */
+.sp-why-g{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));align-items:center}
+.sp-why-txt{grid-column:1/span 5}
+.sp-facts{grid-column:7/-1;position:relative;display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--h-line);border-bottom:1px solid var(--h-line)}
+.sp-facts::before,.sp-facts::after{content:"";position:absolute;pointer-events:none;background:var(--h-line)}
+.sp-facts::before{left:50%;top:0;bottom:0;width:1px}
+.sp-facts::after{top:50%;left:0;right:0;height:1px}
+.sp-fact{padding:calc(var(--u) * 1.5) var(--u)}
+.sp-fact:nth-child(odd){padding-left:0}
+.sp-fact svg{display:block;width:22px;height:22px;margin-bottom:var(--u);color:var(--h-bronze)}
+.sp-fact b{display:block;color:var(--h-ink);font:300 var(--t-statement)/1.15 var(--font-display);letter-spacing:-.01em}
+.sp-fact span{display:block;margin-top:calc(var(--u) * .25);color:var(--h-muted);font-size:var(--t-small);line-height:1.5}
+.h-js .sp-facts{--x0:clamp(0,(var(--in) - .1) / .6,1);--x:calc(var(--x0) * var(--x0) * (3 - 2 * var(--x0)))}
+.h-js .sp-facts::before{transform:scaleY(var(--x))}
+.h-js .sp-facts::after{transform:scaleX(var(--x))}
+
+/* ---------- FAQ: the heading held beside the questions ----------
+   The homepage's FAQ arrangement: the heading holds (sticky) on columns 1
+   to 4 while the questions pass on 6 to 12; in the scene each question's
+   hairline draws as it arrives and the last rule draws under the set. */
+.sp-faq-g{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));align-items:start}
+.sp-faq-hd{grid-column:1/span 4}
+.sp-faq .h-faqs{position:relative;grid-column:6/-1;max-width:none;margin:0}
+.sp-faq .h-faq p.sp-cite{margin-top:calc(var(--u) * -.5);color:var(--h-muted);font-size:var(--t-small)}
+.h-js .sp-faq .h-faq{border-color:transparent}
+.h-js .sp-faq .h-faq summary::before{content:"";position:absolute;left:0;right:0;top:-1px;height:1px;background:var(--h-line);transform-origin:left;transform:scaleX(clamp(0,(var(--in) - .08) / .5,1))}
+.h-js .sp-faq .h-faqs::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:1px;background:var(--h-line);transform-origin:left;transform:scaleX(clamp(0,(var(--p) - .3) / .25,1))}
+/* Held only while it stands beside the questions (above 1100px it does;
+   below, it stacks over them and a sticky heading would cover them). */
+@media(min-width:1101px){
+.h-js .sp-faq-hd{position:sticky;top:120px}
+}
+
+/* ---------- AREA: the service area beside a photo ---------- */
+.sp-area-g{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));align-items:center}
+.sp-area-ph{grid-column:1/span 6;aspect-ratio:var(--ar-port);border-radius:2px;background:var(--h-paper)}
+.sp-area-txt{grid-column:8/-1}
+/* The author note follows on the same sand, a short ruled line. */
+.sp-area+.h-sec{padding-top:0!important}
+
+/* ---------- QUOTE: the form in a calm panel ----------
+   A panel a step lighter than the paper, hairline edged: the title and the
+   promise on the left, the fields on the right. No scene: a form is not
+   the place for motion. */
+.sp-quote{scroll-margin-top:0}
+.sp-panel.c-form{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));grid-template-rows:auto 1fr;align-items:start;padding:calc(var(--u) * 2) 0;border:1px solid var(--h-line);border-radius:2px;background:#fbfaf7}
+.sp-panel>.c-title{grid-column:2/span 4;grid-row:1}
+.sp-panel>.c-intro{grid-column:2/span 4;grid-row:2;margin:var(--u) 0 0}
+.sp-panel>form{grid-column:7/span 5;grid-row:1/3;display:grid;gap:18px}
+
+/* ---------- TABLE: a ruled comparison table ---------- */
+.sp-table{max-width:920px;margin:calc(var(--u) * 1.5) 0 0;overflow-x:auto}
+.sp-table table{width:100%;min-width:560px;border-collapse:collapse;border-top:1px solid var(--h-ink);font-size:var(--t-small);text-align:left}
+.sp-table th,.sp-table td{padding:16px 16px 16px 0;border-bottom:1px solid var(--h-line);vertical-align:top}
+.sp-table th{color:var(--h-ink);font-weight:500}
+.sp-table td{color:var(--h-body);line-height:1.65}
+.sp-table thead th{color:var(--h-muted);font:500 var(--t-label)/1.3 var(--font-core);letter-spacing:.16em;text-transform:uppercase}
+.sp-table caption{caption-side:bottom;margin-top:12px;color:var(--h-muted);font-size:var(--t-small);text-align:left}
+/* A table that follows prose in a part or a TEXT section: it takes the full
+   row and loses the cap, so its three columns get room to breathe. */
+.sp-text-g>.sp-table,.sp-hp .sp-table{max-width:none}
+.sp-text-g>.sp-table{grid-column:1/-1;margin-top:calc(var(--u) * 2)}
+
+/* ---------- TEXT: heading held beside the prose ----------
+   The FAQ's arrangement for a section that is all reading: heading and lede
+   on columns 1 to 5, held while the prose passes on 7 to 12. */
+.sp-text-g{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));align-items:start}
+.sp-text-hd{grid-column:1/span 5}
+.sp-text-hd .h-lede{margin-top:var(--u);max-width:44ch}
+.sp-text-bd{grid-column:7/-1}
+.sp-text-hd:last-child{grid-column:1/span 7}
+.sp-text-bd p:not(.h-kicker){margin:0 0 1.1em;max-width:60ch;color:var(--h-body);font-size:var(--t-body);line-height:1.7;text-wrap:pretty}
+.sp-text-bd p:last-child{margin-bottom:0}
+.sp-text-bd h3{margin:calc(var(--u) * 1.5) 0 calc(var(--u) * .5)}
+.sp-text-bd>h3:first-child{margin-top:0}
+.sp-table+.sp-text-bd{margin-top:calc(var(--u) * 2)}
+/* A photo under the heading and lede, where the reading would otherwise
+   run past 350 words with nothing to look at. */
+.sp-text-ph{margin:calc(var(--u) * 1.5) 0 0;max-width:520px;overflow:hidden;aspect-ratio:4/3;border-radius:2px;background:var(--h-sand)}
+.h-sand .sp-text-ph{background:var(--h-paper)}
+.sp-text-bd>.sp-fig:first-child{margin:0 0 calc(var(--u) * 1.5)}
+/* A sticky item travels its whole grid, so a section with a table is TWO
+   grids: heading and prose in the first (the heading held beside the
+   prose), then the table and what follows it in a second. In one grid the
+   held heading would slide down over the table. */
+@media(min-width:1101px){
+.h-js .sp-text-hd{position:sticky;top:120px}
+}
+.sp-text-g+.sp-text-g>.sp-table:first-child{margin-top:calc(var(--u) * 2)}
+
+/* ---------- FIG: a drawn section ----------
+   The drawing sits on a plate one step off the ground. Its labels are set
+   in the drawing's own units, so it is given room (up to 720px) rather than
+   squeezed into a lede column. */
+.sp-fig{margin:calc(var(--u) * 1.5) 0 0;max-width:720px}
+/* The accent in a drawing is the house ornament, bronze, never the green
+   (no decorative colour), and the drawn soil (--h-tint) is a step deeper
+   than sand. On sand the plate (--h-soft) turns paper so it still reads. */
+.sp-fig{--h-cta:var(--h-bronze);--h-tint:#dcd5c6;--green-100:rgba(163,130,90,.2);--green-400:#a3825a;--green-700:#7d6243}
+.sp-fig svg{display:block;width:100%;height:auto;border-radius:2px;background:var(--h-soft)}
+.h-sand .sp-fig{--h-soft:var(--h-paper)}
+.sp-fig figcaption{margin-top:calc(var(--u) * .5);color:var(--h-muted);font-size:var(--t-small);line-height:1.5}
+/* --h-soft and --h-cta are resolved on .h-page (sand and the green accent),
+   so the night ground does not turn them over by itself: set them here. */
+.h-night .sp-fig{--h-soft:var(--h-night-2);--h-tint:#232a25}
+.sp-proc-g>.sp-fig{grid-column:6/-1;grid-row:1;margin:0 0 calc(var(--u) * 2)}
+.sp-proc-g>.sp-fig~.sp-proc-hd,.sp-proc-g>.sp-proc-hd:has(~.sp-fig){grid-row:1/span 2}
+.sp-proc-g>.sp-fig+.sp-steps{grid-row:2}
+
+/* ---------- Tablet ---------- */
+@media(max-width:1100px){
+.sp-proc-hd{grid-column:1/span 5}
+.sp-steps{grid-column:7/-1}
+.sp-faq-hd{grid-column:1/-1}
+.sp-faq .h-faqs{grid-column:1/-1;margin-top:calc(var(--u) * 1.5)}
+.sp-text-hd,.sp-text-hd:last-child,.sp-text-bd{grid-column:1/-1}
+.sp-text-bd{margin-top:calc(var(--u) * 1.5);max-width:640px}
+.sp-proc-g>.sp-fig{grid-column:7/-1}
+.sp-panel>.c-title,.sp-panel>.c-intro{grid-column:2/span 5}
+.sp-panel>form{grid-column:8/span 4}
+}
+
+/* ---------- Below 1000px: one column ---------- */
+@media(max-width:999px){
+.sp-held-g{row-gap:0;align-items:start}
+.sp-hf,.sp-hp,.sp-flip .sp-hf,.sp-flip .sp-hp{grid-column:1/-1}
+.sp-hf{margin-top:calc(var(--u) * 2)}
+.sp-hf:first-child{margin-top:0}
+.sp-hp{margin-top:calc(var(--u) * 1.5);max-width:640px}
+.sp-hf-in{aspect-ratio:var(--ar-land)}
+.sp-proc-hd,.sp-steps,.sp-proc-g>.sp-fig{grid-column:1/-1}
+.sp-proc-g>.sp-fig,.sp-proc-g>.sp-fig~.sp-proc-hd,.sp-proc-g>.sp-proc-hd:has(~.sp-fig),.sp-proc-g>.sp-fig+.sp-steps{grid-row:auto}
+.sp-proc-g>.sp-fig{margin:0}
+.sp-proc-g{row-gap:calc(var(--u) * 2)}
+.sp-proc-g+.sp-proc-g{margin-top:calc(var(--u) * 3)}
+.sp-dev{max-width:520px;aspect-ratio:var(--ar-land)}
+.sp-why-txt,.sp-facts{grid-column:1/-1}
+.sp-facts{margin-top:calc(var(--u) * 2)}
+.sp-area-ph,.sp-area-txt{grid-column:1/-1}
+.sp-area-ph{aspect-ratio:4/3}
+.sp-area-txt{margin-top:calc(var(--u) * 1.5);max-width:640px}
+.sp-panel.c-form{display:block;padding:calc(var(--u) * 1.5) var(--u)}
+.sp-panel>.c-intro{margin:calc(var(--u) * .5) 0 var(--u)}
+}
+@media(max-width:700px){
+.sp-hf-in{aspect-ratio:4/3}
+.sp-fact{padding:var(--u) calc(var(--u) * .5)}
+.sp-fact b{font-size:22px}
+.sp-steps li{padding-left:var(--u)}
+.h-js .sp-steps{--yr:60svh;--ly:.51}
+/* The table stacks: each row is its name, then each cell under its own
+   column label (the td's data-label), so nothing scrolls sideways or cuts
+   off at the screen edge. The header row is kept for screen readers only. */
+.sp-table{overflow:visible}
+.sp-table table,.sp-table tbody,.sp-table tr,.sp-table th,.sp-table td{display:block;width:100%;min-width:0}
+.sp-table table{border-top:0}
+.sp-table caption{display:block;margin:0 0 12px}
+.sp-table thead{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.sp-table tbody{border-top:1px solid var(--h-ink)}
+.sp-table tr{padding:var(--u) 0;border-bottom:1px solid var(--h-line)}
+.h-page .sp-table table:not([class]) :is(th,td){padding:0;border:0}
+.sp-table tbody th{font-size:var(--t-body);line-height:1.4}
+.sp-table td{margin-top:12px}
+.sp-table td::before{content:attr(data-label);display:block;margin-bottom:2px;color:var(--h-muted);font:500 var(--t-label)/1.5 var(--font-core);letter-spacing:.16em;text-transform:uppercase}
+}

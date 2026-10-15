@@ -1,0 +1,48 @@
+/* /privacy-policy and /terms only. Inlined by <PageCss file="legal.css" />.
+
+   Round 7 (5 Oct 2026). The legal pages are documents, so they stay plain
+   prose on paper, but on the site's own system rather than the old centred
+   column: the round 6 title row (brand.css .h-open: the h1 at Epilogue 500
+   on the first seven columns, the document's first line on the last four,
+   last baselines level), a hairline under it, then the document on the
+   12-column grid with each heading as a side head on columns 1 to 4 and
+   its paragraphs in a reading column on 6 to 11. One hairline runs the
+   full width above every heading row, so the page reads as a ruled
+   schedule, not a wall of text.
+
+   Motion is CSS only and minimal (no scroll script on these pages): the
+   h1 and the line nudge up as the page loads (brand.css), and the title
+   row's hairline draws across. Reduced motion turns both off (brand.css). */
+
+/* ---------- Title row ---------- */
+.lg-open>.h-w::after{content:"";grid-column:1/-1;height:1px;margin-top:calc(var(--u) * 2);background:var(--h-line);transform-origin:left;animation:h-line 1.6s .3s var(--h-ease-io) both}
+
+/* ---------- The document ----------
+   Auto-placement does the pairing: a heading takes columns 1 to 4 of a
+   new row, its first paragraph (columns 6 to 11) fits beside it in the
+   same row, and every later paragraph or list starts a row of its own
+   under that one. Baseline alignment puts the heading's first line on
+   the paragraph's. */
+.lg-doc{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:0;align-items:baseline;padding-bottom:var(--h-sec);color:var(--h-body);font-size:var(--t-body);line-height:1.7}
+.lg-doc>*{grid-column:6/span 6;max-width:62ch;margin:0 0 1.1em}
+.h-page .lg-doc>h2{grid-column:1/span 4;position:relative;max-width:none;margin:calc(var(--u) * 1.5) 0 0;padding:var(--u) var(--u) 0 0;color:var(--h-ink);font:500 clamp(22px,1.9vw,28px)/1.2 var(--font-display);letter-spacing:-.015em;text-wrap:balance}
+/* The rule across the row: three times the heading's own four columns. */
+.lg-doc>h2::before{content:"";position:absolute;left:0;top:0;width:300%;height:1px;background:var(--h-line)}
+.lg-doc>h2+*{margin-top:calc(var(--u) * 1.5);padding-top:var(--u)}
+.lg-doc>h2:first-child{margin-top:calc(var(--u) * .5)}
+.lg-doc>h2:first-child+*{margin-top:calc(var(--u) * .5)}
+.lg-doc>h2:first-child::before{display:none}
+.lg-doc ul{padding:0;list-style:none}
+.lg-doc li{position:relative;margin:7px 0;padding-left:26px}
+.lg-doc li::before{content:"";position:absolute;left:0;top:.85em;width:12px;height:1px;background:var(--h-bronze)}
+
+/* ---------- Tablet and phone ----------
+   One column: the heading over its paragraphs, the rule over the heading
+   alone. */
+@media(max-width:900px){
+.lg-doc{display:block;max-width:calc(62ch + var(--h-gut) * 2)}
+.h-page .lg-doc>h2{margin-top:calc(var(--u) * 2);padding:var(--u) 0 0}
+.lg-doc>h2::before{width:100%}
+.lg-doc>h2+*{margin-top:calc(var(--u) * .5);padding-top:0}
+.lg-doc>h2:first-child{margin-top:var(--u)}
+}

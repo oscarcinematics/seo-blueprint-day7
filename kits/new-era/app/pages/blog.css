@@ -1,0 +1,115 @@
+/* /blog only. Inlined by <PageCss file="blog.css" />.
+
+   Round 7 (5 Oct 2026). The Cover (brand.css) opens the page and the Close
+   (brand.css) ends it; between them the posts sit on the night ground, the
+   page's one dark room, so the three grounds read paper title row, night,
+   paper turning to photograph (where the Cover stays a photograph, on
+   phones and in the static page, the posts take paper: see the foot of
+   this file). The newest post is a spread on the 12-column
+   grid: its photo across the first seven columns, one column of air, the
+   words on the last four, their foot on the photo's foot. Every later post
+   drops into a 3-column grid under a hairline. Both render from
+   content/posts.ts, so the layout holds at one post or forty.
+
+   Scenes, every one under .h-js (with JS off or reduced motion the page is
+   the finished layout below):
+     Feature   the photo is swept open by a slanted edge travelling left to
+               right with the card's own pass (--p), the bottom of the edge
+               leading, while the picture slides in behind it and settles.
+               The words stay still; only the tag's bronze rule and the
+               link's underline draw. Nothing on the site opens on a slant.
+     Grid      each later card rises on its own arrival (--in), the three
+               columns from three depths, so a row lands as a stagger.
+   Neither appears on the homepage or /services. */
+
+/* ---------- Cards ---------- */
+.bl-sec{padding:var(--h-sec) 0;overflow-x:clip}
+.bl-post{position:relative;display:grid;color:var(--h-body)!important;text-decoration:none!important}
+.bl-ph{position:relative;overflow:hidden;aspect-ratio:var(--ar-land);background:var(--h-sand);border-radius:2px}
+.bl-sw{position:absolute;inset:0}
+.bl-ph img{display:block;width:100%;height:100%;object-fit:cover;transition:transform 1.2s var(--h-ease)}
+.bl-post:hover .bl-ph img{transform:scale(1.035)}
+.bl-b{display:flex;flex-direction:column;align-items:flex-start}
+.bl-meta{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;color:var(--h-muted);font:500 var(--t-label)/1 var(--font-core);letter-spacing:.16em;text-transform:uppercase}
+.bl-tag{display:inline-flex;align-items:center;gap:14px;color:var(--h-ink)}
+.bl-tag::before{content:"";width:28px;height:1px;background:var(--h-bronze);transform-origin:0 50%}
+/* Card titles are the section-heading face (Epilogue 500), the same solid
+   weight as the Cover's title row, not the light Statement: light ivory on
+   night read thin. */
+.bl-post b{display:block;margin-top:var(--u);color:var(--h-ink);font:500 clamp(24px,2.3vw,32px)/1.12 var(--font-display);letter-spacing:-.02em;text-wrap:balance}
+.bl-post p{margin:calc(var(--u) * .5) 0 0;max-width:46ch;color:var(--h-body);font-size:var(--t-body);line-height:1.7}
+.bl-post .bl-b em{display:inline-flex;align-items:center;gap:10px;margin-top:var(--u);padding-bottom:6px;color:var(--h-ink);font:500 var(--t-label)/1 var(--font-core);font-style:normal;letter-spacing:.16em;text-transform:uppercase;background:linear-gradient(currentColor,currentColor) 0 100%/100% 1px no-repeat}
+.bl-post em i{display:inline-block;font-style:normal;transition:transform .6s var(--h-ease)}
+.bl-post:hover em i{transform:translateX(6px)}
+.bl-post:focus-visible{outline-color:var(--h-ink);outline-offset:6px}
+
+/* The feature: the photo on columns 1 to 7 at 4:3 (the image is absolute,
+   so the file's shape never sets it), the words on 9 to 12, their foot on
+   the photo's foot. The title takes the heading size here; the feature is
+   the page's one big type after the h1. */
+.bl-feat{grid-template-columns:repeat(12,minmax(0,1fr));column-gap:0;align-items:end}
+.bl-feat .bl-ph{grid-column:1/span 7;grid-row:1;aspect-ratio:4/3}
+.bl-feat .bl-b{grid-column:9/-1;grid-row:1}
+.bl-feat b{font-size:clamp(28px,2.8vw,40px);line-height:1.1;letter-spacing:-.025em}
+.bl-feat p{margin-top:var(--u)}
+.bl-feat .bl-b em{margin-top:calc(var(--u) * 1.5)}
+
+/* ---------- Feature scene ----------
+   --s runs over the stretch of the card's pass from its top entering the
+   foot of the screen to the photo standing whole on screen; --e is it
+   eased. The clip is a four-point polygon whose right side is the slanted
+   edge: its foot at 140% of e, its head 40% behind, so it starts wholly
+   off the photo's left side and ends wholly past its right. The picture
+   inside starts 4% to the left and 1.1 times its size: at any moment the
+   shift is less than the overhang, so no edge of the picture shows. */
+.h-js .bl-feat{--s:clamp(0,(var(--p) - .04) / .38,1);--e:calc(var(--s) * var(--s) * (3 - 2 * var(--s)))}
+.h-js .bl-feat .bl-ph{clip-path:polygon(0 0,calc(var(--e) * 140% - 40%) 0,calc(var(--e) * 140%) 100%,0 100%);will-change:clip-path}
+.h-js .bl-feat .bl-sw{translate:calc((1 - var(--e)) * -4%) 0}
+.h-js .bl-feat .bl-sw img{scale:calc(1.1 - .1 * var(--e))}
+.h-js .bl-feat .bl-tag::before{scale:clamp(0,(var(--s) - .3) / .5,1) 1}
+.h-js .bl-feat .bl-b em{background-size:calc(clamp(0,(var(--s) - .5) / .5,1) * 100%) 1px}
+
+/* ---------- Posts 2 onward ----------
+   Three columns under a hairline; each card rises on its own --in, the
+   columns from three depths so a row lands as a stagger. */
+.bl-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:calc(var(--u) * 2) var(--u);margin-top:calc(var(--u) * 3);padding-top:calc(var(--u) * 2);border-top:1px solid var(--h-line)}
+.bl-grid .bl-post{grid-template-rows:auto 1fr}
+.bl-grid .bl-b{padding-top:var(--u)}
+.bl-grid .bl-post p{margin-bottom:var(--u)}
+.bl-grid .bl-post .bl-b em{margin-top:auto}
+.h-js .bl-grid .bl-post{--r:0px;--g:clamp(0,var(--in) * 1.4,1);--ge:calc(1 - (1 - var(--g)) * (1 - var(--g)));transform:translate3d(0,calc((1 - var(--ge)) * var(--r)),0)}
+.h-js .bl-grid .bl-post:nth-child(3n+1){--r:56px}
+.h-js .bl-grid .bl-post:nth-child(3n+2){--r:120px}
+.h-js .bl-grid .bl-post:nth-child(3n){--r:184px}
+.h-js .bl-grid .bl-ph img{scale:calc(1.12 - var(--ge) * .12)}
+
+/* ---------- Empty state ---------- */
+.bl-empty-act{margin-top:var(--u);text-align:center}
+
+/* ---------- Tablet and phone ---------- */
+@media(max-width:1100px){
+.bl-feat .bl-b{grid-column:8/-1;padding-left:var(--u)}
+.bl-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+.h-js .bl-grid .bl-post:nth-child(n){--r:64px}
+.h-js .bl-grid .bl-post:nth-child(2n){--r:140px}
+}
+/* Stacked: the photo runs edge to edge of the screen, as the /services
+   rows do on a phone, and the words follow under it. The sweep runs
+   earlier in the pass, because the photo stands whole on screen sooner. */
+@media(max-width:900px){
+.bl-feat{display:block}
+.bl-feat .bl-ph{margin:0 calc(var(--h-gut) * -1);aspect-ratio:var(--ar-land);border-radius:0}
+.bl-feat .bl-b{padding:calc(var(--u) * 1.5) 0 0}
+.h-js .bl-feat{--s:clamp(0,(var(--p) - .02) / .28,1)}
+}
+@media(max-width:620px){.bl-feat .bl-ph{aspect-ratio:var(--ar-port)}}
+/* The night room. It only exists where the Cover closes into a plate on
+   paper and the Close opens on paper: a desktop with the scenes running.
+   On a phone, with JS off or with reduced motion, both stay dark
+   photographs, and a night room between them made the whole page dark
+   from top to bottom; there the posts sit on paper, and the page reads
+   photo, paper, photo. The tokens are brand.css's .h-night set (it is not
+   used as a class here because it cannot be switched off by a media
+   query or by the script's absence). */
+@media(min-width:1000px){.h-js .bl-sec{--h-paper:#0e1210;--h-sand:#171d19;--h-ink:#ece8df;--h-body:rgba(236,232,223,.8);--h-muted:rgba(236,232,223,.64);--h-line:rgba(236,232,223,.16);--h-accent:#a3b095;background:var(--h-night);color:var(--h-body)}}
+@media(max-width:700px){.bl-grid{grid-template-columns:minmax(0,1fr)}.h-js .bl-grid .bl-post:nth-child(n){--r:72px}}

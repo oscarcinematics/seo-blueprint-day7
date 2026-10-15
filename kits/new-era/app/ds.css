@@ -1,0 +1,80 @@
+/* Design tokens.
+   Structure and naming lifted from the shipped trades design system so the
+   /audit and /seo-optimization tooling still recognises it. The nine --green-*
+   values ARE the brand: swapping that ramp re-skins the whole site, and nothing
+   else in this file references a hue by name.
+   Inlined in <head> by app/layout.tsx, before brand.css.
+   3 Oct 2026: the semantic text, surface, link, focus and selection values
+   follow the "Quiet Stone" palette in brand.css (limestone paper, near-black
+   ink, eucalyptus links); h1/h2 are Epilogue light. */
+
+/* ---- fonts ---- */
+:root{--font-core:"Instrument Sans","Instrument Sans Fallback","Helvetica Neue",Arial,sans-serif;--font-display:"Epilogue","Epilogue Fallback","Helvetica Neue",Arial,sans-serif;--font-mono:var(--font-core)}
+
+/* ---- base ---- */
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+/* Smooth in-page jumps (#quote, the gallery and blog contents), switched on
+   by components/HomeReveal.tsx at the first click or key press. Never on the
+   bare <html>: a reload restores its scroll position as a scroll, and with
+   smooth on the browser animates it down from the top of the page. */
+@media(prefers-reduced-motion:no-preference){html.h-smooth{scroll-behavior:smooth}}
+/* clip, not hidden: hidden makes <body> a scroll container, which breaks
+   position:sticky (the header) and view timelines. */
+body{margin:0;font:var(--type-body);color:var(--text-body);background:var(--surface-page);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;overflow-x:clip}
+h1,h2,h3,h4,p,figure,blockquote{margin:0}
+h1{font:var(--type-h1);letter-spacing:var(--track-heading);color:var(--text-strong)}
+h2{font:var(--type-h2);letter-spacing:var(--track-heading);color:var(--text-strong)}
+h3{font:var(--type-h3);color:var(--text-strong)}
+p{text-wrap:pretty}
+a{color:var(--text-link);text-decoration:underline;text-underline-offset:2px;text-decoration-thickness:1px;transition:color .2s,text-decoration-thickness .2s}
+a:hover{color:var(--text-link-hover);text-decoration-thickness:2px}
+img{max-width:100%;display:block}
+button,input,select,textarea{font-family:inherit;font-size:inherit}
+:focus-visible{outline:none;box-shadow:var(--ring-focus)}
+::selection{background:#141714;color:#f2f0eb}
+
+/* ---- colour: the brand ramp ---- */
+:root{
+--green-900:#0a3d1e;--green-800:#115c2d;--green-700:#176b35;--green-600:#1f7a3d;--green-500:#3d9659;--green-400:#63b07a;--green-300:#93cba4;--green-200:#c2e2cd;--green-100:#ddf0e4;--green-50:#eef8f1;
+/* Neutral. True greys with the faintest warm cast and NO green in them: the
+   page carries thirty-odd photo slots and borders off this ramp against only
+   two green bands, so a green-tinted neutral would make everything read green. */
+--ink-900:#14181a;--ink-800:#1f2527;--ink-700:#333c3f;--ink-600:#5b6668;--ink-500:#76807f;--ink-400:#96a09e;--ink-300:#bfc7c4;--ink-200:#dee3e0;--ink-100:#f2f5f2;--ink-50:#f8faf8;--white:#fff;
+/* Semantic - text */
+--text-strong:#141714;--text-body:#3b3f3a;--text-muted:var(--ink-600);--text-faint:var(--ink-500);--text-inverse:var(--white);--text-brand:var(--green-600);--text-link:#3d5a3a;--text-link-hover:#141714;
+/* Semantic - surfaces */
+--surface-page:#f2f0eb;--surface-card:var(--white);--surface-sunken:var(--ink-100);--surface-tint:var(--green-50);--surface-brand:var(--green-600);--surface-brand-deep:var(--green-700);--surface-brand-soft:var(--green-100);--surface-inverse:#0e1210;
+/* Semantic - lines, focus, status */
+--line-hairline:var(--ink-200);--line-strong:var(--ink-300);--line-brand:var(--green-600);
+--ring-focus:0 0 0 2px #f2f0eb,0 0 0 4px #141714;
+--status-critical:#9d2b2b;
+}
+
+/* ---- typography ---- */
+:root{
+--weight-light:300;--weight-regular:400;--weight-medium:500;--weight-semibold:600;--weight-bold:700;--weight-black:900;
+--size-display:48px;--size-h1:38px;--size-h2:29px;--size-h3:22px;--size-h4:18px;
+--size-body-lg:18px;--size-body:17px;--size-body-sm:14px;--size-caption:12.5px;--size-label:12px;
+--lh-display:1.02;--lh-heading:1.14;--lh-snug:1.35;--lh-body:1.6;
+--track-display:-.04em;--track-heading:-.03em;--track-label:.12em;
+--type-display:var(--weight-black) var(--size-display)/var(--lh-display) var(--font-core);
+--type-h1:var(--weight-light) var(--size-h1)/var(--lh-heading) var(--font-display);
+--type-h2:var(--weight-light) var(--size-h2)/var(--lh-heading) var(--font-display);
+--type-h3:var(--weight-regular) var(--size-h3)/var(--lh-snug) var(--font-display);
+--type-h4:var(--weight-bold) var(--size-h4)/var(--lh-snug) var(--font-core);
+--type-body:var(--weight-regular) var(--size-body)/1.7 var(--font-core);
+--type-body-lg:var(--weight-regular) var(--size-body-lg)/var(--lh-body) var(--font-core);
+--type-body-sm:var(--weight-regular) var(--size-body-sm)/var(--lh-body) var(--font-core);
+--type-label:var(--weight-bold) var(--size-label)/1.3 var(--font-core);
+}
+
+/* ---- spacing, radius, elevation ---- */
+:root{
+--space-3:8px;--space-4:12px;--space-5:16px;--space-6:20px;--space-7:24px;--space-8:32px;--space-9:40px;--space-10:56px;--space-11:72px;--space-12:96px;
+--container-max:1120px;--gutter:var(--space-6);--section-y:var(--space-12);
+--radius-card:16px;--radius-media:14px;--radius-input:12px;--radius-pill:999px;
+--shadow-sm:0 1px 3px rgba(20,24,26,.06);
+--shadow-md:0 8px 24px -12px rgba(20,24,26,.18);
+--shadow-lg:0 24px 44px -24px rgba(23,107,53,.4);
+}

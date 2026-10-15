@@ -1,0 +1,93 @@
+/* /thank-you only. Inlined by <PageCss file="thankyou.css" />.
+
+   6 Oct 2026: rebuilt on /contact's frontend (app/pages/contact.css), as
+   /quote was. The opening is the shared Cover; the middle is contact's
+   night section, one column held on the left while the work passes on the
+   right. Still no close and no pin: the moment after someone has
+   converted stays calm and short.
+
+   The scene (desktop): the call and the "While you wait" heading are one
+   column, held (sticky) beside the four jobs while they pass, so the
+   number never leaves the screen. Each photograph is MOUNTED as it
+   arrives: it starts as a slightly smaller print inside its own frame, a
+   closer crop, and settles out to the frame's edges as the scroll brings
+   it up the screen. Most of the photo is always showing, so nothing is
+   ever hidden. Every rule that reads a scene, and the hold, is under
+   .h-js; without the script (or with reduced motion) it is the same
+   layout, still. */
+
+/* ---------- Cover ----------
+   Raised from .2 (brand.css "Cover"), as on /contact, so the ivory lockup
+   and the glass hold over a bright frame. Set it back to .2 for a photo
+   already in shade. */
+.h-cover{--cv-shade:.32}
+
+/* ---------- Section ---------- */
+.ty-main{padding:calc(var(--u) * 3) 0 calc(var(--u) * 4)}
+.ty-grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:0;align-items:start}
+
+/* ---------- The held column ----------
+   Columns 1 to 5, one column of air, the work on 7 to 12. The call is
+   the old button's words: "Call" as the label, the number under it at
+   Display size, cut to whatever fits the column (cqi: the column's own
+   width, so it never wraps or overflows between 1000 and 1440). A
+   hairline, then the heading block. */
+.ty-side{grid-column:1/span 5;grid-row:1;container-type:inline-size}
+.ty-tel{display:block;color:var(--h-ink)!important;text-decoration:none!important}
+.ty-label{margin:0}
+.ty-num{display:block;margin-top:var(--u);font:300 min(var(--t-display),15.2cqi)/1 var(--font-display);letter-spacing:-.02em;font-variant-numeric:tabular-nums;white-space:nowrap;transition:color .4s}
+.ty-tel:hover .ty-num{color:var(--h-sage)}
+.ty-head{margin-top:calc(var(--u) * 1.5);padding-top:calc(var(--u) * 1.5);border-top:1px solid var(--h-line)}
+.ty-head .h-h2s{margin:0}
+.ty-head .h-lede{margin:var(--u) 0 0;max-width:40ch;font-size:var(--t-body);line-height:1.6}
+
+/* ---------- The work ----------
+   One column of four on 7 to 12: the wide frames (1 and 4) full width,
+   the tall ones (2 and 3) on four of the six columns, swapping sides, so
+   the column steps rather than stacks. Captions sit under each photo: the
+   job in ivory at body size, the trade as a label under it. */
+.ty-work{grid-column:7/-1;grid-row:1;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));row-gap:calc(var(--u) * 2.5)}
+.ty-fig{margin:0;grid-column:1/-1}
+.ty-fig:nth-child(2){grid-column:3/-1}
+.ty-fig:nth-child(3){grid-column:1/span 4}
+.ty-ph{position:relative;overflow:hidden;aspect-ratio:var(--ar-land);border-radius:2px;background:var(--h-night-2)}
+.ty-fig:nth-child(2) .ty-ph,.ty-fig:nth-child(3) .ty-ph{aspect-ratio:var(--ar-port)}
+.ty-ph img{display:block;width:100%;height:100%;object-fit:cover}
+.ty-fig:nth-child(3) img{object-position:50% 72%}
+.ty-cap{display:block;margin-top:calc(var(--u) * .5);color:var(--h-ink);font:400 var(--t-body)/1.4 var(--font-core)}
+.ty-cap i{display:block;margin-top:6px;color:var(--h-muted);font:500 var(--t-label)/1.3 var(--font-core);font-style:normal;letter-spacing:.16em;text-transform:uppercase}
+
+/* ---------- The scene (desktop) ----------
+   The column is held 1u under the scrolled header for as long as the work
+   is taller than it, and lets go at the last caption. */
+@media(min-width:1000px){
+.h-js .ty-side{position:sticky;top:calc(72px + var(--u))}
+}
+
+/* ---------- The scene: mounting ----------
+   Per figure, --m runs 0 to 1 over its arrival (--in), smoothstepped. The
+   frame's clip comes in 5% from every edge at 0 and opens to the frame,
+   while the photo inside settles from 1.12 to rest, so the print grows
+   out to its mount. The tall figures (2 and 3) are narrower and arrive
+   sooner, so the even ones start a beat later to keep the rhythm. */
+.h-js .ty-fig{--m0:clamp(0,(var(--in) - .05) / .8,1);--m:calc(var(--m0) * var(--m0) * (3 - 2 * var(--m0)))}
+.h-js .ty-fig:nth-child(even){--m0:clamp(0,(var(--in) - .15) / .75,1)}
+.h-js .ty-ph{clip-path:inset(calc((1 - var(--m)) * 5%) round 2px)}
+.h-js .ty-ph img{scale:calc(1.12 - .12 * var(--m));will-change:transform}
+
+/* ---------- Tablet and phone ----------
+   One column: the call, the heading, then the work, the tall frames
+   stepping in from alternate sides while there is room for it. */
+@media(max-width:999px){
+.ty-grid{grid-template-columns:minmax(0,1fr)}
+.ty-side,.ty-work{grid-column:1/-1;grid-row:auto}
+.ty-work{margin-top:calc(var(--u) * 2.5)}
+.ty-num{font-size:min(var(--t-display),15.2cqi)}
+}
+@media(min-width:621px) and (max-width:999px){
+.ty-side{max-width:640px}
+}
+@media(max-width:620px){
+.ty-work{grid-template-columns:minmax(0,1fr);row-gap:calc(var(--u) * 2)}
+.ty-fig:nth-child(n){grid-column:1/-1}
+}

@@ -1,0 +1,3 @@
+/* Deliberately near-empty. ds.css, fonts.css and brand.css are read off disk
+   and inlined in <head> by app/layout.tsx - routed through a bundler the
+   custom properties resolve to empty strings at runtime. */

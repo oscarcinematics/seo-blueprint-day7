@@ -1,0 +1,439 @@
+/* Homepage only (app/page.tsx), inlined by <PageCss file="home.css" />.
+
+   Round 3, "the walk through": the homepage is a sequence of seven scenes,
+   each moving its own way, so no two sections share a motion. Round 4 (4 Oct
+   2026) made three of the joins hand over instead of cutting: the curtain
+   (About to Services), the overtake (into the walk) and the card (the close).
+
+     Hero      the opening frame: a window on paper opens to full bleed (pinned)
+     Ledger    a breath: hairlines draw, figures rise from their masks
+     About     two photographs pass each other in opposite directions, then
+               the page holds while the night room comes up over it (curtain)
+     Services  the night room: a stacking deck of cards (pinned)
+     Work      the walk: the first photograph sweeps up over the giant heading
+               (overtake), then six travel sideways past you (pinned)
+     FAQ       quiet: only the hairlines draw
+     Closing   the invitation: a framed card unfolds to full bleed (pinned)
+
+   All of it is CSS driven by three numbers HomeReveal writes on each
+   [data-scene] element every frame (--p the whole pass, --pin the pinned
+   stretch, --in the arrival; see components/HomeReveal.tsx). Every rule that
+   reads them, and every tall track and sticky stage, sits under .h-js, so with
+   JS off or reduced motion the page is the finished static layout below.
+   Sub-steps are staged with clamp(0, (x - start) / length, 1) and eased with
+   smoothstep, s * s * (3 - 2 * s). Only transform, opacity and clip-path move.
+
+   Layouts sit on the site's zero-gutter 12-column grid inside .h-w (round 4):
+   --hm-gap is 0, so every edge is on a column line and the air between a
+   block of words and a photograph is one whole empty column. */
+
+.h-page{--hm-gap:0px;--hm-pp:#f2f0eb;--hm-ink:#141714}
+.hm-hero-in,.hm-panel,.hm-about-g,.hm-svc-g,.hm-work,.hm-faq-g{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:var(--hm-gap)}
+.hm-hero img,.hm-about-ph img,.hm-ab3 img,.hm-card-ph img,.hm-work img{display:block;width:100%;height:100%;object-fit:cover}
+
+/* ---------- Hero: the opening frame ----------
+   Static (and the scene's last frame): one photograph full bleed, the
+   heading low on the left in ivory, the glass panel low on the right. The
+   layers are stacked absolutely in one stage so the scene can move each on
+   its own: photo, grid hairlines, the heading, its ivory copy, the panel. */
+.hm-hero{position:relative;height:100svh;min-height:640px;max-height:1000px;background:var(--h-night);color:var(--h-on-night)}
+.hm-stage{position:relative;height:100%;overflow:hidden;isolation:isolate}
+.hm-hero-ph,.hm-hero-sc,.hm-type,.hm-ghost,.hm-panel,.hm-lines{position:absolute;inset:0}
+.hm-hero-ph{overflow:hidden}
+/* A night gradient rises from the lower left where the words sit, a lighter
+   one at the top keeps the header legible on bright sky. It lives inside the
+   photo layer so it is cut by the same window. */
+.hm-hero-ph::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(20deg,rgba(14,18,16,.8) 0%,rgba(14,18,16,.48) 34%,rgba(14,18,16,.08) 62%,rgba(14,18,16,0) 80%),linear-gradient(180deg,rgba(14,18,16,.42) 0%,rgba(14,18,16,0) 24%),linear-gradient(0deg,rgba(14,18,16,.4) 0%,rgba(14,18,16,0) 36%)}
+
+/* The grid hairlines: three quiet verticals at the container's quarter lines,
+   masked out before they reach the heading so no line crosses text. */
+.hm-lines{left:0;right:0;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);pointer-events:none;-webkit-mask-image:linear-gradient(180deg,#000 0%,#000 14%,transparent 42%);mask-image:linear-gradient(180deg,#000 0%,#000 14%,transparent 42%)}
+.hm-lines i{grid-row:1;border-left:1px solid rgba(255,255,255,.18);transform-origin:top}
+.hm-lines i:nth-child(1){grid-column:2}
+.hm-lines i:nth-child(2){grid-column:3}
+.hm-lines i:nth-child(3){grid-column:4}
+
+/* The heading. Each of its three words is its own line (.hm-l), so the
+   scene can slide them independently. --hb is how far the heading's foot
+   sits above the bottom of the stage; the ivory copy uses the same rules. */
+.hm-hero{--hb:clamp(64px,10vh,112px)}
+.hm-hero-in{position:absolute;left:0;right:0;bottom:var(--hb);margin:0 auto;width:100%;align-items:end}
+.hm-hero h1,.hm-gh1{grid-column:1/10;position:relative;margin:0;color:#fff}
+.hm-hero .h-d1{display:block;color:#fff}
+.hm-l{display:block;white-space:nowrap}
+/* The eyebrow (the business name, the mark inside the h1) sits above the first line,
+   out of flow, so the copy's lines and the heading's lines start level. */
+.hm-hero h1 .n-ne,.hm-gey{position:absolute;left:0;bottom:calc(100% + 26px);margin:0}
+.hm-gey{display:flex;align-items:center;gap:14px;color:rgba(236,232,223,.82);font:500 12px/1.3 var(--font-core);letter-spacing:.16em;text-transform:uppercase;white-space:nowrap}
+.hm-gey::before{content:"";flex:0 0 28px;height:1px;background:var(--h-bronze)}
+.hm-gey::after{content:attr(data-t)}
+.hm-ghost .si::before{content:attr(data-t)}
+.hm-ghost{display:none}
+
+/* The glass panel, low on the right, level with the heading's foot. */
+.hm-panel{left:0;right:0;margin:0 auto;align-content:end;padding-bottom:var(--hb);pointer-events:none}
+.hm-glass{grid-column:9/13;justify-self:end;width:100%;max-width:380px;padding:var(--u);border:1px solid rgba(255,255,255,.22);border-radius:2px;background:rgba(242,240,235,.1);-webkit-backdrop-filter:blur(20px) saturate(1.15);backdrop-filter:blur(20px) saturate(1.15);pointer-events:auto}
+.hm-glass p{margin:0;color:var(--h-on-night);font-size:var(--t-body);line-height:1.7}
+.hm-glass .h-btn{margin-top:var(--u)}
+.hm-glass .hm-alt{margin-top:calc(var(--u) * .5);color:var(--h-on-night-mute);font-size:var(--t-small);letter-spacing:.01em}
+.hm-glass .hm-alt a{color:#fff;text-decoration-color:rgba(255,255,255,.4)}
+.hm-glass .hm-alt a:hover{color:#fff;text-decoration-color:#fff}
+.hm-hero a:focus-visible{outline-color:#fff}
+
+/* Scroll cue: a light falling down the centre line in the bottom margin. */
+.hm-cue{position:absolute;left:50%;bottom:0;width:1px;height:clamp(28px,5vh,52px);overflow:hidden}
+.hm-cue::after{content:"";position:absolute;left:0;top:0;width:1px;height:60%;background:linear-gradient(rgba(255,255,255,0),#fff);transform:translateY(-100%);animation:hm-fall 2.6s 1.2s var(--ease-ui) infinite}
+@keyframes hm-fall{0%{transform:translateY(-100%)}60%,100%{transform:translateY(170%)}}
+
+/* The scene. The section is a tall track and the stage holds still inside
+   it; the hero is pulled up under the header, whose paper bar is the same
+   colour as the stage at rest, so the window floats on one sheet of paper.
+     --e    the window opening, eased (first 60% of the pin)
+     --g    the glass panel rising (last third)
+   The window is the photo layer's clip-path inset, from the rest margins
+   (--ft --fx --fb) down to 0. The ivory copy of the heading is clipped to
+   the SAME window and the ink heading to everything outside it (an evenodd
+   polygon), so a word changes colour exactly where it crosses the edge. */
+.h-js .hm-hero{height:210vh;min-height:0;max-height:none;margin-top:calc(var(--h-head-h) * -1);background:var(--hm-pp);
+  --ft:19%;--fx:27%;--fb:13%;--ty:-9vh;--o2:22vw;--o3:41vw;
+  --k:clamp(0,var(--pin) / .6,1);--e:calc(var(--k) * var(--k) * (3 - 2 * var(--k)));--r:calc(1 - var(--e));
+  --gk:clamp(0,(var(--pin) - .56) / .34,1);--g:calc(var(--gk) * var(--gk) * (3 - 2 * var(--gk)));
+  --wt:calc(var(--ft) * var(--r));--wx:calc(var(--fx) * var(--r));--wb:calc(var(--fb) * var(--r))}
+.h-js .hm-stage{position:sticky;top:0;height:100svh;background:var(--hm-pp)}
+.h-js .hm-hero-ph,.h-js .hm-ghost,.h-js .hm-lines{clip-path:inset(var(--wt) var(--wx) var(--wb) var(--wx) round 2px)}
+.h-js .hm-hero-sc{scale:calc(1.25 - .25 * var(--e));will-change:transform}
+.h-js .hm-type{clip-path:polygon(evenodd,0 0,100% 0,100% 100%,0 100%,0 0,var(--wx) var(--wt),var(--wx) calc(100% - var(--wb)),calc(100% - var(--wx)) calc(100% - var(--wb)),calc(100% - var(--wx)) var(--wt),var(--wx) var(--wt))}
+.h-js .hm-ghost{display:block;pointer-events:none}
+.h-js .hm-hero h1,.h-js .hm-hero h1 .h-d1{color:var(--hm-ink)}
+.h-js .hm-hero h1 .n-ne{color:#676b64}
+.h-js .hm-hero h1,.h-js .hm-gh1{translate:0 calc(var(--ty) * var(--r))}
+.h-js .hm-l2{translate:calc(var(--o2) * var(--r)) 0}
+.h-js .hm-l3{translate:calc(var(--o3) * var(--r)) 0}
+.h-js .hm-lines i{transform:scaleY(clamp(0,(var(--pin) - .2) / .4,1))}
+.h-js .hm-glass{translate:0 calc((1 - var(--g)) * 70svh)}
+.h-js .hm-glass:focus-within{translate:none}
+.h-js .hm-cue{opacity:calc(1 - var(--k) * 4)}
+.h-js .hm-cue::after{background:linear-gradient(rgba(20,23,20,0),var(--hm-ink))}
+
+/* ---------- Ledger ----------
+   Four columns between hairlines, straight under the hero. Static: plain
+   borders. In the scene each column has its own arrival (--c, staggered
+   left to right): its rules draw across and down and its figure rises out
+   of a mask, so the band reads like a ledger being ruled. */
+.hm-facts{background:var(--h-paper);overflow:clip}
+.hm-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}
+.hm-stat{position:relative;padding:calc(var(--u) * 1.5) var(--u);border-bottom:1px solid var(--h-line)}
+.hm-stat:first-child{padding-left:0}
+.hm-stat+.hm-stat{border-left:1px solid var(--h-line)}
+.hm-stat b{display:block;overflow:hidden;padding:.08em 0 .14em;margin:-.08em 0 -.14em;color:var(--h-ink);font:300 var(--t-statement)/1 var(--font-display);letter-spacing:-.01em;white-space:nowrap}
+.hm-stat b span{display:inline-block}
+.hm-stat>span{display:block;margin-top:calc(var(--u) * .5);color:var(--h-muted);font:500 var(--t-label)/1.5 var(--font-core);letter-spacing:.16em;text-transform:uppercase}
+.h-js .hm-stat{border-color:transparent;--c:clamp(0,(var(--in) - .12 - var(--n) * .09) / .42,1)}
+.h-js .hm-stat:nth-child(1){--n:0}
+.h-js .hm-stat:nth-child(2){--n:1}
+.h-js .hm-stat:nth-child(3){--n:2}
+.h-js .hm-stat:nth-child(4){--n:3}
+.h-js .hm-stat::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:1px;background:var(--h-line);transform-origin:left;transform:scaleX(var(--c))}
+.h-js .hm-stat+.hm-stat::before{content:"";position:absolute;left:-1px;top:0;bottom:0;width:1px;background:var(--h-line);transform-origin:top;transform:scaleY(var(--c))}
+.h-js .hm-stat b span{translate:0 calc((1 - var(--c)) * 112%)}
+
+/* ---------- About: materials ----------
+   The lockup heading across the first six columns, the words in a narrow
+   column under it, and the photographs on whole columns (round 4), so the
+   spread has no dead corner: the stone fills columns 7 to 12 from the top,
+   the pool panel is cut out of its lower left corner on columns 7 to 10 and
+   stands a step below it, and the steppers close the bottom left on
+   columns 1 and 2. Widths are fractions of the column a photo sits in, and
+   with no gutter a fraction of N columns is exactly a column line. */
+.hm-about{overflow:clip}
+.hm-about-g{grid-template-rows:auto 1fr;align-items:start}
+.h-page .hm-about-h{grid-column:1/7;grid-row:1;margin:0;max-width:none}
+.hm-about-h .n-ne,.hm-ab-w{display:inline-block}
+.hm-about-txt{grid-column:1/5;grid-row:2;margin-top:calc(var(--u) * 1.5)}
+.hm-about-txt .h-lede{max-width:36ch;color:var(--h-ink)}
+.hm-em{color:var(--h-accent)}
+.hm-about-txt .h-lede+p{margin:var(--u) 0 0;max-width:40ch;color:var(--h-body);font-size:var(--t-body);line-height:1.7}
+.hm-about-more{margin:calc(var(--u) * 1.5) 0 0}
+.hm-about-more .h-more{margin:0}
+.hm-about-ph{grid-column:7/13;grid-row:1/3;position:relative;padding-bottom:calc(var(--u) * 2)}
+.hm-ab1,.hm-ab2{overflow:hidden;border-radius:2px;background:var(--h-sand)}
+.hm-ab-in{height:100%}
+.hm-ab1{width:100%;margin-left:auto;aspect-ratio:var(--ar-port)}
+.hm-ab2{--bw:clamp(8px,.9vw,14px);position:absolute;left:0;bottom:0;width:66.6667%;aspect-ratio:var(--ar-land);border:var(--bw) solid var(--h-paper)}
+.hm-ab3{width:50%;margin:calc(var(--u) * 2) auto 0 0;aspect-ratio:var(--ar-port);overflow:hidden;border-radius:2px;background:var(--h-sand)}
+/* The scene: --hk the heading's arrival, --cu the stone's curtain (drawn
+   down from the top), --rv the pool panel's wipe (from its left edge).
+   Through the whole pass the stone rises and the pool sinks and slides right
+   across it, so the two photographs travel past each other. */
+.h-js .hm-about{--hk0:clamp(0,(var(--in) - .04) / .62,1);--hk:calc(var(--hk0) * var(--hk0) * (3 - 2 * var(--hk0)));
+  --cu0:clamp(0,(var(--in) - .18) / .72,1);--cu:calc(var(--cu0) * var(--cu0) * (3 - 2 * var(--cu0)));
+  --rv0:clamp(0,(var(--p) - .3) / .2,1);--rv:calc(var(--rv0) * var(--rv0) * (3 - 2 * var(--rv0)))}
+.h-js .hm-ab-w{translate:calc((1 - var(--hk)) * -7vw) 0}
+.h-js .hm-about-h .n-ne{translate:calc((1 - var(--hk)) * 11vw) 0}
+.h-js .hm-ab1{translate:0 calc((.5 - var(--p)) * 18vh);clip-path:inset(0 0 calc((1 - var(--cu)) * 100%) 0);will-change:transform}
+.h-js .hm-ab1 .hm-ab-in{scale:calc(1.18 - .18 * var(--cu));transform-origin:50% 0}
+.h-js .hm-ab2{translate:calc((var(--p) - .5) * 16vw) calc((var(--p) - .5) * 22vh);clip-path:inset(0 calc((1 - var(--rv)) * 100%) 0 0);will-change:transform}
+.h-js .hm-ab2 .hm-ab-in{scale:calc(1.2 - .2 * var(--rv))}
+.h-js .hm-about{--rs0:clamp(0,(var(--p) - .36) / .22,1);--rs:calc(var(--rs0) * var(--rs0) * (3 - 2 * var(--rs0)))}
+.h-js .hm-ab3{translate:0 calc((var(--p) - .5) * 10vh);clip-path:inset(calc((1 - var(--rs)) * 100%) 0 0 0)}
+.h-js .hm-ab3 .hm-ab-in{scale:calc(1.25 - .25 * var(--rs));transform-origin:50% 100%}
+
+/* ---------- The curtain: About to Services ----------
+   About and the night room share one wrapper (.hm-curtain). The night room
+   always throws a soft shadow up onto the page above it, so cream never
+   meets night at a hard line, even with no script.
+   Desktop scene: once About's foot meets the foot of the screen it holds
+   there ([data-hold]: sticky by its own height, --hh, which the script
+   measures), and the night room keeps coming, sliding up over it like a
+   curtain. --cv, how far the night has come up, dims the held page into
+   dusk as it goes (squared, so it starts gently). The wrapper ends with the
+   night room, so About lets go there, out of sight under the night. Phones
+   scroll straight on: no hold. */
+.hm-curtain{isolation:isolate}
+.hm-svc{box-shadow:0 -56px 72px -40px rgba(14,18,16,.5)}
+@media(min-width:1000px){
+.h-js .hm-about.is-held{position:sticky;top:min(0px,calc(100svh - var(--hh)));z-index:0}
+.h-js .hm-about.is-held::after{content:"";position:absolute;inset:0;z-index:6;background:var(--h-night);opacity:calc(var(--cv) * var(--cv) * .8);pointer-events:none}
+.h-js .hm-svc{position:relative;z-index:1}
+}
+
+/* ---------- Services: the night room ----------
+   Static: the heading holds on the left (sticky) while the three cards
+   pass in a column on the right. The rolling numeral is scene-only. */
+.hm-svc{padding:var(--h-sec) 0}
+.hm-svc-g{align-items:start;grid-template-rows:auto 1fr}
+.hm-svc-head{grid-column:1/5;grid-row:1;position:sticky;top:calc(var(--h-head-h) + 40px)}
+.hm-svc-head .h-h2{margin:0;font-size:var(--t-display);line-height:1;letter-spacing:-.02em}
+.hm-svc-head .h-lede{margin:var(--u) 0 0;max-width:26ch;color:var(--h-on-night-mute)}
+.hm-odo{display:none}
+.hm-svc-all{grid-column:1/5;grid-row:2;align-self:end;justify-self:start;margin:calc(var(--u) * 1.5) 0 0;color:var(--h-on-night)!important}
+.hm-deck{grid-column:6/13;grid-row:1/3;display:grid;row-gap:calc(var(--u) * 1.5)}
+.hm-card{position:relative;display:flex;flex-direction:column;overflow:hidden;border:1px solid rgba(236,232,223,.1);border-radius:2px;background:var(--h-night-2);color:inherit;text-decoration:none!important}
+.hm-card-ph{position:relative;overflow:hidden;aspect-ratio:var(--ar-land);background:var(--h-night)}
+.hm-card-ph img{transition:scale 1.2s var(--h-ease)}
+.hm-card:hover .hm-card-ph img{scale:1.04}
+.hm-card-b{display:grid;grid-template-columns:auto minmax(0,1fr) auto;grid-template-rows:auto auto;column-gap:var(--u);align-items:baseline;padding:var(--u)}
+.hm-num{grid-row:1/3;color:var(--h-bronze);font:500 var(--t-label)/1 var(--font-core);letter-spacing:.16em}
+.hm-num::before{content:attr(data-t)}
+.hm-card b{grid-column:2;display:block;color:var(--h-on-night);font:300 var(--t-statement)/1.15 var(--font-display);letter-spacing:-.01em}
+.hm-blurb{grid-column:2;display:block;margin-top:calc(var(--u) * .5);max-width:44ch;color:var(--h-on-night-mute);font-size:var(--t-body);line-height:1.7}
+.hm-card em{grid-column:3;grid-row:1;display:inline-flex;align-items:center;gap:10px;padding-bottom:6px;color:var(--h-on-night);font:500 var(--t-label)/1.3 var(--font-core);font-style:normal;letter-spacing:.16em;text-transform:uppercase;white-space:nowrap;background:linear-gradient(currentColor,currentColor) 0 100%/0 1px no-repeat;transition:background-size .6s var(--h-ease)}
+.hm-card em i{font-style:normal;transition:transform .6s var(--h-ease)}
+.hm-card:hover em{background-size:100% 1px}
+.hm-card:hover em i{transform:translateX(5px)}
+.hm-card:focus-visible{outline:2px solid var(--h-on-night);outline-offset:4px}
+
+/* The deck (desktop scene). The section is a 300vh track; the stage holds
+   for two screens of scroll. --sp is the section's pin read once on the
+   stage (each card is a scene of its own for phones, so the cards must not
+   read their own --pin here). Card 2 rises from below the screen over card
+   1 (--s2), then card 3 over card 2 (--s3); each card underneath steps back
+   (scale from the top edge) and dims, the stack showing as thin edges above
+   the active card. The bronze numeral rolls with the deck. */
+@media(min-width:1000px){
+.h-js .hm-svc{height:300vh;padding:0}
+.h-js .hm-svc-stage{position:sticky;top:0;height:100svh;overflow:hidden;
+  --sp:var(--pin);
+  --a2:clamp(0,(var(--sp) - .14) / .3,1);--s2:calc(var(--a2) * var(--a2) * (3 - 2 * var(--a2)));
+  --a3:clamp(0,(var(--sp) - .54) / .3,1);--s3:calc(var(--a3) * var(--a3) * (3 - 2 * var(--a3)))}
+.h-js .hm-svc-g{height:100%;padding-top:clamp(96px,13vh,132px);padding-bottom:clamp(40px,7vh,72px);grid-template-rows:auto 1fr auto}
+.h-js .hm-svc-head{position:relative;top:0}
+.h-js .hm-odo{display:block;margin-top:clamp(40px,11vh,140px);height:1em;overflow:hidden;color:var(--h-bronze);font:300 var(--t-display)/1 var(--font-display);letter-spacing:-.02em}
+.h-js .hm-odo>span{display:block;translate:0 calc((var(--s2) + var(--s3)) * -33.3333%)}
+.h-js .hm-odo i{display:block;height:1em;font-style:normal}
+.h-js .hm-odo i::before{content:attr(data-t)}
+.h-js .hm-svc-all{grid-row:3;margin:0}
+.h-js .hm-deck{grid-row:1/4;position:relative;display:block;height:100%}
+.h-js .hm-card{position:absolute;left:0;right:0;top:calc(var(--ci) * 22px);height:calc(100% - 44px);transform-origin:50% 0}
+.h-js .hm-card-ph{aspect-ratio:auto;flex:1 1 auto;min-height:0}
+.h-js .hm-card::after{content:"";position:absolute;inset:0;background:var(--h-night);opacity:0;pointer-events:none}
+.h-js .hm-card1{--ci:0;transform:scale(calc(1 - .06 * var(--s2) - .05 * var(--s3)));will-change:transform}
+.h-js .hm-card1::after{opacity:calc(.5 * var(--s2) + .2 * var(--s3))}
+.h-js .hm-card2{--ci:1;transform:translateY(calc((1 - var(--s2)) * 100svh)) scale(calc(1 - .06 * var(--s3)));will-change:transform}
+.h-js .hm-card2::after{opacity:calc(.5 * var(--s3))}
+.h-js .hm-card3{--ci:2;transform:translateY(calc((1 - var(--s3)) * 100svh));will-change:transform}
+.h-js .hm-card2 .hm-card-ph img{translate:0 calc((1 - var(--s2)) * -12%);scale:1.12}
+.h-js .hm-card3 .hm-card-ph img{translate:0 calc((1 - var(--s3)) * -12%);scale:1.12}
+.h-js .hm-card:hover .hm-card-ph img{scale:1.16}
+}
+
+/* ---------- Recent work: the walk ----------
+   Static desktop (no JS): an interlocking collage on sandstone, alternating
+   wide and tall, the right-hand run pushed down a step. */
+.hm-walk{padding:var(--h-sec) 0}
+.hm-work-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:var(--u) calc(var(--u) * 1.5)}
+.hm-work-head .h-label{margin:0}
+.hm-work-head .h-h2{margin:var(--u) 0 0}
+.hm-work-head .h-more{margin:0 0 calc(var(--u) * .5)}
+/* The walk heading is the page's one Poster (with the footer sign-off). */
+.h-page .hm-walk-h{font-size:var(--t-poster);line-height:.9;letter-spacing:-.02em}
+.hm-work{max-width:1440px;margin:calc(var(--u) * 2) auto 0;padding:0 var(--h-gut) var(--hm-drop);list-style:none;align-items:start;row-gap:calc(var(--u) * 4)}
+.h-page{--hm-drop:calc(var(--u) * 2)}
+.hm-work li{position:relative;margin:0;padding:0}
+.hm-wph{overflow:hidden;border-radius:2px;background:var(--h-paper)}
+.hm-work li>span{display:flex;align-items:center;gap:12px;margin-top:calc(var(--u) * .5);color:var(--h-muted);font:500 var(--t-label)/1.3 var(--font-core);letter-spacing:.16em;text-transform:uppercase}
+.hm-work li>span::before{content:"";width:20px;height:1px;background:var(--h-bronze)}
+.hm-work li>span::after{content:attr(data-t)}
+.hm-work li:nth-child(even){translate:0 var(--hm-drop)}
+.hm-work li:nth-child(1),.hm-work li:nth-child(5){grid-column:1/8}
+.hm-work li:nth-child(2),.hm-work li:nth-child(6){grid-column:9/13}
+.hm-work li:nth-child(3){grid-column:1/5}
+.hm-work li:nth-child(4){grid-column:6/13}
+.hm-work li:nth-child(odd) .hm-wph{aspect-ratio:var(--ar-land)}
+.hm-work li:nth-child(even) .hm-wph{aspect-ratio:var(--ar-port)}
+.hm-work li:nth-child(3) .hm-wph{aspect-ratio:var(--ar-port)}
+.hm-work li:nth-child(4) .hm-wph{aspect-ratio:var(--ar-land)}
+.hm-walk-bar{display:none}
+/* In the walk the trade tags sit on a strip of sand, so they stay legible
+   where they pass over the giant heading. */
+.h-js .hm-work li>span{width:max-content;padding:5px 12px 5px 0;background:var(--h-sand)}
+
+/* The walk (desktop scene). The section is a 440vh track and the stage holds
+   while the scroll walks you past six photographs. They hang on one long
+   strip (--tw wide) that slides left the whole way, and each also has its own
+   drift (--d) on top, so near ones pass faster than far ones and they
+   overlap and part as you go; inside each frame the photo slides the other
+   way, like looking into each garden as you pass it. Sizes and positions are
+   in vh so the composition keeps its proportions on any screen. The huge
+   heading sits behind them and moves at a fraction of their speed. The
+   label and the gallery link stay put; a hairline marks the way. */
+@media(min-width:1000px){
+.h-js .hm-walk{height:440vh;padding:0;--tw:500vh}
+.h-js .hm-walk-stage{position:sticky;top:0;height:100svh;overflow:hidden}
+.h-js .hm-work-head{position:absolute;inset:0;display:block;max-width:none;pointer-events:none}
+.h-js .hm-work-head>div{position:static}
+.h-js .hm-work-head .h-label{position:absolute;z-index:3;left:var(--h-gut);top:clamp(84px,11vh,112px)}
+.h-js .hm-work-head .h-more{position:absolute;z-index:3;right:var(--h-gut);top:clamp(84px,11vh,112px);margin:-4px 0 0;pointer-events:auto}
+.h-js .hm-walk-h{position:absolute;z-index:0;left:var(--h-gut);bottom:11vh;margin:0;max-width:none;white-space:nowrap;font-size:var(--t-poster);line-height:.9;letter-spacing:-.02em;translate:calc(var(--pin) * -62vh) 0;will-change:transform}
+.h-js .hm-work{position:absolute;left:0;top:0;z-index:1;display:block;width:var(--tw);max-width:none;height:100%;margin:0;padding:0;transform:translateX(calc(var(--pin) * (100vw - var(--tw))));will-change:transform}
+.h-js .hm-work li{position:absolute;left:var(--x);top:var(--y);width:calc(var(--h) * var(--ar));translate:none;transform:translateX(calc((var(--pin) - .5) * var(--d)))}
+.h-js .hm-work li .hm-wph{aspect-ratio:var(--ar);height:var(--h)}
+.h-js .hm-wph img{scale:1.16;translate:calc((var(--pin) - .5) * -10%) 0}
+.h-js .hm-work li:nth-child(1){--x:112vh;--y:18vh;--h:54vh;--ar:3/2;--d:-24vh;z-index:3}
+.h-js .hm-work li:nth-child(2){--x:208vh;--y:50vh;--h:33vh;--ar:4/5;--d:18vh;z-index:1}
+.h-js .hm-work li:nth-child(3){--x:244vh;--y:17vh;--h:66vh;--ar:4/5;--d:-30vh;z-index:4}
+.h-js .hm-work li:nth-child(4){--x:316vh;--y:36vh;--h:48vh;--ar:3/2;--d:-12vh;z-index:3}
+.h-js .hm-work li:nth-child(5){--x:398vh;--y:19vh;--h:34vh;--ar:4/3;--d:20vh;z-index:1}
+.h-js .hm-work li:nth-child(6){--x:452vh;--y:40vh;--h:40vh;--ar:4/5;--d:-14vh;z-index:2}
+.h-js .hm-walk-bar{display:block;position:absolute;z-index:3;left:var(--h-gut);right:var(--h-gut);bottom:4.5vh;height:1px;background:var(--h-line)}
+.h-js .hm-walk-bar::after{content:"";position:absolute;inset:0;background:var(--h-ink);transform-origin:left;transform:scaleX(var(--pin))}
+/* The overtake (round 4), the way into the walk. The first photograph waits
+   below the stage, so the giant heading arrives on the sand alone; then, in
+   the first stretch of the pin (--ov), the photograph sweeps up over the
+   words, six times faster than they drift, and settles where the walk takes
+   it on. A vertical pass, so it never repeats the walk's sideways one. */
+.h-js .hm-walk-stage{--ov0:clamp(0,var(--pin) / .17,1);--ov:calc(var(--ov0) * var(--ov0) * (3 - 2 * var(--ov0)))}
+.h-js .hm-work li:nth-child(1){translate:0 calc((1 - var(--ov)) * 86vh)}
+}
+
+/* ---------- FAQ ----------
+   The heading holds (sticky) in the first four columns while the questions
+   pass in the last seven. In the scene the rows' hairlines are drawn as
+   each question arrives, and nothing else moves. */
+.hm-faq-g{align-items:start}
+.hm-faq-head{grid-column:1/5;position:sticky;top:120px}
+.hm-faq-head .h-label{margin:0}
+.hm-faq-head .h-h2{margin:var(--u) 0 0}
+.hm-faq .h-faqs{position:relative;grid-column:6/13;max-width:none;margin:0}
+.h-js .hm-faq .h-faq{border-color:transparent}
+.h-js .hm-faq .h-faq summary::before{content:"";position:absolute;left:0;right:0;top:-1px;height:1px;background:var(--h-line);transform-origin:left;transform:scaleX(clamp(0,(var(--in) - .08) / .5,1))}
+.h-js .hm-faq .h-faqs::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:1px;background:var(--h-line);transform-origin:left;transform:scaleX(clamp(0,(var(--p) - .3) / .25,1))}
+
+/* ---------- Closing band: the invitation ----------
+   The shared .h-final photo band (brand.css). Static, and with no script:
+   the finished full-bleed band.
+   Desktop scene (round 4, "card to full-bleed"): the band sits in a 230vh
+   track (.hm-fin, which carries the scene) on paper and is its sticky stage.
+   It arrives as a framed card, narrow and centred on the paper, then
+   unfolds: out to the sides first (--fw), then up and down (--fh), until it
+   fills the screen. The photograph holds still while the card opens over it,
+   so it never zooms like the hero's window. Then the heading's words rise
+   one by one (--w per word, from its index --i), then the button and the
+   small line (--b). All scrubbed: scroll back and it folds up again.
+   Phones: no pin. The photograph fades up out of the night as the band
+   arrives, and the words rise as they enter, like every other heading. */
+.hm-final .h-h2{max-width:13ch}
+.hm-final small a,.hm-alt a{white-space:nowrap}
+@media(min-width:1000px){
+.h-js .hm-fin{height:230vh;background:var(--hm-pp)}
+.h-js .hm-fin .hm-final{position:sticky;top:0;height:100svh;min-height:0;
+  --fw0:clamp(0,(var(--pin) - .02) / .4,1);--fw:calc(var(--fw0) * var(--fw0) * (3 - 2 * var(--fw0)));
+  --fh0:clamp(0,(var(--pin) - .26) / .42,1);--fh:calc(var(--fh0) * var(--fh0) * (3 - 2 * var(--fh0)));
+  --b:clamp(0,(var(--pin) - .82) / .1,1);
+  clip-path:inset(calc((1 - var(--fh)) * 15%) calc((1 - var(--fw)) * 31%) round 2px)}
+.h-js .hm-final .h-final-ph{inset:0;translate:none}
+.h-js .hm-final .h-h2[data-split] .sw{overflow:hidden}
+.h-js .hm-final .h-h2[data-split] .sw .si{--w:clamp(0,(var(--pin) - .6 - var(--i) * .03) / .12,1);translate:0 calc((1 - var(--w)) * 108%);transition:none;animation:none}
+.h-js .hm-final .h-btn,.h-js .hm-final small{opacity:var(--b);translate:0 calc((1 - var(--b)) * 24px)}
+.h-js .hm-final .h-btn:focus-visible,.h-js .hm-final small:focus-within{opacity:1;translate:none}
+}
+@media(max-width:999px){
+.h-js .hm-fin{--fo0:clamp(0,(var(--in) - .1) / .7,1)}
+.h-js .hm-final .h-final-ph{opacity:calc(var(--fo0) * var(--fo0) * (3 - 2 * var(--fo0)))}
+}
+
+/* ---------- Tablet ---------- */
+@media(max-width:1100px){
+  .hm-glass{grid-column:8/13}
+  .hm-faq-head{grid-column:1/-1;position:static}
+  .hm-faq .h-faqs{grid-column:1/-1;margin-top:calc(var(--u) * 1.5)}
+}
+
+/* Below 1000px the night room and the walk are not pinned: the cards are a
+   column and the work is a native swipe row with the next photo peeking. */
+@media(max-width:999px){
+  .hm-svc-head{grid-column:1/-1;position:static}
+  .hm-svc-all{grid-column:1/-1;grid-row:3;margin-top:calc(var(--u) * 1.5)}
+  .hm-deck{grid-column:1/-1;grid-row:2;margin-top:calc(var(--u) * 1.5);row-gap:calc(var(--u) * 2)}
+  .hm-card-b{grid-template-columns:auto minmax(0,1fr)}
+  .hm-card em{grid-column:2;grid-row:3;justify-self:start;margin-top:var(--u)}
+  .hm-walk{overflow:clip}
+  .hm-work{display:flex;gap:calc(var(--u) * .5);margin-top:calc(var(--u) * 2);padding:0 var(--h-gut) 8px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding:0 var(--h-gut);scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  .hm-work::-webkit-scrollbar{display:none}
+  .hm-work li,.hm-work li:nth-child(n){flex:0 0 min(78vw,520px);translate:none;scroll-snap-align:start}
+  .hm-work li:nth-child(n) .hm-wph{aspect-ratio:var(--ar-port)}
+  .hm-work li>span{margin-top:calc(var(--u) * .5)}
+  .hm-work li>span::before{width:14px}
+  /* Each card is its own scene here: it scales up from .9 as it arrives,
+     the photo settling inside it from a closer crop. Never faded, so its
+     text keeps full contrast in every frame. */
+  .h-js .hm-card{--cs0:clamp(0,var(--in) / .85,1);--cs:calc(var(--cs0) * var(--cs0) * (3 - 2 * var(--cs0)));transform:scale(calc(.9 + .1 * var(--cs)));transform-origin:50% 0}
+  .h-js .hm-card-ph img{scale:calc(1.18 - .18 * var(--cs))}
+}
+
+/* Below 900px the about photos move under the words. */
+@media(max-width:900px){
+  .h-page .hm-about-h{grid-column:1/-1}
+  .hm-about-txt{grid-column:1/-1;max-width:560px}
+  .hm-ab3{display:none}
+  .hm-about-ph{grid-column:1/-1;grid-row:3;margin-top:calc(var(--u) * 2);padding-bottom:calc(var(--u) * 3)}
+  .hm-ab1{width:75%}
+  .hm-ab2{width:58.3333%}
+  .h-js .hm-ab1{translate:0 calc((.5 - var(--p)) * 8vh)}
+  .h-js .hm-ab2{translate:calc((var(--p) - .5) * 10vw) calc((var(--p) - .5) * 10vh)}
+}
+
+/* ---------- Phone ---------- */
+@media(max-width:800px){
+  /* Hero: the heading sits above the panel, both low in the screen. At rest
+     the window is a tall pane inset from the sides, the heading crossing
+     its lower edge, so its first line is ivory on the photo and the last
+     ink on the paper. */
+  .hm-hero{--hb:clamp(300px,47svh,420px)}
+  .hm-hero h1,.hm-gh1{grid-column:1/-1}
+  .hm-panel{padding-bottom:var(--u)}
+  .hm-glass{grid-column:1/-1;max-width:none}
+  .hm-glass .h-btn{width:100%;max-width:none}
+  .hm-lines{grid-template-columns:repeat(2,1fr)}
+  .hm-lines i:nth-child(1){grid-column:2}
+  .hm-lines i:nth-child(n+2){display:none}
+  .h-js .hm-hero{height:150vh;--ft:13%;--fx:5.5%;--fb:33%;--ty:24.5svh;--o2:8vw;--o3:13vw}
+  .hm-hero img{object-position:34% 62%!important}
+  .hm-stats{grid-template-columns:minmax(0,1fr)}
+  .hm-stat,.hm-stat:first-child{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);align-items:baseline;gap:var(--u);padding:var(--u) 0}
+  .hm-stat+.hm-stat{border-left:0}
+  .h-js .hm-stat+.hm-stat::before{display:none}
+  .hm-stat>span{margin:0}
+  .hm-ab1{width:83.3333%}
+  .hm-card-ph{aspect-ratio:var(--ar-port)}
+}

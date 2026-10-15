@@ -1,0 +1,50 @@
+/* The photo rhythm block (components/site/Rhythm.tsx), inlined by the block
+   itself through <PageCss file="rhythm.css" />, so it ships only on the pages
+   that use it: Home, Services, Gallery, Blog, About and Contact.
+
+   Round 4, 4 Oct 2026, from the Sobha Privy Collection study: a wide shot,
+   then a row of small square close-ups, then wide again. The close-ups sit on
+   the 12-column grid (.h-grid, 4 columns on phones), the middle one dropped
+   by a step so the row reads as a set rather than a strip of tiles. The
+   breather is one photograph edge to edge with nothing on it: the pause
+   between two sections.
+
+   Shapes come from the three photo tokens only (brand.css Part 1): the
+   close-ups are --ar-sq, the breather --ar-land on screens and --ar-port on
+   phones, where a landscape band would be a sliver. Spacing is --u only.
+
+   Static on purpose. Motion on these pages belongs to the page scenes. */
+
+.rh{padding-top:calc(var(--u) * 4)}
+.rh-solo{padding-bottom:calc(var(--u) * 4)}
+/* Below the fold everywhere it is used: skip rendering, so the lazy photos
+   inside never compete with the first screen. Estimates only; auto keeps
+   the real size once it has rendered. */
+.rh.h-cv{contain-intrinsic-size:auto 1500px}
+.rh-solo.h-cv{contain-intrinsic-size:auto 700px}
+
+.rh-row{column-gap:calc(var(--u) * .5);row-gap:calc(var(--u) * .5);align-items:start}
+.rh-cu{margin:0;overflow:hidden;aspect-ratio:var(--ar-sq);background:var(--h-sand)}
+.rh-cu img,.rh-air img{display:block;width:100%;height:100%;object-fit:cover}
+.rh-row>.rh-cu{grid-column:span 4}
+.rh[data-n="2"] .rh-row>.rh-cu:first-child{grid-column:3/span 4}
+.rh-row>.rh-cu:nth-child(2){margin-top:calc(var(--u) * 1.5)}
+
+.rh-air{margin-top:calc(var(--u) * 4);overflow:hidden;aspect-ratio:var(--ar-land);background:var(--h-sand)}
+
+/* Full bleed (the gallery): the close-ups run edge to edge and touch, the
+   band itself is the breather. */
+.rh-bleed .rh-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0}
+.rh-bleed[data-n] .rh-row>.rh-cu:nth-child(n){grid-column:auto;margin-top:0}
+
+/* Phones: two small, then one across the full width. The gallery band:
+   one across, then two. */
+@media(max-width:700px){
+  .rh-row>.rh-cu,.rh[data-n="2"] .rh-row>.rh-cu:first-child{grid-column:span 2}
+  .rh[data-n="3"] .rh-row>.rh-cu:nth-child(3){grid-column:1/-1}
+  .rh-row>.rh-cu:nth-child(2){margin-top:calc(var(--u) * 1)}
+  .rh-air{aspect-ratio:var(--ar-port)}
+  .rh-bleed .rh-row{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .rh-bleed[data-n] .rh-row>.rh-cu:nth-child(n){grid-column:auto;margin-top:0}
+  .rh-bleed[data-n] .rh-row>.rh-cu:first-child{grid-column:1/-1}
+}

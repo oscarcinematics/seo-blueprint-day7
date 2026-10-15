@@ -1,0 +1,133 @@
+/* /gallery only. Inlined by <PageCss file="gallery.css" />.
+
+   The shared Cover (components/site/Cover.tsx), a sticky trade index, then
+   each trade as a room on one of the homepage's grounds (sand, paper and
+   night in turn, set in page.tsx), its photographs hung as one band of equal
+   squares that travels sideways as you scroll, then the shared Close. The
+   Cover and the Close are styled in brand.css; nothing here touches them. */
+
+/* ---------- Trade index: sticky, paper with blur ---------- */
+/* It parks just under the header, and slides up to the very top while the
+   header is hidden (scrolling down), so the two never overlap. A hairline
+   above and below: above, it closes the Cover's title row; below, it is the
+   top edge of whichever room is passing under it. Paper at 95%, not the
+   header's 84%: over a night room a thinner paper read as a grey bar. */
+.gl-body{position:relative;overflow-x:clip;--gl-top:72px}
+.h-page:has(.h-head.is-hidden) .gl-body{--gl-top:0px}
+@media(max-width:999px){.gl-body{--gl-top:64px}}
+.gl-nav{position:sticky;top:var(--gl-top);transition:top .7s var(--h-ease);z-index:20;background:color-mix(in srgb,var(--h-paper) 95%,transparent);-webkit-backdrop-filter:blur(14px) saturate(1.2);backdrop-filter:blur(14px) saturate(1.2);border-top:1px solid var(--h-line);border-bottom:1px solid var(--h-line)}
+.gl-nav ul{display:flex;gap:var(--u);margin:0;padding:0;list-style:none;overflow-x:auto;scrollbar-width:none}
+.gl-nav ul::-webkit-scrollbar{display:none}
+.gl-nav li{flex:none}
+/* The trades are named as they are on the rooms below, in sentence case at
+   a readable size and weight (5 Oct 2026; the small tracked capitals read
+   faint). The bar stays 57px tall, which the rooms' stages clear. */
+.gl-nav a{position:relative;display:block;padding:21px 0 19px;color:var(--h-body)!important;font:600 15px/1 var(--font-core);text-decoration:none!important;white-space:nowrap;transition:color .3s}
+.gl-nav a::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;background:var(--h-ink);transform:scaleX(0);transform-origin:right;transition:transform .6s var(--h-ease)}
+.gl-nav a:hover,.gl-nav a:focus-visible{color:var(--h-ink)!important}
+.gl-nav a:hover::after{transform:none;transform-origin:left}
+.gl-nav a:focus-visible{outline-offset:-2px}
+.gl-sec{scroll-margin-top:calc(var(--gl-top) + 32px)}
+
+/* ---------- The room (round 7, 5 Oct 2026) ----------
+   A trade on one of the homepage's grounds, running edge to edge with no
+   gap between rooms, so the change of ground is what marks each trade. Its
+   photographs hang as one band of equal squares set edge to edge in a
+   single clean mount.
+   Desktop with motion on: the room is a tall track and its stage holds while
+   the row travels sideways the whole way, so scrolling down walks you along
+   it; the row glides in from the right as the room arrives, then a short
+   hold at each end shows the first and last square at rest. Everywhere else
+   (phones, reduced motion, JS off) the row is a native swipe row with the
+   next square peeking in, so every photograph is always reachable.
+   The ground's class (.h-sand or .h-night from brand.css, or .gl-paper)
+   paints the room, and .h-night turns its tokens over. What changes with
+   the ground is only the mount and the light on the wall:
+     --g      the ground, which the band's shadow is mixed from
+     --mat    the mount: off-white, a step lighter than paper or sand
+     --b      the mount's width, round the outside and between each pair */
+.gl-room{--g:var(--h-paper);--mat:#fbfaf7;--b:clamp(5px,.6vw,9px);--sq:min(78vw,520px);--shade:color-mix(in srgb,var(--g),#000 62%);color:var(--h-body)}
+.gl-room.gl-paper{background:var(--h-paper)}
+.gl-room.h-sand{--g:#e8e4da}
+/* Night: the wall is lit, not black, and the squares hang on it bare.
+   Tested 5 Oct 2026 against the off-white mount and a thin one: on night a
+   mount turns the band into a white filmstrip with the dark showing only
+   above and below it, while bare squares with a night gap between them read
+   as prints on a dark wall, the way the homepage's night room sets its
+   cards (a faint ivory hairline on each edge, no shadow, which would be
+   black on black). A pool of light falls from the top of the wall behind
+   the heading and fades by the band, so the room reads as a gallery after
+   dark rather than a dark box (the client found photographs on a dark
+   bluestone wall bland, 5 Oct 2026). */
+.gl-room.h-night{--g:#0e1210;--mat:transparent;--b:clamp(8px,.8vw,12px);--shade:transparent}
+.gl-room.h-night .gl-strip{padding:0}
+.gl-room.h-night .gl-sq{outline:1px solid rgba(236,232,223,.14);outline-offset:-1px}
+.gl-stage{padding:calc(var(--u) * 2.5) 0}
+.gl-room.h-night .gl-stage{background:radial-gradient(ellipse 75% 70% at 50% 0%,#27312b,rgba(23,29,25,.7) 45%,transparent 80%)}
+.gl-room-hd{display:flex;align-items:flex-end;justify-content:space-between;gap:var(--u);margin-bottom:var(--u)}
+.gl-room-hd h2{margin:0;color:var(--h-ink);font:500 clamp(40px,4.7vw,68px)/.95 var(--font-display);letter-spacing:-.025em}
+/* The count, at full contrast, and (with motion on) the walk's progress
+   under it: a hairline track with a bronze fill, the house ornament. */
+.gl-room-meta{display:flex;align-items:center;gap:18px;padding-bottom:.35em;color:var(--h-ink);font:500 15px/1 var(--font-core);white-space:nowrap}
+.gl-room-meta::before{content:attr(data-t)}
+.gl-room-meta i{display:none;position:relative;width:160px;height:2px;background:var(--h-line)}
+/* The swipe row is a scroller, which clips whatever hangs outside it, so it
+   carries room below for the band's shadow and takes it back with the margin. */
+.gl-row{margin:0 calc(-1 * var(--h-gut)) -44px;padding:0 var(--h-gut) 44px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding:0 var(--h-gut);scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.gl-row::-webkit-scrollbar{display:none}
+/* The band: the squares butt up inside one mount (--mat), the same width
+   (--b) round the outside and between every pair, like a strip of prints
+   framed together. The band hangs as one piece, so it casts one shadow: a
+   tight one where it meets the wall and a wide faint one below, both a
+   deeper shade of the ground. */
+.gl-strip{display:flex;width:max-content;gap:var(--b);margin:0;padding:var(--b);list-style:none;background:var(--mat);box-shadow:0 2px 3px color-mix(in srgb,var(--shade) 30%,transparent),0 30px 60px -18px color-mix(in srgb,var(--shade) 55%,transparent)}
+.gl-strip li{flex:0 0 var(--sq);scroll-snap-align:start}
+.gl-sq{aspect-ratio:1;overflow:hidden;background:var(--h-sand)}
+.gl-sq img{display:block;width:100%;height:100%;object-fit:cover}
+@media(min-width:1000px){
+.gl-room{--sq:min(calc(100svh - 300px),580px)}
+/* --travel is how far the band must move for its right edge to land on the
+   right edge of the content; the track is that much longer than the
+   screen, plus a little, so the walk is unhurried. --t is the walk itself,
+   holding still for the first and last 8 percent of the pin. --a is the
+   arrival glide, eased off --in. */
+.h-js .gl-room{--travel:max(0px,calc(var(--n) * (var(--sq) + var(--b)) + var(--b) - min(100vw,1440px) + 2 * var(--h-gut)));--t:clamp(0,(var(--pin) - .08) / .84,1);--a:calc(var(--in) * var(--in) * (3 - 2 * var(--in)));height:calc(100svh + var(--travel) * 1.3)}
+/* An index link lands on the room's top, where the stage is held at the
+   start of its walk. */
+.h-js .gl-room{scroll-margin-top:0}
+/* The stage clears the sticky trade index (57px) and centres below it. */
+.h-js .gl-stage{position:sticky;top:0;height:100svh;overflow:hidden;display:grid;align-content:center;padding:57px 0 0}
+.h-js .gl-room-w{width:100%;container-type:inline-size}
+/* 100cqw is the content width and 100% the band's own, so the band ends
+   exactly on the right edge whatever the screen. */
+.h-js .gl-row{margin:0;padding:0;overflow:visible;scroll-snap-type:none}
+.h-js .gl-strip{translate:calc((1 - var(--a)) * 16vw + var(--t) * min(0px,100cqw - 100%)) 0;will-change:translate}
+.h-js .gl-room-meta i{display:block}
+.h-js .gl-room-meta i::after{content:"";position:absolute;inset:0;background:var(--h-bronze);transform-origin:left;transform:scaleX(var(--t))}
+/* Where the browser can tie an animation to the scroll itself (Chrome 115+,
+   Safari 26+), the band's moves run off the room's view timeline instead of
+   the script's --in and --pin (13 Oct 2026). The script writes those on the
+   main thread a frame or more after the page has scrolled, and with a
+   trackpad in Chrome the band arriving off the Cover fell behind and then
+   snapped to catch up. A view timeline runs with the scroll itself. Same
+   motion, same numbers: the glide is the arrival (entry 0 to 75% is --in 0
+   to 1) on the row, eased by cubic-bezier(1/3,0,2/3,1), which is exactly
+   the smoothstep --a used; the walk is the pin less its 8% holds (contain 8
+   to 92% is --t 0 to 1) on the band. Elsewhere the --in/--pin rules above
+   still drive it. */
+@supports (animation-timeline:view()){
+.h-js .gl-room{view-timeline:--gl-room block}
+.h-js .gl-row{animation:gl-glide cubic-bezier(.3333,0,.6667,1) both;animation-timeline:--gl-room;animation-range:entry 0% entry 75%}
+.h-js .gl-strip{animation:gl-walk linear both;animation-timeline:--gl-room;animation-range:contain 8% contain 92%}
+.h-js .gl-room-meta i::after{animation:gl-fill linear both;animation-timeline:--gl-room;animation-range:contain 8% contain 92%}
+}
+}
+@keyframes gl-glide{from{translate:16vw 0}to{translate:0 0}}
+@keyframes gl-walk{from{translate:0 0}to{translate:min(0px,100cqw - 100%) 0}}
+@keyframes gl-fill{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+
+/* ---------- Tablet and phone: the index tightens ---------- */
+@media(max-width:860px){
+.gl-nav a{padding:16px 0}
+.gl-nav ul{gap:calc(var(--u) * 1.5);-webkit-mask-image:linear-gradient(90deg,#000 85%,transparent);mask-image:linear-gradient(90deg,#000 85%,transparent);padding-right:calc(var(--u) * 2)}
+}
