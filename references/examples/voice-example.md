@@ -1,12 +1,12 @@
 # Voice - worked example
 
-A fictional Toronto plumbing business. This is the shape a filled-in `context/voice.md` takes.
+A fictional Toronto plumbing business, in an older and longer format than the starter. Where it differs from `context/voice.md` Part 1, Part 1 wins.
 
 ---
 
 ## Tone
 
-How Plumbera sounds on the page - warm, dry and funny on nearly every line, with genuinely useful information landing clean right after the joke.
+How Plumbera sounds on the page - plain, warm and specific, with a light line most sections of a blog and the useful information landing clean.
 Worked example from the demo build, built June 2026.
 Next: read this with [humour.md](humour.md), which is the engine, and [vocabulary.md](vocabulary.md), which is the word list.
 
@@ -21,7 +21,7 @@ A real plumbing crew that's seen everything, talking to a stressed homeowner lik
 **Casual, not formal** - well past halfway.
 "Put a bucket under it, pour yourself something."
 
-**Playful, not serious** - a light beat per line, dead serious only on safety and cost.
+**Playful, not serious** - a light line most sections on blogs, at most one per service page, dead serious on safety and cost.
 
 **Bold, not reserved** - we say the quiet part, including where the money really goes.
 
@@ -90,7 +90,7 @@ The rulebook for being funny in Plumbera's content, so posts get read instead of
 Worked example from the demo build, built June 2026.
 Next: write the jokes, then check the draft against the guardrails at the bottom before it ships.
 
-The goal: a reader should smile, or at least exhale through their nose, on nearly every line, then get a genuinely useful answer the second the joke lands. Built from [Writing Humor: The Art of Making Readers Laugh](https://www.hireawriter.us/creative/writing-humor-the-art-of-making-readers-laugh).
+The goal: a reader should smile now and then, and get a genuinely useful answer straight after. Built from [Writing Humor: The Art of Making Readers Laugh](https://www.hireawriter.us/creative/writing-humor-the-art-of-making-readers-laugh).
 
 ## The six rules
 
@@ -106,8 +106,8 @@ Lean on things every homeowner knows - the 2am drip, the basement that floods on
 **4. Keep it PG-13.**
 Our audience is stressed homeowners, including the family kind. Dry, clean, clever. No profanity, no crude stuff. The funniest line in the room is allowed to be the cleanest one. If a joke needs an edge, make the edge **honesty**, not vulgarity.
 
-**5. Frequent, but small.**
-The usual advice is to sprinkle humour on sparingly. Our dial is deliberately higher, because top-of-funnel blog content lives or dies on whether it's fun to read, so we aim for a light beat on nearly every line. We keep that safe by keeping the jokes **small and low-risk** - observational, dry, one-clause asides - and by making the useful information land clean right after. Frequent is not the same as loud. We're not doing a stand-up set, we're being the wittiest, most honest voice in a boring category.
+**5. Light, and small.**
+A light line most sections on a blog, at most one per service page, never a joke quota. Keep the jokes **small and low-risk** - observational, dry, one-clause asides - and let the useful information land clean right after.
 
 **6. Don't fear failure.**
 Writing jokes is a skill, not a gift, and even the best comedians have jokes that bomb. Write the risky line. If it's a groaner, cut it. A draft with ten jokes where three are great beats a safe draft with zero.
