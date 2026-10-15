@@ -1,7 +1,7 @@
 # Google Business Profile posts - how to write them and how to send them
 
 The rules Claude reads before writing any GBP post, plus the exact payload Make.com expects.
-Built as part of the seo-blueprint-pro reference set. Pairs with `tone.md`, `humour.md`, `vocabulary.md` and `business-context.md`.
+Built as part of the seo-blueprint-pro reference set. Pairs with `context/voice.md` and `context/business.md`.
 Next: draft the posts into `gbp-posts-queue.md`, then POST each one to the Make.com webhook.
 
 ---

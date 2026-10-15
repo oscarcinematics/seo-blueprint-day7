@@ -7,7 +7,7 @@ Next: open the example that matches the file you are about to write, and match i
 ## What each example shows
 
 **voice-example.md**
-A filled voice system - tone, humour, vocabulary, stories, stats and business context. This is what `/context-layer` produces.
+A filled-in `context/voice.md`: Part 1 as shipped, Part 2 with the business's own words. This is what `/context-layer` produces.
 
 **proof-inventory-example.md**
 Every business fact, credential and result a page is allowed to claim. Also from `/context-layer`.

@@ -59,7 +59,7 @@ Real ones from proof/images first; every image WebP, descriptive filename + alt,
 ## Rules
 
 - **The skeleton is locked.** Sections 1-9 in this order, every post. A post may EXPAND a section, never delete or reorder one. (Exception: no real proof for section 6 yet = say so honestly and use the best true experience available - never fabricate.)
-- **Voice on top, structure underneath.** Humour and personality live INSIDE the sections (especially 5) - the reader feels the voice, the machine sees the structure. The bar is `context/voice.md` (Part 1, the house style): a standup set - nearly every line entertains, specificity is the joke, real stories beat invented bits. Exception zones kept straight: the Quick Answer and FAQ (AI lifts these verbatim - clean and direct).
+- **Voice on top, structure underneath.** Humour and personality live INSIDE the sections (especially 5) - the reader feels the voice, the machine sees the structure. The bar is `context/voice.md` (Part 1, the house style): plain and specific, a light line most sections, real stories beat invented bits. Exception zones kept straight: the Quick Answer and FAQ (AI lifts these verbatim - clean and direct).
 - **Improve the template, not the instance.** Found a better pattern? Update THIS file (and note the date below) so every future post gets it. One-off deviations die with the post.
 
 ## Template changelog

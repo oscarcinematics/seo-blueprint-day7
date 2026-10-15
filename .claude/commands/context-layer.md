@@ -7,7 +7,7 @@ Build my context layer: `context/business.md`, `context/proof/proof-inventory.md
 
 **Focus mode:** name a stage (`/context-layer reviews`, `/context-layer drive`) and run only that part.
 
-**Read `references/proof-signals-playbook.md` and `context/voice.md` (Part 1, the house style) FIRST.** The playbook holds the long-form mechanics this command only names: the full source matrix, the relevance gate, the Google Drive folder-first method with its exact queries, the tested Apify actor IDs, the Gmail query sets, the JavaScript bundle grep targets, and the integrity line. The second sets the entertainment bar and helps find MY specific kind of funny (dry, dad-joke, deadpan, exaggerated) rather than a generic comedian.
+**Read `references/proof-signals-playbook.md` and `context/voice.md` (Part 1, the house style) FIRST.** The playbook holds the long-form mechanics this command only names: the full source matrix, the relevance gate, the Google Drive folder-first method with its exact queries, the tested Apify actor IDs, the Gmail query sets, the JavaScript bundle grep targets, and the integrity line. The second sets the plain register and helps find MY specific kind of funny (dry, dad-joke, deadpan, exaggerated) rather than a generic comedian.
 
 **Read `references/output-format.md` before writing any file.** Bullets by default, one item per line, no tables unless the data is genuinely 3-4 short-cell columns.
 
@@ -96,10 +96,10 @@ Every fact recorded in `business.md`, `buyers.md` or `proof-inventory.md` carrie
 
 **Style comes from Part 1. Material comes from them.** Most owners are not writers, so extracting a style faithfully means faithfully reproducing weak writing. If they have a clear kind of funny - dry, deadpan, dad-joke - match it in Part 2. If they don't, the house style leads rather than flattening to nothing.
 
-**Part 1 changes in exactly two situations:**
+**Part 1 or its dials change in exactly two situations:**
 
 1. **The owner explicitly asks.** They say they want it different. Change it, and say what you changed.
-2. **The industry override fires - automatic, no permission, no opt-out.** Read `context/business.md`. If the business is in a zero-humour category - funeral and cremation, personal injury, oncology and serious illness, bankruptcy and debt, addiction and recovery, divorce and family law, criminal defence, end-of-life veterinary, mental health crisis, abuse and trauma services - the dial drops to zero whether or not the owner wants humour on. This is not a preference to respect. It is a business the humour would destroy. Set it, say out loud that you set it and why, and do not offer to turn it back on.
+2. **The industry override fires - automatic, no permission, no opt-out.** Read `context/business.md`. If the business deals in grief, illness, legal trouble or debt (the list in `context/voice.md`, "Where the line is"), the Humour dial drops to none whether or not the owner wants humour on. This is not a preference to respect. It is a business the humour would destroy. Set it, say out loud that you set it and why, and do not offer to turn it back on.
 
 Everything else in Part 1 is left exactly where it is.
 
@@ -346,7 +346,7 @@ Then raise them once, as a single follow-up list, after the files exist. If I st
 
 The house style ships on and is tuned for retention. Asking someone to describe how they write produces a worse answer than the default. So this is one line late in the list, not an early question:
 
-> **"Your content defaults to the house style - entertaining, concrete, never boring, and it dials humour down automatically for industries where it does not belong. Most people leave it. Want to change anything, or use your own writing style instead?"**
+> **"Your content defaults to the house style - plain, confident and specific, with a light line on blogs, and no humour at all for industries where it does not belong. Most people leave it. Want to change anything, or use your own writing style instead?"**
 
 Leave it: nothing to write. They name a dial: record just that line. They want their own style: extract it from published long-form only - articles, posts, scripts, broadcast emails, YouTube transcripts, sales call answers. Never from Slack messages or two-line replies.
 
