@@ -1,0 +1,560 @@
+#!/usr/bin/env bash
+# Move an existing site onto the engine. The project folder stays where it is;
+# only the layout inside it changes. Nothing inside website/ is ever edited.
+#
+#   adopt-site <project folder> --dry-run [--copy <old copy folder name>]
+#   adopt-site <project folder>           [--copy <name>] [--port N]
+#              [--move <path>]... [--leave <path>]... [--backup-dir <folder>]
+#   adopt-site <project folder> --finish  [--dry-run] [--yes]
+#
+# The old copy is the project's own clone of the blueprint (seo-blueprint-day7/
+# or seo/). A run, in this order, stopping at the first error:
+#   1. backs up the old copy (and .gateshim/ if there is one) to
+#      <projects folder>/<project>-backups/<copy>-<date>/, then checks the backup
+#   2. moves the site's own files from the old copy up to the project root:
+#      context/, keyword-map.md, website-index.md, *-log.md, gbp-*.md, reports,
+#      redirect-map.md, .env, gsc-key.json, code/keyword-data/ (to keyword-data/),
+#      and website/ itself when it sits inside the old copy (moved whole)
+#   3. copies the old CLAUDE.md "## My setup" to CLAUDE.setup-draft.md, for a
+#      reviewed trim. The new CLAUDE.md only imports the engine's.
+#   4. runs link-engine: code, references and .claude/commands become links to
+#      the engine, CLAUDE.md is written, DEV_PORT goes into .env
+# Anything it cannot place is FLAGGED and the run refuses until you choose:
+#   --move <path>   move it to the project root too (path inside the old copy)
+#   --leave <path>  leave it in the old copy (kept in the backup)
+# The port: --port N, else the website's dev script, else the dev server
+# already running from website/.
+#
+# --finish, after you have compared the checkers with the run taken before:
+# checks the move again, then deletes the old copy, .gateshim/ and
+# website-starter-archive/. It asks first (or pass --yes).
+set -euo pipefail
+export GIT_OPTIONAL_LOCKS=0 # git status never writes to the old copy's .git
+
+ENGINE="$(cd "$(dirname "$(realpath "$0")")" && pwd -P)"
+LOG_NAME=".adopt-site.log"
+DRAFT_NAME="CLAUDE.setup-draft.md"
+
+die() { echo "adopt-site: $*" >&2; exit 1; }
+say() { printf '%s\n' "$*"; }
+
+# ---------- arguments ----------
+PROJECT_ARG="" COPY_ARG="" PORT_ARG="" BACKUP_ARG=""
+DRY=0 FINISH=0 YES=0
+EXTRA_MOVES="" EXTRA_LEAVES=""
+nl='
+'
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --dry-run) DRY=1; shift ;;
+    --finish) FINISH=1; shift ;;
+    --yes) YES=1; shift ;;
+    --copy) [ $# -ge 2 ] || die "--copy needs a folder name"; COPY_ARG="$2"; shift 2 ;;
+    --port) [ $# -ge 2 ] || die "--port needs a number"; PORT_ARG="$2"; shift 2 ;;
+    --backup-dir) [ $# -ge 2 ] || die "--backup-dir needs a folder"; BACKUP_ARG="$2"; shift 2 ;;
+    --move) [ $# -ge 2 ] || die "--move needs a path"; EXTRA_MOVES="$EXTRA_MOVES${2%/}$nl"; shift 2 ;;
+    --leave) [ $# -ge 2 ] || die "--leave needs a path"; EXTRA_LEAVES="$EXTRA_LEAVES${2%/}$nl"; shift 2 ;;
+    -h|--help) sed -n '2,32p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+    -*) die "unknown option $1" ;;
+    *) [ -z "$PROJECT_ARG" ] || die "one project folder only (quote it if it has spaces)"; PROJECT_ARG="$1"; shift ;;
+  esac
+done
+[ -n "$PROJECT_ARG" ] || die "usage: adopt-site <project folder> [--dry-run] [--copy <name>] (see --help)"
+[ -d "$PROJECT_ARG" ] || die "no such folder: $PROJECT_ARG"
+ROOT="$(cd "$PROJECT_ARG" && pwd -P)"
+[ "$ROOT" != "$ENGINE" ] || die "that is the engine itself, not a project"
+if [ -n "$PORT_ARG" ]; then
+  case "$PORT_ARG" in *[!0-9]*) die "--port must be a number, got: $PORT_ARG" ;; esac
+fi
+
+in_list() { # in_list <item> <newline list>
+  case "$nl$2" in *"$nl$1$nl"*) return 0 ;; esac
+  return 1
+}
+exists() { [ -e "$1" ] || [ -L "$1" ]; }
+same_path() { # both exist and resolve to the same place
+  exists "$1" && exists "$2" && [ "$(realpath "$1" 2>/dev/null)" = "$(realpath "$2" 2>/dev/null)" ]
+}
+size_of() { du -sh "$1" 2>/dev/null | cut -f1 | tr -d ' '; }
+count_files() { # "N files"
+  local n; n="$(find "$1" \( -type f -o -type l \) 2>/dev/null | wc -l | tr -d ' ')"
+  if [ "$n" = 1 ]; then echo "1 file"; else echo "$n files"; fi
+}
+
+# ---------- --finish ----------
+if [ "$FINISH" = 1 ]; then
+  LOG="$ROOT/$LOG_NAME"
+  [ -f "$LOG" ] || die "no $LOG_NAME in $ROOT: this project has not been adopted yet"
+  logval() { awk -F'\t' -v k="$1" '$1 == k { print $2; exit }' "$LOG"; }
+  COPY_NAME="$(logval copy)" BACKUP="$(logval backup)"
+  [ -n "$COPY_NAME" ] && [ -n "$BACKUP" ] || die "$LOG_NAME is incomplete (no copy or backup line)"
+  ! grep -q '^finished	' "$LOG" || die "already finished: $(logval finished)"
+  grep -q '^linked	' "$LOG" || die "the adopt run did not reach the end (no 'linked' line in $LOG_NAME). Fix that first."
+  COPY="$ROOT/$COPY_NAME"
+  say "Finishing $ROOT"
+  say ""
+  say "Checks:"
+  problems=0
+  ok() { say "  ok    $*"; }
+  bad() { say "  FAIL  $*"; problems=$((problems + 1)); }
+
+  if [ -d "$BACKUP/$COPY_NAME/.git" ] && [ -f "$BACKUP/$COPY_NAME/CLAUDE.md" ]; then
+    ok "backup is there: $BACKUP/$COPY_NAME ($(size_of "$BACKUP/$COPY_NAME"))"
+  else bad "no backup at $BACKUP/$COPY_NAME"; fi
+  if grep -q '^backup-extra	\.gateshim$' "$LOG"; then
+    if [ -d "$BACKUP/.gateshim" ]; then ok "backup has .gateshim"; else bad "no .gateshim in the backup"; fi
+  fi
+  while IFS=$'\t' read -r kind src dst; do
+    [ "$kind" = move ] || continue
+    if exists "$ROOT/$dst" && ! exists "$ROOT/$src"; then ok "moved  $src -> $dst"
+    else bad "move not in place: $src -> $dst"; fi
+  done < "$LOG"
+  for rel in code references .claude/commands; do
+    if [ -L "$ROOT/$rel" ] && same_path "$ROOT/$rel" "$ENGINE/$rel"; then ok "link   $rel -> engine"
+    else bad "$rel is not a link to $ENGINE/$rel"; fi
+  done
+  imported=""
+  if [ -f "$ROOT/CLAUDE.md" ]; then
+    while IFS= read -r line; do
+      p="${line#@}"; p="${p%"${p##*[![:space:]]}"}"
+      case "$p" in "~/"*) p="$HOME/${p#"~/"}" ;; esac
+      if same_path "$p" "$ENGINE/CLAUDE.md"; then imported=1; break; fi
+    done < <(grep '^@' "$ROOT/CLAUDE.md" || true)
+  fi
+  if [ -n "$imported" ]; then
+    ok "CLAUDE.md imports the engine"
+  else bad "CLAUDE.md does not import the engine's CLAUDE.md"; fi
+  if grep -qE '^DEV_PORT=[0-9]+' "$ROOT/.env" 2>/dev/null; then ok ".env has $(grep -E '^DEV_PORT=' "$ROOT/.env" | tail -1)"
+  else bad ".env has no DEV_PORT"; fi
+  if [ -f "$ROOT/website/package.json" ] && [ ! -L "$ROOT/website" ]; then ok "website/ is at the project root"
+  else bad "no website/ (with package.json) at the project root"; fi
+  if [ -d "$COPY" ]; then
+    # Nothing new may have landed in the old copy since the run.
+    leaves="$(awk -F'\t' '$1 == "leave" { print $2 }' "$LOG")"
+    left_over=""
+    while IFS= read -r -d '' rec; do
+      xy="${rec:0:2}" p="${rec:3}"
+      case "$xy" in R*|C*) IFS= read -r -d '' _ || true; continue ;; '??'|'!!') ;; *) continue ;; esac
+      p="${p%/}" b="${p##*/}"
+      case "$b" in __pycache__|*.pyc|.DS_Store|node_modules|.next|.next-*) continue ;; esac
+      if [ "$p" = website ] && [ -L "$COPY/website" ]; then continue; fi
+      if [ "$p" = website-starter-archive ]; then continue; fi
+      if in_list "$p" "$leaves$nl"; then continue; fi
+      left_over="$left_over  $p$nl"
+    done < <(git -C "$COPY" status --porcelain -z --ignored=matching --untracked-files=normal 2>/dev/null || true)
+    if [ -z "$left_over" ]; then ok "nothing of the site's is left in $COPY_NAME/"
+    else bad "files appeared in $COPY_NAME/ since the run (they are not in the backup; move them to the project root, or delete them by hand):$nl${left_over%$nl}"; fi
+  else
+    say "  note  $COPY_NAME/ is already gone"
+  fi
+  [ ! -e "$ROOT/$DRAFT_NAME" ] || say "  note  $DRAFT_NAME is still there. Trim it into CLAUDE.md \"## My setup\", then delete it."
+
+  if [ "$problems" -gt 0 ]; then
+    die "$problems check(s) failed. Nothing deleted."
+  fi
+
+  DELETE=""
+  [ -d "$COPY" ] && DELETE="$DELETE$COPY$nl"
+  [ -e "$ROOT/.gateshim" ] && DELETE="$DELETE$ROOT/.gateshim$nl"
+  [ -e "$ROOT/website-starter-archive" ] && DELETE="$DELETE$ROOT/website-starter-archive$nl"
+  say ""
+  if [ -z "$DELETE" ]; then
+    say "Nothing left to delete."
+  else
+    say "Would delete (all of it is in $BACKUP):"
+    while IFS= read -r d; do
+      [ -n "$d" ] || continue
+      extra=""
+      [ "$d" = "$COPY" ] && [ -d "$COPY/website-starter-archive" ] && extra=", with website-starter-archive/ inside it"
+      say "  $d ($(size_of "$d"), $(count_files "$d")$extra)"
+    done <<EOF
+$DELETE
+EOF
+  fi
+  if [ "$DRY" = 1 ]; then say ""; say "Dry run: nothing deleted."; exit 0; fi
+  if [ -n "$DELETE" ] && [ "$YES" != 1 ]; then
+    [ -t 0 ] || die "not a terminal: pass --yes to delete"
+    printf 'Type delete to go ahead: '
+    read -r answer
+    [ "$answer" = delete ] || die "stopped. Nothing deleted."
+  fi
+  while IFS= read -r d; do
+    [ -n "$d" ] || continue
+    case "$d" in "$ROOT"/?*) ;; *) die "refusing to delete outside the project: $d" ;; esac
+    [ "$d" != "$ROOT/website" ] || die "refusing to delete website/"
+    rm -rf "$d"
+    say "  deleted $d"
+  done <<EOF
+$DELETE
+EOF
+  printf 'finished\t%s\n' "$(date '+%Y-%m-%d %H:%M:%S')" >> "$LOG"
+  say ""
+  say "Done. Last step by hand: update this project's Claude memory notes that point at $COPY_NAME/ paths."
+  exit 0
+fi
+
+# ---------- find the old copy ----------
+if [ -n "$COPY_ARG" ]; then
+  case "$COPY_ARG" in */*|.|..) die "--copy is a folder name inside the project, not a path" ;; esac
+  COPY_NAME="$COPY_ARG"
+else
+  COPY_NAME=""
+  for c in seo-blueprint-day7 seo; do
+    if [ -d "$ROOT/$c" ] && [ -f "$ROOT/$c/CLAUDE.md" ] && [ -d "$ROOT/$c/code" ]; then COPY_NAME="$c"; break; fi
+  done
+  [ -n "$COPY_NAME" ] || die "no old copy found (seo-blueprint-day7/ or seo/). Name it with --copy."
+fi
+COPY="$ROOT/$COPY_NAME"
+[ -d "$COPY" ] && [ ! -L "$COPY" ] || die "no folder $COPY"
+[ -f "$COPY/CLAUDE.md" ] && [ -d "$COPY/code" ] || die "$COPY does not look like a blueprint copy (no CLAUDE.md or code/)"
+[ "$(git -C "$COPY" rev-parse --show-toplevel 2>/dev/null)" = "$COPY" ] ||
+  die "$COPY is not a git clone, so upstream files cannot be told from the site's own"
+
+if [ -e "$ROOT/$LOG_NAME" ]; then
+  if grep -q '^linked	' "$ROOT/$LOG_NAME"; then
+    die "already adopted ($ROOT/$LOG_NAME). Check the result, then run: adopt-site \"$ROOT\" --finish"
+  fi
+  die "an earlier run stopped part way. $ROOT/$LOG_NAME lists what it moved and where the backup is. Put those back (or finish by hand), then delete the log."
+fi
+
+# ---------- what is in the old copy ----------
+UPSTREAM="$(git -C "$COPY" rev-parse --abbrev-ref '@{upstream}' 2>/dev/null || true)"
+[ -n "$UPSTREAM" ] || UPSTREAM="$(git -C "$COPY" rev-parse --abbrev-ref origin/HEAD 2>/dev/null || true)"
+
+CANDIDATES="" MODIFIED="" DELETED=""
+while IFS= read -r -d '' rec; do
+  xy="${rec:0:2}" p="${rec:3}"
+  case "$xy" in R*|C*) IFS= read -r -d '' _ || true ;; esac
+  case "$p" in *"$nl"*|*'|'*|*"	"*) die "a file name in $COPY_NAME/ has a line break, tab or | in it; move it by hand first: $p" ;; esac
+  case "$xy" in
+    '??'|'!!') CANDIDATES="$CANDIDATES${p%/}$nl" ;;
+    *D*) DELETED="$DELETED$p$nl" ;;
+    *A*) CANDIDATES="$CANDIDATES$p$nl" ;;
+    *) MODIFIED="$MODIFIED$p$nl" ;;
+  esac
+done < <(git -C "$COPY" status --porcelain -z --ignored=matching --untracked-files=normal)
+
+LOCAL_COMMITS="" ADDED_LOCAL=""
+if [ -n "$UPSTREAM" ]; then
+  LOCAL_COMMITS="$(git -C "$COPY" log --format='%h %s' "$UPSTREAM..HEAD" 2>/dev/null || true)"
+  # Files that only exist because of a local commit are the site's, not upstream's.
+  while IFS= read -r p; do
+    [ -n "$p" ] && CANDIDATES="$CANDIDATES$p$nl" && ADDED_LOCAL="$ADDED_LOCAL$p$nl"
+  done < <(git -C "$COPY" diff --name-only --diff-filter=A "$UPSTREAM" HEAD 2>/dev/null || true)
+  while IFS= read -r p; do
+    [ -n "$p" ] && ! in_list "$p" "$MODIFIED" && MODIFIED="$MODIFIED$p (in a local commit)$nl"
+  done < <(git -C "$COPY" diff --name-only --diff-filter=M "$UPSTREAM" HEAD 2>/dev/null || true)
+fi
+
+# One unit per path, and nothing inside a unit already listed.
+UNITS=""
+while IFS= read -r p; do
+  [ -n "$p" ] || continue
+  dup=0
+  while IFS= read -r u; do
+    [ -n "$u" ] || continue
+    case "$p" in "$u"|"$u"/*) dup=1; break ;; esac
+  done <<EOF
+$UNITS
+EOF
+  [ "$dup" = 1 ] || UNITS="$UNITS$p$nl"
+done < <(printf '%s' "$CANDIDATES" | LC_ALL=C sort -u)
+
+# Every --move and --leave must name something that is there.
+while IFS= read -r x; do
+  [ -n "$x" ] || continue
+  in_list "$x" "$UNITS" || die "--move/--leave $x: not one of the old copy's own files (run --dry-run to see the list)"
+done <<EOF
+$EXTRA_MOVES$EXTRA_LEAVES
+EOF
+
+# classify <unit> -> "kind|destination|note"
+#   kind: move, junk, leave, flag
+classify() {
+  local u="$1" b="${1##*/}" top="${1%%/*}"
+  if in_list "$u" "$EXTRA_LEAVES"; then printf 'leave||you chose to leave it\n'; return; fi
+  if in_list "$u" "$EXTRA_MOVES"; then
+    case "$top" in
+      code|references) printf 'move|%s|you chose to move it\n' "$b" ;;
+      *) printf 'move|%s|you chose to move it\n' "$u" ;;
+    esac
+    return
+  fi
+  case "$b" in
+    __pycache__|*.pyc|.DS_Store|node_modules|.next|.next-*) printf 'junk||build or cache files\n'; return ;;
+  esac
+  case "$u" in
+    website)
+      if [ -L "$COPY/website" ]; then
+        if same_path "$COPY/website" "$ROOT/website"; then printf 'leave||a link to the project'"'"'s own website/\n'
+        else printf 'flag||a link to %s, not to the project'"'"'s website/\n' "$(readlink "$COPY/website")"; fi
+      elif [ -d "$COPY/website" ]; then printf 'move|website|the site itself, moved whole, never edited\n'
+      else printf 'flag||not a folder or a link\n'; fi
+      return ;;
+    website-starter-archive) printf 'leave||the old starter archive; --finish deletes it\n'; return ;;
+    code/keyword-data) printf 'move|keyword-data|site data that sat in code/\n'; return ;;
+    context|keyword-map.md|website-index.md|*-log.md|gbp-*.md|redirect-map.md|.env|gsc-key.json|*.iam.json|\
+credentials.json|token.json|audit-report*|*-report.md|*-report.html|seo-*.md|publish-schedule.md|\
+review-requests.md|review-reply-templates.md|testimonials.json|transcript-proof-candidates.md)
+      printf 'move|%s|\n' "$u"; return ;;
+  esac
+  if in_list "$u" "$ADDED_LOCAL"; then
+    case "$top" in code|references|.claude)
+      printf 'leave||engine code added in a local commit, like the edits above; in the backup\n'; return ;;
+    esac
+  fi
+  printf 'flag||not a file the engine knows\n'
+}
+
+MOVES="" LEAVES="" JUNK="" FLAGS=""
+while IFS= read -r u; do
+  [ -n "$u" ] || continue
+  IFS="|" read -r kind dest note <<EOF
+$(classify "$u")
+EOF
+  case "$kind" in
+    move) MOVES="$MOVES$u	$dest	$note$nl" ;;
+    leave) LEAVES="$LEAVES$u	$note$nl" ;;
+    junk) JUNK="$JUNK$u$nl" ;;
+    *) FLAGS="$FLAGS$u	$note$nl" ;;
+  esac
+done <<EOF
+$UNITS
+EOF
+
+# ---------- the website and the port ----------
+WEBSITE_MOVES=0
+case "$nl$MOVES" in *"${nl}website	"*) WEBSITE_MOVES=1 ;; esac
+if [ "$WEBSITE_MOVES" = 1 ]; then WEBSITE_NOW="$COPY/website"; else WEBSITE_NOW="$ROOT/website"; fi
+[ -f "$WEBSITE_NOW/package.json" ] || die "no website/ with a package.json beside or inside $COPY_NAME/"
+
+PORT="" PORT_FROM=""
+if [ -n "$PORT_ARG" ]; then PORT="$PORT_ARG" PORT_FROM="--port"
+else
+  PORT="$(node -e '
+    const s = (JSON.parse(require("fs").readFileSync(process.argv[1], "utf8")).scripts || {}).dev || "";
+    const m = s.match(/(?:-p|--port)[ =]?(\d+)/); if (m) console.log(m[1]);
+  ' "$WEBSITE_NOW/package.json" 2>/dev/null || true)"
+  if [ -n "$PORT" ]; then PORT_FROM="the website's dev script"
+  else
+    want="$(realpath "$WEBSITE_NOW")"
+    for pid in $(lsof -nP -iTCP -sTCP:LISTEN -t 2>/dev/null | sort -u); do
+      cwd="$(lsof -a -p "$pid" -d cwd -Fn 2>/dev/null | sed -n 's/^n//p' | head -1)"
+      [ "$cwd" = "$want" ] || continue
+      PORT="$(lsof -a -p "$pid" -nP -iTCP -sTCP:LISTEN -Fn 2>/dev/null | sed -n 's/^n.*:\([0-9][0-9]*\)$/\1/p' | head -1)"
+      [ -n "$PORT" ] && { PORT_FROM="the dev server running from website/ (pid $pid)"; break; }
+    done
+  fi
+fi
+
+# ---------- what would clash ----------
+CLASHES=""
+clash() { CLASHES="$CLASHES  $1$nl"; }
+while IFS=$'\t' read -r src dest note; do
+  [ -n "$src" ] || continue
+  exists "$ROOT/$dest" && clash "$dest already exists at the project root (would be overwritten by $COPY_NAME/$src)"
+done <<EOF
+$MOVES
+EOF
+for rel in code references .claude/commands CLAUDE.md "$DRAFT_NAME"; do
+  exists "$ROOT/$rel" && clash "$rel already exists at the project root"
+done
+case "$nl$MOVES" in *"$nl.env	"*) ;; *) exists "$ROOT/.env" && clash ".env already exists at the project root (link-engine would edit it)" ;; esac
+[ -n "$PORT" ] || clash "no port found: pass --port N (the port this site's dev server uses)"
+
+if [ -n "$BACKUP_ARG" ]; then
+  BACKUP_BASE="$BACKUP_ARG"
+else
+  parent="$(dirname "$ROOT")" name="$(basename "$ROOT")"
+  BACKUP_BASE="$parent/$name-backups"
+  dashed="$parent/$(printf '%s' "$name" | tr ' ' '-')-backups"
+  [ ! -d "$BACKUP_BASE" ] && [ -d "$dashed" ] && BACKUP_BASE="$dashed"
+fi
+case "$BACKUP_BASE" in "$COPY"|"$COPY"/*) die "the backup cannot go inside the old copy" ;; esac
+STAMP="$(date +%Y-%m-%d-%H%M%S)"
+BACKUP="$BACKUP_BASE/$COPY_NAME-$STAMP"
+exists "$BACKUP" && clash "the backup folder $BACKUP already exists"
+GATESHIM=0; [ -d "$ROOT/.gateshim" ] && GATESHIM=1
+
+SETUP_LINES="$(awk '/^## My setup/{on=1} on && /^## / && !/^## My setup/{exit} on' "$COPY/CLAUDE.md" | wc -l | tr -d ' ')"
+
+# ---------- the plan, printed ----------
+list_files() { # list_files <folder> <indent>: every file, links shown as links
+  local d="$1" pre="$2" f
+  while IFS= read -r f; do
+    [ -n "$f" ] || continue
+    if [ -L "$d/$f" ]; then say "$pre$f -> $(readlink "$d/$f") (a link, moved as a link)"
+    else say "$pre$f"; fi
+  done < <(cd "$d" && find . \( -type f -o -type l \) | sed 's|^\./||' | LC_ALL=C sort)
+}
+
+if [ "$DRY" = 1 ]; then say "DRY RUN: nothing will change."; say ""; fi
+say "Project:  $ROOT"
+say "Old copy: $COPY_NAME/ (upstream ${UPSTREAM:-unknown})"
+say "Engine:   $ENGINE"
+say "Port:     ${PORT:-none} (from ${PORT_FROM:-nothing})"
+say ""
+say "1. Back up (copied, not moved; node_modules and .next* left out):"
+say "   $COPY_NAME/ ($(size_of "$COPY")) -> $BACKUP/$COPY_NAME/"
+[ "$GATESHIM" = 1 ] && say "   .gateshim/ ($(size_of "$ROOT/.gateshim")) -> $BACKUP/.gateshim/"
+say "   plus $BACKUP/local-edits.diff (git diff of the old copy) and README.txt"
+say ""
+say "2. Move to the project root:"
+if [ -z "$MOVES" ]; then say "   (nothing)"; fi
+while IFS=$'\t' read -r src dest note; do
+  [ -n "$src" ] || continue
+  extra=""; [ -n "$note" ] && extra="   ($note)"
+  if [ -L "$COPY/$src" ]; then
+    say "   $COPY_NAME/$src -> $dest   (a link to $(readlink "$COPY/$src"))$extra"
+  elif [ -d "$COPY/$src" ]; then
+    say "   $COPY_NAME/$src/ -> $dest/   ($(count_files "$COPY/$src"), $(size_of "$COPY/$src"))$extra"
+    if [ "$src" = website ]; then say "      (whole folder, including .vercel/ and node_modules/; not listed)"
+    else list_files "$COPY/$src" "      "; fi
+  else
+    secret=""; case "$src" in .env|gsc-key.json|*.iam.json|credentials.json|token.json) secret=" (keys, contents not shown)" ;; esac
+    say "   $COPY_NAME/$src -> $dest$secret$extra"
+  fi
+done <<EOF
+$MOVES
+EOF
+say ""
+say "3. CLAUDE.md:"
+if [ "$SETUP_LINES" -gt 0 ]; then
+  say "   copy \"## My setup\" ($SETUP_LINES lines) from $COPY_NAME/CLAUDE.md to $DRAFT_NAME, for you to trim"
+else
+  say "   $COPY_NAME/CLAUDE.md has no \"## My setup\": no draft"
+fi
+say "   new CLAUDE.md (by link-engine): the engine import plus empty \"## My setup\" and \"## Design\""
+say ""
+say "4. Link (by link-engine):"
+for rel in code references .claude/commands; do say "   $rel -> $ENGINE/$rel"; done
+[ -e "$ROOT/.claude/settings.local.json" ] && say "   .claude/settings.local.json stays as it is"
+say "   .env: DEV_PORT=${PORT:-?}"
+say ""
+say "Stays in $COPY_NAME/ (in the backup; --finish deletes it later):"
+if [ -n "$MODIFIED" ]; then
+  say "   upstream files with local edits (harvested into the engine in Step 4; the diff is in the backup):"
+  printf '%s' "$MODIFIED" | sed -e 's/^CLAUDE\.md$/CLAUDE.md (its "## My setup" is copied to the draft, step 3)/' -e 's/^/      /'
+fi
+if [ -n "$DELETED" ]; then
+  say "   upstream files deleted in this copy: $(printf '%s' "$DELETED" | grep -c .) (for example $(printf '%s' "$DELETED" | head -2 | tr '\n' ' '))"
+fi
+if [ -n "$LOCAL_COMMITS" ]; then
+  say "   local commits not in $UPSTREAM (kept in the backup's .git):"
+  printf '%s\n' "$LOCAL_COMMITS" | sed 's/^/      /'
+fi
+while IFS=$'\t' read -r u note; do [ -n "$u" ] && say "   $u   ($note)"; done <<EOF
+$LEAVES
+EOF
+[ -n "$JUNK" ] && say "   cache files: $(printf '%s' "$JUNK" | tr '\n' ' ')"
+say "   every other upstream file, untouched"
+say ""
+say "Later, --finish deletes (after its checks):"
+say "   $COPY_NAME/"
+[ "$GATESHIM" = 1 ] && say "   .gateshim/ (the old layout's workaround: $(ls -A "$ROOT/.gateshim" | tr '\n' ' '))"
+[ -d "$COPY/website-starter-archive" ] && say "   $COPY_NAME/website-starter-archive/ (with the copy)"
+[ -e "$ROOT/website-starter-archive" ] && say "   website-starter-archive/"
+say ""
+if [ -n "$FLAGS" ]; then
+  say "FLAGGED, needs your decision (--move <path> or --leave <path>):"
+  while IFS=$'\t' read -r u note; do
+    [ -n "$u" ] || continue
+    if [ -d "$COPY/$u" ] && [ ! -L "$COPY/$u" ]; then
+      say "   $u/   ($note; $(count_files "$COPY/$u"))"
+      list_files "$COPY/$u" "      "
+    else say "   $u   ($note)"; fi
+  done <<EOF
+$FLAGS
+EOF
+  say ""
+fi
+if [ -n "$CLASHES" ]; then
+  say "CLASHES, the run refuses until these are gone:"
+  printf '%s' "$CLASHES"
+  say ""
+fi
+
+if [ "$DRY" = 1 ]; then
+  if [ -n "$FLAGS$CLASHES" ]; then say "Dry run: nothing changed. A real run would refuse (see above)."
+  else say "Dry run: nothing changed. A real run would do the above."; fi
+  exit 0
+fi
+[ -z "$CLASHES" ] || die "refusing: something would be overwritten or is missing (see CLASHES). Nothing changed."
+[ -z "$FLAGS" ] || die "refusing: flagged files need --move or --leave first. Nothing changed."
+
+# ---------- the real run ----------
+LOG="$ROOT/$LOG_NAME"
+trap 'echo "adopt-site: stopped on an error. Backup: $BACKUP. What was done is in $LOG (if it exists)." >&2' ERR
+logline() { printf '%s\n' "$*" >> "$LOG"; }
+say ""
+say "Running."
+
+# 1. Backup, then check it matches. Nothing else happens until it does.
+mkdir -p "$BACKUP"
+rsync -a --exclude node_modules --exclude '.next' --exclude '.next-*' "$COPY/" "$BACKUP/$COPY_NAME/"
+if ! diff -rq --no-dereference -x node_modules -x '.next' -x '.next-*' "$COPY" "$BACKUP/$COPY_NAME" >/dev/null; then
+  die "the backup does not match $COPY_NAME/. Nothing moved. Backup: $BACKUP"
+fi
+if [ "$GATESHIM" = 1 ]; then
+  rsync -a "$ROOT/.gateshim/" "$BACKUP/.gateshim/"
+  diff -rq --no-dereference "$ROOT/.gateshim" "$BACKUP/.gateshim" >/dev/null || die "the .gateshim backup does not match. Nothing moved. Backup: $BACKUP"
+fi
+{
+  printf '# adopt-site log. --finish reads it; keep it.\n'
+  printf 'started\t%s\n' "$(date '+%Y-%m-%d %H:%M:%S')"
+  printf 'copy\t%s\n' "$COPY_NAME"
+  printf 'backup\t%s\n' "$BACKUP"
+  printf 'port\t%s\n' "$PORT"
+} > "$LOG"
+[ "$GATESHIM" = 1 ] && logline "backup-extra	.gateshim"
+git -C "$COPY" diff > "$BACKUP/local-edits.diff"
+cat > "$BACKUP/README.txt" <<EOF
+Backup made by adopt-site on $(date '+%Y-%m-%d %H:%M:%S'), before the move.
+$COPY_NAME/ is the old copy of the blueprint from $ROOT, as it was
+(node_modules and .next* left out). local-edits.diff is its uncommitted
+changes against its last commit; its local commits are in $COPY_NAME/.git.
+To undo the move: put the moved files back from $COPY_NAME/ here.
+EOF
+say "  backed up  $COPY_NAME/ -> $BACKUP/$COPY_NAME/ (checked)"
+[ "$GATESHIM" = 1 ] && say "  backed up  .gateshim/ -> $BACKUP/.gateshim/ (checked)"
+
+# 2. The setup draft.
+if [ "$SETUP_LINES" -gt 0 ]; then
+  {
+    printf '<!-- Draft from %s/CLAUDE.md "## My setup", copied by adopt-site on %s.\n' "$COPY_NAME" "$(date +%Y-%m-%d)"
+    printf '     Trim it to current facts, paste it under "## My setup" in CLAUDE.md, then delete this file. -->\n\n'
+    awk '/^## My setup/{on=1} on && /^## / && !/^## My setup/{exit} on' "$COPY/CLAUDE.md"
+  } > "$ROOT/$DRAFT_NAME"
+  say "  wrote      $DRAFT_NAME ($SETUP_LINES lines)"
+  logline "draft	$DRAFT_NAME"
+fi
+
+# 3. Moves. website/ last.
+domove() {
+  local src="$1" dest="$2"
+  ! exists "$ROOT/$dest" || die "$dest appeared at the project root during the run. Stopped; see $LOG"
+  mkdir -p "$(dirname "$ROOT/$dest")" || die "could not make the folder for $dest. Stopped; see $LOG"
+  mv "$COPY/$src" "$ROOT/$dest" || die "could not move $COPY_NAME/$src. Stopped; see $LOG"
+  logline "move	$COPY_NAME/$src	$dest"
+  say "  moved      $COPY_NAME/$src -> $dest"
+}
+while IFS=$'\t' read -r src dest note; do
+  if [ -n "$src" ] && [ "$src" != website ]; then domove "$src" "$dest"; fi
+done <<EOF
+$MOVES
+EOF
+if [ "$WEBSITE_MOVES" = 1 ]; then domove website website; fi
+while IFS=$'\t' read -r u note; do [ -n "$u" ] && logline "leave	$u"; done <<EOF
+$LEAVES
+EOF
+
+# 4. Links, CLAUDE.md, DEV_PORT: the same step new-site uses.
+"$ENGINE/link-engine" "$ROOT" --port "$PORT"
+logline "linked	$(date '+%Y-%m-%d %H:%M:%S')"
+trap - ERR
+
+say ""
+say "Done. Next:"
+say "  1. Run /status and the checkers from $ROOT and compare with the run taken before."
+[ "$SETUP_LINES" -gt 0 ] && say "  2. Trim $DRAFT_NAME into CLAUDE.md \"## My setup\" (reviewed), then delete it."
+say "  3. Then: \"$0\" \"$ROOT\" --finish --dry-run, and --finish."
