@@ -23,7 +23,8 @@ import yaml
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 
-ROOT = pathlib.Path(__file__).resolve().parent.parent
+from _site import ROOT
+
 QUEUE = ROOT / "gbp-queue"
 SENT = QUEUE / "sent"
 MAX_PER_WEEK = 3

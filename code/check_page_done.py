@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 """Single-page exit gate for /service-page and /blog-post.
 
-    python3 code/check_page_done.py /services/drain-cleaning [--port 3000]
+    python3 code/check_page_done.py /services/drain-cleaning [--port N | --base URL]
+
+Run from the site folder. Looks at localhost:DEV_PORT (from .env) unless
+--port or --base is given.
 
 
 
@@ -13,11 +16,10 @@ import sys
 import urllib.request
 from pathlib import Path
 
+from _site import base_url
+
 args = [a for a in sys.argv[1:] if not a.startswith("--")]
-PORT = sys.argv[sys.argv.index("--port") + 1] if "--port" in sys.argv else "3000"
-BASE = f"http://localhost:{PORT}"
-if "--base" in sys.argv:
-    BASE = sys.argv[sys.argv.index("--base") + 1].rstrip("/")
+BASE = base_url()
 route = args[0] if args else sys.exit("usage: check_page_done.py /route")
 
 STRINGS = [

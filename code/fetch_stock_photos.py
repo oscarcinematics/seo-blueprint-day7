@@ -26,24 +26,12 @@ import urllib.parse
 import urllib.request
 from pathlib import Path
 
-REPO = Path(__file__).resolve().parent.parent
+from _site import ROOT as REPO, load_env
+
 DEFAULT_OUT = REPO / "website" / "public" / "images" / "stock"
 MANIFEST = "stock-manifest.md"
 TARGET_WIDTH = 1600
 TIMEOUT = 30
-
-
-def load_env():
-    """Read .env without a dependency. Only fills what isn't already set."""
-    env_file = REPO / ".env"
-    if not env_file.exists():
-        return
-    for line in env_file.read_text(encoding="utf-8").splitlines():
-        line = line.strip()
-        if not line or line.startswith("#") or "=" not in line:
-            continue
-        key, _, value = line.partition("=")
-        os.environ.setdefault(key.strip(), value.strip().strip('"').strip("'"))
 
 
 def slugify(text, limit=60):

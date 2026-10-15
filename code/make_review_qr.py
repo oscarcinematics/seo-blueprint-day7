@@ -31,7 +31,8 @@ except ImportError:
         "then re-run this with Code/.venv/bin/python"
     )
 
-ROOT = Path(__file__).resolve().parent.parent
+from _site import ROOT
+
 CONFIG = ROOT / "website" / "lib" / "review.config.ts"
 OUT_DIR = ROOT / "website" / "public"
 

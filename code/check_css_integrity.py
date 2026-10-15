@@ -15,9 +15,9 @@ Three gates:
 import re, sys
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent
-SITE = ROOT / "website"
-KIT  = ROOT / "design" / "kit"
+from _site import ROOT, SITE, ENGINE
+
+KIT  = ENGINE / "design" / "kit"
 
 TW = {"container","group","peer","sr-only","not-sr-only","prose","dark","antialiased"}
 

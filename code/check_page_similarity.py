@@ -1,6 +1,6 @@
 """Near-duplicate detector for templated page sets - city pages above all.
 
-    python3 code/check_page_similarity.py --base http://localhost:3000
+    python3 code/check_page_similarity.py                     # localhost:DEV_PORT
     python3 code/check_page_similarity.py --base https://theirsite.com --pattern /services/
 
 Answers one question: are these pages genuinely different, or is this the same
@@ -28,6 +28,8 @@ and not a sign of thin content. Word count is reported as context only.
 import argparse
 import re
 import sys
+
+from _site import BASE
 import urllib.request
 from collections import Counter
 from html.parser import HTMLParser
@@ -142,7 +144,7 @@ def discover(base: str, pattern: str, cap: int = 200) -> list:
 
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--base", required=True, help="site root, e.g. http://localhost:3000")
+    ap.add_argument("--base", default=BASE, help=f"site root (default {BASE}, from DEV_PORT)")
     ap.add_argument("--pattern", default="/services/", help="only compare URLs containing this")
     ap.add_argument("--urls", nargs="*", help="explicit URLs instead of crawling")
     args = ap.parse_args()

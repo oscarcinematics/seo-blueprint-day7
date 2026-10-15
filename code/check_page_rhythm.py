@@ -20,8 +20,7 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent
-BASE = "http://localhost:3000"
+from _site import ROOT, BASE
 
 MAX_TEXT_RUN = 2          # consecutive TEXT blocks before it is a wall
 MAX_SENTENCES = 4         # per paragraph

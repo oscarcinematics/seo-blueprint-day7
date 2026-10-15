@@ -6,13 +6,15 @@ a raw <a href>, but B is held until the 3rd. For two days A is live on the
 internet pointing at a 404 - and nothing else on the site would notice.
 
 Every link to a dated route must go through <ScheduledLink>, which renders as
-plain text until the target's date arrives. Run from the repo root:
+plain text until the target's date arrives. Run from the site folder:
     python3 code/check_scheduled_links.py
 """
 import pathlib, re, sys
 
-APP = pathlib.Path("website/app")
-SCHED = pathlib.Path("website/lib/publishing.ts")
+from _site import SITE
+
+APP = SITE / "app"
+SCHED = SITE / "lib" / "publishing.ts"
 
 
 def scheduled_routes():

@@ -1,0 +1,88 @@
+#!/usr/bin/env bash
+# Start a new client site.
+#
+#   new-site <name> [--kit <kit folder>]
+#
+# Makes ~/sites/<name>/ (or $SITES_DIR/<name>/):
+#   website/     a copy of the design kit (default: <engine>/kits/new-era)
+#   context/, keyword-map.md, website-index.md, optimization-log.md
+#                the starter files, copied from <engine>/starters/
+#   code, references, .claude/commands
+#                symlinks to the engine, plus CLAUDE.md and .env (DEV_PORT),
+#                all done by link-engine
+# Then sets the kit's dev script to its own port, runs npm install and
+# git init in website/.
+set -euo pipefail
+
+ENGINE="$(cd "$(dirname "$(realpath "$0")")" && pwd -P)"
+SITES_DIR="${SITES_DIR:-$HOME/sites}"
+KIT="$ENGINE/kits/new-era"
+
+die() { echo "new-site: $*" >&2; exit 1; }
+
+NAME=""
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --kit) [ $# -ge 2 ] || die "--kit needs a folder"; KIT="$2"; shift 2 ;;
+    -h|--help) sed -n '2,15p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+    -*) die "unknown option $1" ;;
+    *) [ -z "$NAME" ] || die "one name only (quote it if it has spaces)"; NAME="$1"; shift ;;
+  esac
+done
+[ -n "$NAME" ] || die "usage: new-site <name> [--kit <kit folder>]"
+case "$NAME" in
+  */*|.*) die "the name is a folder name: no slashes, and it cannot start with a dot" ;;
+esac
+[ -f "$KIT/package.json" ] || die "no kit at $KIT (expected a Next.js site with a package.json)"
+KIT="$(cd "$KIT" && pwd -P)"
+SITE="$SITES_DIR/$NAME"
+[ ! -e "$SITE" ] || die "$SITE already exists"
+
+trap 'echo "new-site: stopped before the end. The half-made folder is $SITE" >&2' ERR
+
+echo "Making $SITE"
+mkdir -p "$SITE"
+
+# 1. The kit, without build output, installs, deploy links or secrets.
+rsync -a \
+  --exclude node_modules --exclude '/.next*' --exclude /out --exclude /.vercel \
+  --exclude /.git --exclude '.env' --exclude '.env.local' --exclude '.env.*.local' \
+  --exclude .DS_Store \
+  "$KIT/" "$SITE/website/"
+echo "  copied  kit $KIT -> website/"
+
+# 2. The starter files to the site root.
+cp -R "$ENGINE/starters/." "$SITE/"
+echo "  copied  starters -> $(cd "$ENGINE/starters" && ls -A | tr '\n' ' ')"
+
+# 3. Symlinks, CLAUDE.md, DEV_PORT.
+"$ENGINE/link-engine" "$SITE"
+PORT="$({ grep -E '^DEV_PORT=' "$SITE/.env" || true; } | tail -1 | cut -d= -f2- | tr -dc '0-9')"
+[ -n "$PORT" ] || die "link-engine did not write DEV_PORT to $SITE/.env"
+
+# 4. The kit's dev script runs on this site's port, with its own build folder
+#    so a `next build` never deletes the files a running dev server is using.
+node -e '
+  const fs = require("fs"), [file, port] = process.argv.slice(1);
+  const pkg = JSON.parse(fs.readFileSync(file, "utf8"));
+  pkg.scripts = pkg.scripts || {};
+  pkg.scripts.dev = "NEXT_DIST_DIR=.next-dev next dev -p " + port;
+  fs.writeFileSync(file, JSON.stringify(pkg, null, 2) + "\n");
+' "$SITE/website/package.json" "$PORT"
+echo "  set     website/package.json dev script: NEXT_DIST_DIR=.next-dev next dev -p $PORT"
+if [ -f "$SITE/website/.gitignore" ] && ! grep -qE '^/?\.next-dev/?$' "$SITE/website/.gitignore"; then
+  printf '.next-dev/\n' >> "$SITE/website/.gitignore"
+  echo "  added   .next-dev/ to website/.gitignore"
+fi
+
+# 5. Install and start the site's own repo.
+echo "  running npm install in website/"
+(cd "$SITE/website" && npm install --no-fund --no-audit --loglevel=error)
+(cd "$SITE/website" && git init -q)
+echo "  git init website/"
+
+trap - ERR
+echo
+echo "Done: $SITE"
+echo "  Open it:     cd \"$SITE\" && claude"
+echo "  Dev server:  cd \"$SITE/website\" && npm run dev   -> http://localhost:$PORT"

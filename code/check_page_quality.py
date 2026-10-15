@@ -10,10 +10,9 @@ and does not get shown to the owner.
 import json, re, subprocess, sys, urllib.request
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent
-SITE = ROOT / "website"
+from _site import ROOT, SITE, BASE
+
 PROOF = ROOT / "context" / "proof" / "proof-inventory.md"
-BASE = "http://localhost:3000"
 
 BANNED = ["in today's world", "in the fast-paced", "we strive to", "unfortunately",
           "in conclusion", "it is important to note", "when it comes to",

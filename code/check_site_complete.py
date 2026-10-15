@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 """The /build-website exit gate. The run is not done until this passes.
 
-    python3 code/check_site_complete.py [--port 3000]
+    python3 code/check_site_complete.py [--port N | --base URL]
+
+Run from the site folder. Looks at localhost:DEV_PORT (from .env) unless
+--port or --base is given.
 
 
 
@@ -16,15 +19,12 @@ import sys
 import urllib.request
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent
-SITE = ROOT / "website"
-PORT = sys.argv[sys.argv.index("--port") + 1] if "--port" in sys.argv else "3000"
-BASE = f"http://localhost:{PORT}"
+from _site import ROOT, SITE, base_url
+
 # Any site, any stack: --base https://example.com (imported site, WordPress,
 # staging). With --base, routes are discovered by CRAWLING from / instead of
 # walking website/app, so the checks work on sites this repo didn't build.
-if "--base" in sys.argv:
-    BASE = sys.argv[sys.argv.index("--base") + 1].rstrip("/")
+BASE = base_url()
 
 PLACEHOLDERS = [
     "Business Name", "(555) 010-0199", "(555) 555-5555", "hello@example.com",

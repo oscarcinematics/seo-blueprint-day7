@@ -17,7 +17,8 @@ import re
 import subprocess
 import sys
 
-ROOT = pathlib.Path(__file__).resolve().parent.parent
+from _site import ROOT
+
 APP = ROOT / "website" / "app"
 MAP = ROOT / "keyword-map.md"
 GBP = ROOT / "gbp-queue"

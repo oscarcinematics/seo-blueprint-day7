@@ -1,0 +1,12 @@
+{
+  "name": "seo-engine-design",
+  "version": "1.0.0",
+  "private": true,
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "Screenshot and SEO snapshot tools for code/design (Playwright)",
+  "dependencies": {
+    "playwright": "^1.63.0"
+  }
+}

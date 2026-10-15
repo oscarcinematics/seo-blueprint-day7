@@ -14,7 +14,7 @@ Lanes:
   wordpress - flips each due post from `future`/`draft` to `publish` via the
             WordPress REST API.
 
-Env (in .env next to this repo):
+Env (the engine's .env, then the site's .env, via code/_site.py):
   SITE_LANE=static | wordpress
   VERCEL_DEPLOY_HOOK=https://api.vercel.com/v1/integrations/deploy/...
   WP_URL=https://example.com
@@ -33,24 +33,13 @@ import urllib.request
 from datetime import date, datetime
 from pathlib import Path
 
-REPO = Path(__file__).resolve().parent.parent
+from _site import ROOT as REPO, load_env
+
 SCHEDULE = REPO / "publish-schedule.md"
 LOG = REPO / "publish-schedule-log.md"
 
 # | Date | Page | Type | Status |  -- Date accepts "Tue 19 Aug" or "2026-08-19"
 ROW = re.compile(r"^\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|\s*$")
-
-
-def load_env() -> None:
-    env = REPO / ".env"
-    if not env.exists():
-        return
-    for line in env.read_text(encoding="utf-8").splitlines():
-        line = line.strip()
-        if not line or line.startswith("#") or "=" not in line:
-            continue
-        k, v = line.split("=", 1)
-        os.environ.setdefault(k.strip(), v.strip())
 
 
 def parse_date(raw: str, today: date):
