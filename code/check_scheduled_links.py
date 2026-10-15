@@ -23,11 +23,27 @@ def scheduled_routes():
     return set(re.findall(r'"(/[a-z0-9/-]+)":\s*"[0-9T:Z.+-]+"', SCHED.read_text()))
 
 
+def shadowed_routes():
+    """Pages that are also a redirect source in website/vercel.json. The
+    redirect runs first, so the page can never be seen."""
+    cfg = SITE / "vercel.json"
+    if not cfg.is_file():
+        return []
+    import json
+    sources = {r.get("source") for r in json.loads(cfg.read_text()).get("redirects", []) if not r.get("has")}
+    pages = {"/" + "/".join(p for p in f.relative_to(APP).parent.parts if not p.startswith("("))
+             for f in APP.rglob("page.tsx")}
+    return sorted(pages & sources)
+
+
 def main():
+    shadowed = shadowed_routes()
+    for r in shadowed:
+        print(f"FAIL  {r} is a page AND a redirect source in website/vercel.json - the redirect wins, remove it")
     routes = scheduled_routes()
     if not routes:
         print("No scheduled routes - nothing to check.")
-        return 0
+        return 1 if shadowed else 0
     bad = []
     for f in sorted(APP.rglob("*.tsx")):
         if any(p.startswith("_") for p in f.parts):
@@ -44,7 +60,7 @@ def main():
         print(f"FAIL  {f}:{line}\n        raw <a> to {r}, which is date-gated - use <ScheduledLink>")
     print(f"\n{len(bad)} hard link(s) to scheduled routes" if bad
           else f"\nok - {len(routes)} scheduled routes, every link to them is date-aware")
-    return 1 if bad else 0
+    return 1 if bad or shadowed else 0
 
 
 if __name__ == "__main__":

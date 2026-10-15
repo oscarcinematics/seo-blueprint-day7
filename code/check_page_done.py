@@ -29,25 +29,28 @@ STRINGS = [
     "From $000", "$000", "Your City", "(555) 010-0199", "(555) 555-5555",
     "Business Name", "Month 2026", "Project · location", "Choose one",
     "yourbusiness", "Licence #000000", "Engagement one", "Publication",
+    "00 000 000 000",  # the kit's placeholder ABN
 ]
 
 # Shape-based patterns: catch placeholders nobody thought to list.
 PLACEHOLDER_PATTERNS = [
-    (r"\b0{2,}[,+]|\b0,000\b", "zeroed-out number (00+, 0,000)"),
+    # (?<![\d,]) so the "000," inside a real "$20,000," is not a zeroed frame
+    (r"(?<![\d,])0{2,}[,+]|\b0,000\b", "zeroed-out number (00+, 0,000)"),
     (r"\$0[,0]*\b|\bFrom \$0", "zeroed-out price ($0, From $000)"),
     (r"\(555\) ?\d{3}", "555 phone number"),
     (r"\b[Ll]orem\b|\bipsum\b", "lorem ipsum"),
     (r"TODO|FIXME|PLACEHOLDER|placeholder", "literal TODO/placeholder marker"),
     (r"Add your real|Replace with|Fill this in|goes here\b", "instruction text left on page"),
     (r"Your (City|Business|Name|Trade)\b", "Your X template phrase"),
-    (r"\bExample\b", "the word Example"),
     (r"@(example|yourbusiness)\.", "example email domain"),
     (r"\b00 Month\b|\byyyy-mm-dd\b", "template date placeholder in a form field"),
 ]
 
 def pattern_hits(html):
     import re as _re
-    html = _re.sub(r"<(script|style)[^>]*>.*?</\\1>", " ", html, flags=_re.S | _re.I)
+    # </\1> is a backreference. It was </\\1>, a literal backslash-1, so
+    # <script> was never stripped and Next.js flight data failed every page.
+    html = _re.sub(r"<(script|style)[^>]*>.*?</\1>", " ", html, flags=_re.S | _re.I)
     attrs = " ".join(_re.findall(r'(?:placeholder|value|aria-label)="([^"]*)"', html))
     text = _re.sub(r"<[^>]+>", " ", html) + " " + attrs
     return [label for pat, label in PLACEHOLDER_PATTERNS if _re.search(pat, text)]

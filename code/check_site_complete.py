@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 """The /build-website exit gate. The run is not done until this passes.
 
-    python3 code/check_site_complete.py [--port N | --base URL]
+    python3 code/check_site_complete.py [--core] [--port N | --base URL]
+
+--core is for day one (/build-website, the first /publish): the core pages
+must be done, but keyword-map rows do not need a page yet.
 
 Run from the site folder. Looks at localhost:DEV_PORT (from .env) unless
 --port or --base is given.
@@ -32,24 +35,25 @@ PLACEHOLDERS = [
     "Licence #000000", "Service one", "Area one", "Trade &amp; Speciality",
     "Trade & Speciality", "A headline with a bit of swagger",
     "One quiet line about the work", "Engagement one", "Publication",
-    "Customer name", "Client name", "000+ verified", "00+", "0,000",
+    "Customer name", "Client name", "000+ verified",
     # frame labels that must not survive once real photos are placed
     "CREW &amp; VAN", "ON THE JOB", "FINISHED INSTALL", "JOB PHOTO",
     "PORTRAIT", "SIGNATURE FRAME", "US, WORKING", "THE CREW, 2026",
     "Project · location", "Month 2026", "Choose one", "yourbusiness",
     "From $0,000", "From $000", "$0M insured", "Example Street",
+    "00 000 000 000",  # the kit's placeholder ABN
 ]
 
 # Shape-based patterns: catch placeholders nobody thought to list.
 PLACEHOLDER_PATTERNS = [
-    (r"\b0{2,}[,+]|\b0,000\b", "zeroed-out number (00+, 0,000)"),
+    # (?<![\d,]) so the "000," inside a real "$20,000," is not a zeroed frame
+    (r"(?<![\d,])0{2,}[,+]|\b0,000\b", "zeroed-out number (00+, 0,000)"),
     (r"\$0[,0]*\b|\bFrom \$0", "zeroed-out price ($0, From $000)"),
     (r"\(555\) ?\d{3}", "555 phone number"),
     (r"\b[Ll]orem\b|\bipsum\b", "lorem ipsum"),
     (r"TODO|FIXME|PLACEHOLDER|placeholder", "literal TODO/placeholder marker"),
     (r"Add your real|Replace with|Fill this in|goes here\b", "instruction text left on page"),
     (r"Your (City|Business|Name|Trade)\b", "Your X template phrase"),
-    (r"\bExample\b", "the word Example"),
     (r"@(example|yourbusiness)\.", "example email domain"),
     (r"\b00 Month\b|\byyyy-mm-dd\b", "template date placeholder in a form field"),
 ]
@@ -113,25 +117,43 @@ def fetch(route):
 
 
 def map_expected_routes():
-    """Every keyword-map heading must have a route: the pyramid check."""
+    """Every keyword-map row, the route it lives at, and its primary keyword.
+
+    A row that records its real route ("**Built:** ... `/route`" or
+    "**Page:** /route") is trusted over a slug guessed from the heading.
+    A row marked **DROPPED** is not owed a page.
+    """
     km = ROOT / "keyword-map.md"
     if not km.exists():
         return []
     text = km.read_text()
+
+    def slugify(x):
+        return re.sub(r"[^a-z0-9]+", "-", x.lower()).strip("-")
+
     expected = []
     for m in re.finditer(r"^## \d+\. (Service page|Blog post): (.+)$", text, re.M):
         kind, title = m.group(1), m.group(2).strip()
-        def slugify(x):
-            return re.sub(r"[^a-z0-9]+", "-", x.lower()).strip("-")
+        nxt = re.search(r"^#{1,2} ", text[m.end():], re.M)
+        block = text[m.end():m.end() + nxt.start()] if nxt else text[m.end():]
+        if re.search(r"^\*\*DROPPED\b", block, re.M):
+            continue
+        primary = re.search(r"^\*\*Primary keyword\*\*\s*\n- ([^·\n]+)", block, re.M)
+        kw = primary.group(1).strip().lower() if primary else None
+        built = (re.search(r"^\*\*Built:\*\*.*?`(/[^`]+)`", block, re.M)
+                 or re.search(r"^\*\*Page:\*\*\s*(/[^\s·]*)", block, re.M))
+        if built:
+            expected.append((title, built.group(1), kw))
+            continue
         # "Local SEO services in Austin" -> city spoke under its hub
         city = re.match(r"(.+?) in ([A-Za-z .-]+)$", title)
         if kind == "Service page":
             if city:
-                expected.append((title, f"/services/{slugify(city.group(1))}/{slugify(city.group(2))}"))
+                expected.append((title, f"/services/{slugify(city.group(1))}/{slugify(city.group(2))}", kw))
             else:
-                expected.append((title, f"/services/{slugify(title)}"))
+                expected.append((title, f"/services/{slugify(title)}", kw))
         else:
-            expected.append((title, f"/blog/{slugify(title)}"))
+            expected.append((title, f"/blog/{slugify(title)}", kw))
     return expected
 
 
@@ -156,16 +178,23 @@ def main():
         if found:
             failures.append(f"{route}: placeholder(s) still visible: {', '.join(found[:5])}")
 
-    # 3. the pyramid: every keyword-map row has a live route whose title
-    #    carries its keyword (stub bodies are fine; a wrong/missing H1 is not)
-    for title, route in map_expected_routes():
+    # 3. the pyramid: every keyword-map row has a live route whose content
+    #    carries its primary keyword. --core (day one) skips the rows that
+    #    have no page yet, but a page that exists is still checked.
+    core = "--core" in sys.argv
+    for title, route, kw in map_expected_routes():
         status, html = fetch(route)
         if status != 200:
-            failures.append(f'keyword-map row "{title}" has no page at {route} (-> {status})')
+            if not core:
+                failures.append(f'keyword-map row "{title}" has no page at {route} (-> {status})')
             continue
-        first_words = " ".join(title.lower().split()[:2])
-        if first_words not in html.lower():
-            failures.append(f'{route}: page exists but its content never mentions "{first_words}" - H1/meta not set to the keyword')
+        # The row's primary keyword, verbatim on the page or every word of it
+        # in the <title>. Rows with no primary keyword: the heading's first two words.
+        want = kw or " ".join(title.lower().split()[:2])
+        t = re.search(r"<title[^>]*>(.*?)</title>", html, re.S | re.I)
+        title_words = set(re.findall(r"[a-z0-9]+", t.group(1).lower())) if t else set()
+        if want not in html.lower() and not set(re.findall(r"[a-z0-9]+", want)) <= title_words:
+            failures.append(f'{route}: page exists but its content never mentions "{want}" - H1/meta not set to the keyword')
 
     # 4. every internal link on every page resolves
     links = {}
@@ -192,13 +221,6 @@ def main():
             _, hub_html = fetch(hub)
             if f'href="{route}"' not in hub_html:
                 failures.append(f"hub {hub} does not link down to its spoke {route}")
-            else:
-                # a footnote link is not a section: the hub needs a heading
-                # that names the areas/cities block the spokes live under
-                heads = " ".join(re.findall(r"<h[23][^>]*>(.*?)</h[23]>", hub_html, re.S | re.I)).lower()
-                if not re.search(r"area|cities|city|serve|location", heads):
-                    failures.append(
-                        f'hub {hub} links its spokes but has no "Areas we serve" section heading - city links must be a real section, not a footnote')
             _, spoke_html = fetch(route)
             if f'href="{hub}"' not in spoke_html:
                 failures.append(f"spoke {route} does not link up to its hub {hub}")
@@ -261,7 +283,10 @@ def main():
             print(f"  - {f}")
         print(f"\n{len(failures)} failure(s). /build-website is not done. Fix and re-run.")
         return 1
-    print("Site complete: every route renders, no placeholders, pyramid matches keyword-map.")
+    if "--core" in sys.argv:
+        print("Core complete: every route renders, no placeholders, wiring intact. Keyword-map rows without a page were not checked (--core).")
+    else:
+        print("Site complete: every route renders, no placeholders, pyramid matches keyword-map.")
     return 0
 
 

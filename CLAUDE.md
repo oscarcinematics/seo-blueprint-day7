@@ -5,7 +5,7 @@ You are the SEO engine for the business described in `context/`. Everything you 
 ## The commands, grouped
 
 **Setup - the site itself**
-- `/build-website` - the pyramid built: tree, pages, 301 redirects
+- `/build-website` - the core pages and 301 redirects. `/service-page`, `/blog-post` and `/scale-map` build the pyramid
 - `/publish` - ship it: deploy, robots, sitemap, submit to Google
 - `/gsc` - Search Console set up by hand: verify, submit, request indexing
 
@@ -124,7 +124,7 @@ This has failed twice in the same way, so it is a rule now rather than a note.
 - Business Profile posts publish via `website/.github/workflows/gbp-posts.yml` running `code/publish_due_gbp_posts.py` → the proof is a workflow run, **never a `curl` from this machine.** A terminal `curl` tests the webhook. It does not test the queue, the cron, the caps, the `sent/` move, or the secret - which is where every real failure lives.
 - Anything else on a cron: same. The demonstration is the production path or there is no demonstration.
 
-**And a queue is not queued until the artefact exists.** Writing "scheduled for Wednesday" into a markdown file schedules nothing. For GBP that means a dated `.yml` in `gbp-queue/`; for pages it means `publishDate` in the page and the commit pushed. **Verify the artefact on disk and say you did** - `ls gbp-queue/*.yml` returning nothing while a report says 7 posts are scheduled is the exact failure this catches.
+**And a queue is not queued until the artefact exists.** Writing "scheduled for Wednesday" into a markdown file schedules nothing. For GBP that means a dated `.yml` in `website/gbp-queue/`; for pages it means `publishDate` in the page and the commit pushed. **Verify the artefact on disk and say you did** - `ls website/gbp-queue/*.yml` returning nothing while a report says 7 posts are scheduled is the exact failure this catches.
 
 **Secrets are part of the path.** An Action that will fail on `MAKE_WEBHOOK_URL` not being set is not wired. Check with `gh secret list` before claiming a queue will drain.
 
@@ -213,7 +213,7 @@ When a task involves a tool a non-coder wouldn't know (Search Console, Vercel, G
 - `references/search-intent.md` - **the intent rule: search the term, classify the top 10, 6 of one type decides it.** Informational to a blog, transactional to a money page
 - `references/keyword-clusters.md` - cluster + hub-and-spoke rules
 - `references/keyword-strategy.md` - **the evidence layer under all of it.** What the metrics really measure, which thresholds are convention, what predicts a new site ranking, and the myths
-- `references/pyramid-structure.md` - the canonical site tree (3 layers max, blog flat, cities = Layer 3). `/build-website` builds to it, `/audit` grades against it
+- `references/pyramid-structure.md` - the canonical site tree (3 layers max, blog flat, cities = Layer 3). `/service-page`, `/blog-post` and `/scale-map` build to it, `/audit` grades against it
 - `references/standard-pages.md` - **the pages every site needs:** /thank-you (tracking fires here), the 6 sitelink targets, legal, 404, robots, llms.txt
 - `references/blog-post-template.md` - THE locked blog skeleton. Every `/blog-post` writes into it; improve the template, never deviate per-post
 - `references/gbp-setup.md` - the complete GBP setup spec (research → 12-section paste-ready file). `/gbp` executes it

@@ -15,25 +15,28 @@ Three gates:
 import re, sys
 from pathlib import Path
 
-from _site import ROOT, SITE, ENGINE
+from _site import ROOT, SITE
 
-KIT  = ENGINE / "design" / "kit"
-
-TW = {"container","group","peer","sr-only","not-sr-only","prose","dark","antialiased"}
+TW = {"container","group","peer","sr-only","not-sr-only","prose","dark","antialiased",
+      # one-word Tailwind utilities: defined in Tailwind's build output, not in a stylesheet here
+      "underline","overline","line-through","no-underline","uppercase","lowercase","capitalize",
+      "normal-case","italic","not-italic","truncate","hidden","block","inline","inline-block",
+      "contents","relative","absolute","fixed","sticky","static","visible","invisible","isolate",
+      "grow","shrink","transform","filter","outline","ring","shadow","rounded","border","flex",
+      "grid","table","collapse","resize","subpixel-antialiased","tabular-nums"}
 
 def css_text():
+    """Every stylesheet in website/. Only what the site ships counts."""
     parts = []
-    for base in (SITE, KIT):
-        if base.exists():
-            for f in base.rglob("*.css"):
-                if "node_modules" in str(f): continue
-                parts.append(f.read_text(encoding="utf-8", errors="ignore"))
+    for f in SITE.rglob("*.css"):
+        if not f.is_file() or "node_modules" in str(f) or ".next" in str(f): continue
+        parts.append(f.read_text(encoding="utf-8", errors="ignore"))
     return "\n".join(parts)
 
 def src_files():
     if not (SITE).exists(): return []
     return [p for p in SITE.rglob("*")
-            if p.suffix in {".tsx",".ts",".jsx",".js"}
+            if p.suffix in {".tsx",".ts",".jsx",".js"} and p.is_file()
             and "node_modules" not in str(p) and ".next" not in str(p)]
 
 def main():
@@ -44,10 +47,14 @@ def main():
     fails = []
 
     defined_vars = set(re.findall(r'(--[a-zA-Z0-9_-]+)\s*:', css))
+    # set from a React style object: style={{ "--cw": fit }}
+    for f in files:
+        defined_vars |= set(re.findall(r'["\'](--[a-zA-Z0-9_-]+)["\']\s*:', f.read_text(encoding="utf-8", errors="ignore")))
     used = {}
-    for f in files + [p for p in SITE.rglob("*.css") if "node_modules" not in str(p)]:
+    for f in files + [p for p in SITE.rglob("*.css") if p.is_file() and "node_modules" not in str(p) and ".next" not in str(p)]:
         t = f.read_text(encoding="utf-8", errors="ignore")
-        for v in re.findall(r'var\(\s*(--[a-zA-Z0-9_-]+)', t):
+        # var(--x, fallback) is never invalid, so only bare var(--x) counts
+        for v in re.findall(r'var\(\s*(--[a-zA-Z0-9_-]+)\s*\)', t):
             used.setdefault(v, set()).add(f.relative_to(ROOT).as_posix())
     missing = {v: fs for v, fs in used.items() if v not in defined_vars}
     if missing:
@@ -64,7 +71,9 @@ def main():
     for f in files:
         t = f.read_text(encoding="utf-8", errors="ignore")
         for m in re.findall(r'className=(?:"([^"]*)"|\{`([^`]*)`\})', t):
-            for token in (m[0] + " " + m[1]).split():
+            # inside ${...} only the quoted strings are class names, not the variables
+            tpl = re.sub(r"\$\{([^}]*)\}", lambda e: " " + " ".join(a or b for a, b in re.findall(r'"([^"]*)"|\'([^\']*)\'', e.group(1))) + " ", m[1])
+            for token in (m[0] + " " + tpl).split():
                 if not re.fullmatch(r'[a-z][a-z0-9-]*', token): continue
                 if "-" in token and not token.islower(): continue
                 if token in TW: continue

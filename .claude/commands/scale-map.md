@@ -21,7 +21,7 @@ Scale the map. This command finishes the job - **every remaining keyword in `key
 - /blog/how-much-does-a-plumber-cost · added 24 Aug · angle: the price question people actually search
 ```
 
-**That is a candidate, not a post.** `/scale-map` writes no YAML, touches nothing in `gbp-queue/`, and schedules nothing - a file in `gbp-queue/` ships on the next cron, and an auto-generated announcement has not been ranked against anything. `/gbp-posts` picks these up on its next monthly run and judges them against its own angle bank, so a candidate only becomes a post if it beats the alternatives. Most months, some will not - that is the filter working.
+**That is a candidate, not a post.** `/scale-map` writes no YAML, touches nothing in `website/gbp-queue/`, and schedules nothing - a file in `website/gbp-queue/` ships on the next cron, and an auto-generated announcement has not been ranked against anything. `/gbp-posts` picks these up on its next monthly run and judges them against its own angle bank, so a candidate only becomes a post if it beats the alternatives. Most months, some will not - that is the filter working.
 
 Mention it in one line at the checkpoint (`3 blogs added as GBP candidates`) and move on. No question, because nothing is being published.
 
@@ -118,10 +118,10 @@ Mention it in one line at the checkpoint (`3 blogs added as GBP candidates`) and
   **⛔ Default to pushing the first one immediately, and say why: a webhook that has never carried a real post is a webhook that fails silently at 9am three weeks from now.** The scheduled posts all go through the identical path, so proving it once with a live post is the only thing that makes the other seven trustworthy. This mirrors the page LIVE PROOF above - same reasoning, different channel.
 
   **On "yes":**
-  1. **⛔ Fire it through the WORKFLOW, never a terminal `curl`.** Write post 1 to `gbp-queue/` with today's `send_after`, confirm `MAKE_WEBHOOK_URL` exists (`gh secret list`), push, then send me to run `.github/workflows/gbp-posts.yml` from the Actions page - same as the page proof. **A `curl` from this machine tests the webhook and nothing else**: not the queue, not the cron, not the caps, not the `sent/` move, not the secret - which is where every real failure lives. Read the run log for the 200.
+  1. **⛔ Fire it through the WORKFLOW, never a terminal `curl`.** Write post 1 to `website/gbp-queue/` with today's `send_after`, confirm `MAKE_WEBHOOK_URL` exists (`gh secret list`), push, then send me to run `.github/workflows/gbp-posts.yml` from the Actions page - same as the page proof. **A `curl` from this machine tests the webhook and nothing else**: not the queue, not the cron, not the caps, not the `sent/` move, not the secret - which is where every real failure lives. Read the run log for the 200.
   2. **Send me to look at the profile and WAIT for me to confirm it is there.** The 200 proves Make received it; only the profile proves Google published it. Do not proceed on the status code alone.
-  3. Move it to `gbp-queue/sent/` with today's `sent_at` and mark it Published, so it can never send twice.
-**⛔ VALIDATE BEFORE YOU CLAIM ANYTHING IS QUEUED. `python3 code/check_gbp_payload.py gbp-queue` must exit 0.** A payload with `post_type: "UPDATE"`, `cta_type` or `image_url` gets a **200 from Make and publishes nothing** - the Router matches no branch, so the send looks successful and the profile stays empty. That exact payload shipped once. Only three `post_type` values exist: `"Call to action"`, `"Event"`, `"Offer"`. Never report posts as scheduled until the validator passes and the `.yml` files exist on disk.
+  3. Move it to `website/gbp-queue/sent/` with today's `sent_at` and mark it Published, so it can never send twice.
+**⛔ VALIDATE BEFORE YOU CLAIM ANYTHING IS QUEUED. `python3 code/check_gbp_payload.py website/gbp-queue` must exit 0.** A payload with `post_type: "UPDATE"`, `cta_type` or `image_url` gets a **200 from Make and publishes nothing** - the Router matches no branch, so the send looks successful and the profile stays empty. That exact payload shipped once. Only three `post_type` values exist: `"Call to action"`, `"Event"`, `"Offer"`. Never report posts as scheduled until the validator passes and the `.yml` files exist on disk.
 
   4. Then queue the rest **in the same pass as the page batch** and report both sets of dates together - pages and posts, one list. I said yes once; do not come back for a second approval.
 

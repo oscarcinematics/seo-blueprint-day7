@@ -10,6 +10,8 @@ python3 code/check_site_complete.py
 python3 code/check_scheduled_links.py
 ```
 
+On the first launch, straight after `/build-website`, run the first one with `--core`: the keyword-map rows do not have pages yet.
+
 **The second one catches a failure nothing else can see: a page that goes live linking to one that has not.** Page A publishes on the 1st with a raw `<a href>` to page B, which is held until the 3rd. For two days A sits on the internet pointing at a 404, and the build is green the whole time. Every link to a dated route must go through `<ScheduledLink>`, which renders as plain text until the target's date arrives. Three real instances of this shipped before the check existed.
 
 If it fails - any placeholder, dead link, broken route, or missing pyramid page - **publishing stops**. Report the failures and which skill fixes them (`/build-website` for structure and placeholders, `/service-page` / `/blog-post` for page content). The ONLY exception: placeholders the owner explicitly told a skill to leave; name each one and get a yes before deploying with them. A placeholder on a live site is the one failure a visitor sees.

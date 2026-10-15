@@ -4,7 +4,6 @@
     python3 code/check_voice.py gbp-posts-queue.md
     python3 code/check_voice.py website/app/blog/some-post/page.tsx
 
-check_page_quality.py counts pronouns, which any find-and-replace can satisfy.
 This checks the things that actually went wrong: stiff expanded forms instead of
 contractions, self-audit sections, tables, and jokes aimed at the business's own
 competence.
@@ -49,7 +48,8 @@ def read(path):
 
 
 def check(path):
-    text = read(path)
+    # Curly apostrophes are contractions too.
+    text = read(path).replace("\u2019", "'")
     failures = []
 
     contractions = len(re.findall(CONTRACTIONS, text, re.I))

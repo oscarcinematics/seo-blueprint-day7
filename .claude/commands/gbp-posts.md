@@ -29,9 +29,9 @@ This is the one question asked BEFORE any work happens, and it is mandatory. Lat
 
 **⛔ TITLES ARE 58 CHARACTERS MAX.** Google rejects longer ones and Make only says so after the scenario runs, losing the post. Write to 58 from the start rather than trimming a long headline - the full limit table is in `references/gbp-posts.md`.
 
-**⛔ VALIDATE BEFORE YOU CLAIM ANYTHING IS QUEUED. `python3 code/check_gbp_payload.py gbp-queue` must exit 0.** A payload with `post_type: "UPDATE"`, `cta_type` or `image_url` gets a **200 from Make and publishes nothing** - the Router matches no branch, so the send looks successful and the profile stays empty. That exact payload shipped once. Only three `post_type` values exist: `"Call to action"`, `"Event"`, `"Offer"`. Never report posts as scheduled until the validator passes and the `.yml` files exist on disk.
+**⛔ VALIDATE BEFORE YOU CLAIM ANYTHING IS QUEUED. `python3 code/check_gbp_payload.py website/gbp-queue` must exit 0.** A payload with `post_type: "UPDATE"`, `cta_type` or `image_url` gets a **200 from Make and publishes nothing** - the Router matches no branch, so the send looks successful and the profile stays empty. That exact payload shipped once. Only three `post_type` values exist: `"Call to action"`, `"Event"`, `"Offer"`. Never report posts as scheduled until the validator passes and the `.yml` files exist on disk.
 
-**On a yes:** write each to `gbp-queue/` as a dated YAML with `send_after` spaced per the caps, and mark them Scheduled in `gbp-posts-queue.md`. Then stop - do not also generate a new month unless I ask.
+**On a yes:** write each to `website/gbp-queue/` as a dated YAML with `send_after` spaced per the caps, and mark them Scheduled in `gbp-posts-queue.md`. Then stop - do not also generate a new month unless I ask.
 
 ### ⛔ Then PUSH THE FIRST ONE IMMEDIATELY, as the live proof
 
@@ -39,7 +39,7 @@ A queue nobody has watched work is a queue nobody trusts, and a webhook that has
 
 1. **POST it to the Make.com webhook right now** and read the response. **200 means sent - anything else means it did not go**, and a timeout is not a 200. On a non-200, stop: the webhook is wrong and every scheduled post after it would fail the same way, silently, at 9am on a Monday.
 2. **Send me to look at the profile** and confirm the post is actually there. The webhook answering 200 proves Make received it; only the profile proves Google published it. **Wait for me to confirm** - do not proceed on the 200 alone.
-3. **Move it to `gbp-queue/sent/` with today's `sent_at`** and mark it Published in `gbp-posts-queue.md`, so it can never send twice.
+3. **Move it to `website/gbp-queue/sent/` with today's `sent_at`** and mark it Published in `gbp-posts-queue.md`, so it can never send twice.
 4. **Then say what happens next in one line:** the rest drip Mon/Wed/Fri via `.github/workflows/gbp-posts.yml`, one per run, and each one moves to `sent/` on a 200.
 
 **⛔ THEN DATE THE SECOND POST FOR THE NEXT CRON DAY, AND LEAVE IT ALONE.** Pushing the first post by hand proves the webhook carries a real post. It proves nothing about whether the Action fires on its own, which is the part that has to work every week for a year without anyone watching.
@@ -159,7 +159,7 @@ Save it to `.env` so nothing asks twice. Then pull with `python3 code/fetch_stoc
 
 **Ship:** show me the month as a legible list (title + type + week + the hook line) and get ONE yes on the batch. Then:
 
-- **⛔ Scheduled - THE DEFAULT. One approval covers the whole month.** Write each approved post as a dated YAML file in `gbp-queue/` (payload fields per the spec, plus `send_after: YYYY-MM-DD` spaced across the month). The GitHub Action (`.github/workflows/gbp-posts.yml`, Mon/Wed/Fri cron) ships them with no laptop open: **max one post per run**, and `code/publish_due_gbp_posts.py` independently enforces the 2-3/week cap and a minimum gap between posts, so a mistake in the dates cannot cause a burst. On a 200 the post moves to `gbp-queue/sent/` with a `sent_at` stamp and is deleted from the queue - **it can never send twice.** A non-200 leaves it in the queue and turns the run red, so a miss is visible rather than silent. Needs `MAKE_WEBHOOK_URL` saved once as a GitHub Actions secret - walk me through it the first time.
+- **⛔ Scheduled - THE DEFAULT. One approval covers the whole month.** Write each approved post as a dated YAML file in `website/gbp-queue/` (payload fields per the spec, plus `send_after: YYYY-MM-DD` spaced across the month). The GitHub Action (`.github/workflows/gbp-posts.yml`, Mon/Wed/Fri cron) ships them with no laptop open: **max one post per run**, and `code/publish_due_gbp_posts.py` independently enforces the 2-3/week cap and a minimum gap between posts, so a mistake in the dates cannot cause a burst. On a 200 the post moves to `website/gbp-queue/sent/` with a `sent_at` stamp and is deleted from the queue - **it can never send twice.** A non-200 leaves it in the queue and turns the run red, so a miss is visible rather than silent. Needs `MAKE_WEBHOOK_URL` saved once as a GitHub Actions secret - walk me through it the first time.
 - **First run only:** copy `references/gbp-posts.yml` to `website/.github/workflows/`, and `code/publish_due_gbp_posts.py`, `code/check_gbp_payload.py` and `code/_site.py` to `website/code/`. A symlink does not exist on GitHub.
 
   **Never ask which lane I want.** Approving the batch means schedule it. A month of posts is written to be read over a month, and firing eight at once buries seven of them - the profile shows the newest and the rest scroll away the same afternoon. Report the dates each post will go out on, then stop.

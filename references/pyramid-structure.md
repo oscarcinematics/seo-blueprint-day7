@@ -1,6 +1,6 @@
 # Pyramid structure - the canonical site map
 
-The single spec for how every site this repo builds is structured. `/build-website` builds to it (read this file BEFORE building the tree - it is the spec, not a suggestion), `/audit` grades against it, `code/check_site_complete.py` enforces the wiring. Three layers deep, maximum. No exceptions.
+The single spec for how every site this repo builds is structured. `/service-page`, `/blog-post` and `/scale-map` build to it (read this file BEFORE building the tree - it is the spec, not a suggestion), `/audit` grades against it, `code/check_site_complete.py` enforces the wiring. Three layers deep, maximum. No exceptions.
 Next: check any URL you are about to create against the tree below before you create it.
 
 ---

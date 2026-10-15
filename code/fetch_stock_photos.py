@@ -49,7 +49,8 @@ def search_pexels(query, count, api_key):
     url = "https://api.pexels.com/v1/search?" + urllib.parse.urlencode(
         {"query": query, "per_page": count, "orientation": "landscape"}
     )
-    payload = get_json(url, {"Authorization": api_key})
+    # Pexels 403s a request with no User-Agent.
+    payload = get_json(url, {"Authorization": api_key, "User-Agent": "seo-blueprint-pro/1.0"})
     results = []
     for photo in payload.get("photos", []):
         # Ask Pexels for the size we want so nothing has to be resized locally.

@@ -6,7 +6,7 @@ Nothing here is hand-maintained - it is all DERIVED, so it cannot drift:
   publishDate in future? -> SCHEDULED  (read from the page itself)
   publishDate passed?    -> LIVE       (the build releases it; date IS the state)
   no publishDate?        -> LIVE       (goes out on the next deploy)
-  committed to git?      -> PUSHED     (asked of git, not of a file)
+  committed to git?      -> PUSHED     (asked of website/'s git, not of a file)
   in keyword-map only?   -> TO BUILD
 
 Run: python3 code/status.py
@@ -17,11 +17,11 @@ import re
 import subprocess
 import sys
 
-from _site import ROOT
+from _site import ROOT, SITE
 
-APP = ROOT / "website" / "app"
+APP = SITE / "app"
 MAP = ROOT / "keyword-map.md"
-GBP = ROOT / "gbp-queue"
+GBP = SITE / "gbp-queue"  # inside the website/ repo, where the GBP Action reads it
 GBP_MD = ROOT / "gbp-posts-queue.md"
 TODAY = datetime.date.today()
 
@@ -39,7 +39,7 @@ def yaml_load(path):
 def git(*args):
     try:
         return subprocess.run(
-            ["git", *args], cwd=ROOT, capture_output=True, text=True, timeout=20
+            ["git", *args], cwd=SITE, capture_output=True, text=True, timeout=20
         ).stdout.strip()
     except Exception:
         return ""
@@ -92,7 +92,7 @@ def main():
     rows, counts = [], {"LIVE": 0, "SCHEDULED": 0, "NOT PUSHED": 0}
     for route, path in built_pages():
         d = publish_date(path.read_text(errors="ignore"))
-        rel = str(path.relative_to(ROOT))
+        rel = str(path.relative_to(SITE))
         if rel not in tracked or rel in uncommitted:
             state, when = "NOT PUSHED", "commit + push to queue it"
         elif d and d > TODAY:
@@ -172,7 +172,7 @@ def main():
         print(f"  {count(len(q), 'Business Profile post')} queued"
               + (f", {len(due)} due now" if due else ""))
         if held:
-            print(f"  {count(len(held), 'post')} held back (gbp-queue/held/)")
+            print(f"  {count(len(held), 'post')} held back (website/gbp-queue/held/)")
         print(f"  {count(len(sent), 'post')} sent")
 
         # the markdown is the thing that lies - say so when it disagrees

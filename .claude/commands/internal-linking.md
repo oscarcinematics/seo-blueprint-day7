@@ -28,9 +28,9 @@ Wire the internal links. Read `website-index.md` (the drafted/published pages) a
 
 **Verify before reporting:** every inserted link is confirmed rendering and its target resolves. Dev server is a VALID check here - links are markup, not performance - but say so explicitly ("verified on dev, which is valid for links") so the member never learns that dev numbers count for speed. Zero body sentences altered is the expected count; report it.
 
-**Report in outcomes, not file tours.** The before/after graph summary (orphans found → fixed, links added per page), any page that genuinely has no natural link target (flag with WHERE the link will naturally live later, don't force), pages skipped on purpose (stubs whose bodies `/service-page` will replace - linking them now is thrown-away work). Preview URLs for the changed pages, not a list of code files.
+**Report in outcomes, not file tours.** The before/after graph summary (orphans found → fixed, links added per page), any page that genuinely has no natural link target (flag with WHERE the link will naturally live later, don't force), pages skipped on purpose (a route that exists but reads thin). Preview URLs for the changed pages, not a list of code files.
 
 **The report ends with three separated lists - what's on whom, unmissable:**
 1. **Waiting on you.** Anything blocking the next step, stated so it can't be missed: what's blocked, why, and exactly what to send or paste and where. A publish-blocker (a missing webhook, an unpasted config value) NEVER hides in closing prose - it is the first item here. If nothing is waiting, say so in one line.
 2. **Optional recommendations.** Anything deliberately not done, with the trade-off and the exact words to greenlight it.
-3. **Deferred on purpose.** Each with its reason and where it WILL happen ("stub pages stay unlinked - `/service-page` rewrites their bodies; they get wired the run after").
+3. **Deferred on purpose.** Each with its reason and where it WILL happen. **Never link a keyword-map row that has no page** - it gets wired the day `/service-page` or `/blog-post` creates the route.

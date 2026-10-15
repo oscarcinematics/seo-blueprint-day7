@@ -52,7 +52,7 @@ def routes_from_app():
     found = []
     for page in sorted(app.rglob("page.tsx")):
         parts = page.relative_to(app).parts[:-1]
-        if any(p in skip for p in parts) or any(p.startswith("[") for p in parts):
+        if any(p in skip for p in parts) or any(p.startswith(("[", "_")) for p in parts):
             continue
         found.append("/" + "/".join(parts))
     return found
@@ -105,7 +105,9 @@ def gap_without_visual(body):
 
 def long_paragraphs(body):
     bad = []
-    for para in re.findall(r"<p[^>]*>(.*?)</p>", body, flags=re.S | re.I):
+    # <p(?=[\s>]) so an SVG <path>, <pre> or <picture> never opens a fake
+    # paragraph that runs on to the next real </p>.
+    for para in re.findall(r"<p(?=[\s>])[^>]*>(.*?)</p>", body, flags=re.S | re.I):
         text = strip_tags(para).strip()
         if sentence_count(text) > MAX_SENTENCES:
             bad.append(text[:80] + "...")
