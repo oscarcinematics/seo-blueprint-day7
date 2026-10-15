@@ -1,5 +1,5 @@
 // Privacy policy. Written against what this site ACTUALLY does - the fields on
-// the two forms, Web3Forms as the only processor, a static export with no
+// the two forms, Resend as the only processor, a static export with no
 // analytics and no cookies - rather than from a generic template. If a form
 // field, an analytics tag or a tracking pixel is ever added, this page changes
 // in the same commit.
@@ -54,7 +54,7 @@ export default function Page() {
           <p>Quote your job and contact you about it. That is the whole list. We do not sell it, rent it, trade it, or send marketing to people who only asked for a price.</p>
 
           <h2>Who else sees it</h2>
-          <p>Form submissions are delivered by Web3Forms, which passes the message to our email inbox. Their privacy policy is at <a href="https://web3forms.com/privacy" rel="noopener" target="_blank">web3forms.com/privacy</a>. Email is held by our email provider. Beyond those two, nobody, unless we are required to hand something over by law.</p>
+          <p>Form submissions are delivered by Resend, which passes the message to our email inbox. Their privacy policy is at <a href="https://resend.com/legal/privacy-policy" rel="noopener" target="_blank">resend.com/legal/privacy-policy</a>. Email is held by our email provider. Beyond those two, nobody, unless we are required to hand something over by law.</p>
 
           <h2>Cookies and tracking</h2>
           <p>This website sets no cookies of its own and runs no advertising or analytics trackers. Fonts and images are served from the same domain as the site, so no third party is contacted just by loading a page.</p>

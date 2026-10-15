@@ -27,13 +27,13 @@ The index, with every post living FLAT directly under it: `site.com/blog/how-to-
 Single pages at Layer 1. About carries the author and E-E-A-T load. Quote, or contact, is the conversion target every blog post bridges to.
 
 **/thank-you - off-tree, and mandatory.**
-Every form redirects to it (Web3Forms → `/thank-you`), and it is the page conversion tracking fires on. Without a distinct thank-you URL, tracking falls back to click or event triggers that break silently and undercount - see `references/standard-pages.md` for the full build.
+Every form redirects to it (lead relay → `/thank-you`), and it is the page conversion tracking fires on. Without a distinct thank-you URL, tracking falls back to click or event triggers that break silently and undercount - see `references/standard-pages.md` for the full build.
 
 It sits OUTSIDE the pyramid on purpose, and all four of these are deliberate, not oversights: **`noindex`** (if it ranks, people land there without converting and the conversion count becomes fiction) · **excluded from `sitemap.xml`** · **not linked from the nav** · **exempt from the 3-click and orphan rules** - it is reached by submitting a form, not by browsing. The gate skips it for exactly this reason.
 
 **The booking calendar lives HERE, not on the money pages.** The Calendly link (asked in `/build-website`) goes on this page. This is deliberate: a money page keeps ONE primary action - the form - and the calendar appears the instant after they convert, when intent is highest. Two competing CTAs on a sales page split the decision and lower both.
 
-The full chain: form → Web3Forms → redirect to `/thank-you` → conversion tag fires → booking link offered.
+The full chain: form → lead relay → redirect to `/thank-you` → conversion tag fires → booking link offered.
 
 **The template ships it pre-built and pre-wired.** On the import lane it does not exist yet - build it there, with the same four properties, before any form goes live.
 

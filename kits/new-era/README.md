@@ -16,8 +16,9 @@ pages whose publish date has not come.
 
 ## Before it goes live
 
-1. `NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY` in `.env.local` and in Vercel (see
-   `.env.example`). Without it both forms refuse to send and tell people to call.
+1. `leadSite` in `lib/site.config.ts`, and the same id added to the EOS lead
+   relay's SITES table. Until then the relay refuses the forms and they tell
+   people to call.
 2. Every old URL of an existing site gets a 301 in `vercel.json` `redirects`.
 3. `site.url` in `lib/site.config.ts`: canonicals, the sitemap and the schema read it.
 

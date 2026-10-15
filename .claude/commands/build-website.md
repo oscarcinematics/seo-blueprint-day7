@@ -5,7 +5,7 @@ description: Build or restyle the site from the design kit - this business's wor
 `website/` is a copy of the design kit, made by `new-site`. The kit is the design and SEO standard; this command makes it this business's site. Read `references/design-rules.md` first.
 
 ## 1. Gather - one message, then wait
-Ask only for what `context/` does not have: logo file, photo folder, brand colour, where leads go (Web3Forms key, Calendly link, or both), and reference sites or screenshots (optional). Existing site? Get the URL - every old URL gets a 301 in `vercel.json`.
+Ask only for what `context/` does not have: logo file, photo folder, brand colour, the inbox leads go to, whether they want Calendly for bookings (and the link, which goes on `/thank-you`), and reference sites or screenshots (optional). Forms post to Oscar's lead relay, which only accepts sites it knows: pick a short `leadSite` id and tell Oscar to add one entry to `SITES` in `EOS New Website/website/app/api/lead/route.ts` (the id, `to` the inbox, `from` "<Name> website", `phone`, `origins` the domain with and without www plus the vercel.app URL) and deploy EOS before this site goes live. Existing site? Get the URL - every old URL gets a 301 in `vercel.json`.
 
 ## 2. Design brief - only when references are given
 Screenshot each reference at 1440 and 390. Write at most 10 lines under "## Design" in this site's CLAUDE.md: what to borrow, mapped onto the kit's tokens and components, and what not to. Show it and wait for a yes. No references: skip.

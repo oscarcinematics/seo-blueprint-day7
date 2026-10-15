@@ -5,13 +5,13 @@ description: The review machine - filter form built + routed, QR code, reply dra
 
 **1. ⛔ ASK FOR THE TWO VALUES FIRST, BEFORE BUILDING ANYTHING.**
 
-The form has exactly two destinations, and without them it is a demo. Check CLAUDE.md "## My setup" for `GOOGLE_REVIEW_URL` and `website/.env.local` for `NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY`. If either is missing or still a placeholder, **ask for both in one go, right now**, before writing a single line of the page:
+The form has exactly two destinations, and without them it is a demo. Check CLAUDE.md "## My setup" for `GOOGLE_REVIEW_URL` and `website/lib/site.config.ts` for a real `leadSite` that the lead relay knows. If either is missing or still a placeholder, **ask for both in one go, right now**, before writing a single line of the page:
 
 > "Two things before I build this, both about a minute each:
 > **1. Your Google review link.** Google Business Profile → 'Ask for reviews' → 'Share review form' → copy. Looks like `g.page/r/[id]/review`. This is where 4-5 star clicks go.
-> **2. Your Web3Forms key.** web3forms.com → enter the owner's email → copy the key. This is where 1-3 star feedback goes, so it must be an inbox the owner reads."
+> **2. This site on your lead relay.** 1-3 star feedback posts through the relay to the inbox in this site's `SITES` entry, so it must be an inbox the owner reads. Not there yet? Add it as `/build-website` step 1 says."
 
-Save both the moment I give them, so nothing asks twice. Then build the page immediately from `context/business.md` + the site's existing styles, hand me a local preview link in the same reply, and **fire one real test through each path** - a 5-star click landing on the actual Google form, and a 2-star submission arriving in the owner's inbox. Confirm both before moving on.
+Save both the moment I give them, so nothing asks twice. Then build the page immediately from `context/business.md` + the site's existing styles, hand me a local preview link in the same reply, and **fire one real test through each path** - a 5-star click landing on the actual Google form, and a 2-star submission arriving in the owner's inbox (the relay refuses localhost in production, so run that one on the deployed site, or against a local EOS server via `NEXT_PUBLIC_LEAD_ENDPOINT`). Confirm both before moving on.
 
 **Why up front:** these two values ARE the machine. A review form whose stars go nowhere is a page, not a system, and a placeholder that gets published is a customer's bad review vanishing into a `TODO`.
 
@@ -19,9 +19,9 @@ Save both the moment I give them, so nothing asks twice. Then build the page imm
 
 **2. The happy path is already pointed at Google** from step 1. Confirm a 5-star click lands on the real form, then generate the QR code (trucks, invoices, counter cards) with `code/make_review_qr.py` - it reads the URL from one config file and writes a print-ready PNG plus an SVG. **Scan the output with a real phone before anything gets printed.**
 
-**3. The unhappy path posts through Web3Forms to the owner's email** (the key from step 1).
+**3. The unhappy path posts through the lead relay to the owner's email**, the same way `components/LeadForm.tsx` does: FormData with `site` set to `leadSite`, a `subject`, the `botcheck` honeypot, and the rating, feedback, name and contact as plain fields.
 
-**The form works without this** - until the key is set, the 1-3 path still collects the feedback and shows the thank-you message, it just has nowhere to deliver it. Say that rather than blocking, and never leave the placeholder silently broken.
+**The form works without this** - until the relay has this site, the 1-3 path still collects the feedback and shows the thank-you message, it just has nowhere to deliver it. Say that rather than blocking, and never leave the placeholder silently broken.
 
 **The form spec - a page on MY site** (`/review`, styled from the site's existing styles):
 
@@ -32,11 +32,11 @@ Save both the moment I give them, so nothing asks twice. Then build the page imm
 - **Question 1, VERBATIM - do not reword, shorten or "improve" this line:** "On a 1-5 scale, how likely are you to refer us to your friends and family?" - 1-5 stars (big, thumb-friendly). Asking about referring rather than about the visit is what makes a 4 read as lukewarm instead of positive, which is exactly the split the filter depends on.
 - **Question 2:** feedback textarea, shown for EVERY rating. 1-3: "What went wrong?" (required). 4-5: "What stood out?" (optional).
 
-- **⛔ Tapping a star ONLY selects it. Nothing sends, nothing navigates.** Every action - the Web3Forms POST and the Google redirect alike - happens on the submit button, never on the star. An instant redirect on tap means the fields below are never filled and the happy path is never recorded at all: the 5-star rating, the name and the customer's own words all vanish. If a rating can leave the page before submit, the form is wrong.
+- **⛔ Tapping a star ONLY selects it. Nothing sends, nothing navigates.** Every action - the relay POST and the Google redirect alike - happens on the submit button, never on the star. An instant redirect on tap means the fields below are never filled and the happy path is never recorded at all: the 5-star rating, the name and the customer's own words all vanish. If a rating can leave the page before submit, the form is wrong.
 
 - **Routing, all of it on submit (client-side JS):**
   - **4-5 →** copy their words to the clipboard, then redirect to the Google review link. Button reads "Continue to Google".
-  - **1-3 →** POST to Web3Forms → thank-you message ("the owner sees this personally, usually within the hour"). No public review link on this path, ever.
+  - **1-3 →** POST to the lead relay → thank-you message ("the owner sees this personally, usually within the hour"). No public review link on this path, ever.
 
 - **The clipboard step, and why there is no prefill.** Google's review form accepts NO parameter that populates the review body - deliberately, because their policy requires a review to be the reviewer's own words. So the closest legitimate help is copying what the customer already typed onto their clipboard so they paste it in one tap, with the caption saying exactly that. Wrap it in try/catch: clipboard access fails on http, in older browsers and under some permission settings, and a failed copy must never stop the redirect.
 

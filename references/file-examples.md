@@ -11,7 +11,7 @@ Every excerpt below is lifted from a real file a member actually reads. Match th
 # Website index
 
 Updated Tuesday 25 August 2026 · 21 pages · 3 money pages scheduled · zero orphans
-**Next:** paste the Web3Forms key into website/.env.local, then /publish.
+**Next:** get this site added to the lead relay, then /publish.
 ```
 
 Anything blocking that next action goes immediately after, under `# ⛔ Blockers`, never buried further down:
@@ -19,8 +19,8 @@ Anything blocking that next action goes immediately after, under `# ⛔ Blockers
 ```
 # ⛔ Blockers before /publish
 
-- **The Web3Forms key is not set.** Every contact and quote form refuses to
-  send until it is. Do not publish before it is pasted in.
+- **This site is not on the lead relay yet.** Every contact and quote form refuses to
+  send until it is. Do not publish before it is added.
 ```
 
 ---
@@ -45,7 +45,7 @@ all the other city money pages.
  - written
  - linked
  - keyword-map row 1
-**Warnings:** the form is a placeholder until the Web3Forms key lands
+**Warnings:** the form is a placeholder until the site is on the lead relay
 ```
 
 Same fields every time. The count lives in the section heading: `# Written + linked · 14`.

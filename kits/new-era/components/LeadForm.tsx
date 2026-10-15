@@ -2,15 +2,16 @@ import { site, telHref } from "@/lib/site.config";
 
 // Every lead form on the site is wrapped in this.
 //
-// The post goes to Web3Forms, which emails it to the address the access key
-// was made for, with reply-to set to the customer. The key is public by
-// design (Web3Forms keys only allow sending to their own inbox), so it ships
-// in the page as NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY, set in .env.local and in
-// the Vercel project. Make one at web3forms.com with the owner's email.
+// The post goes to the shared lead relay on eosmelbourne.com (app/api/lead in
+// the EOS site), which emails it to the client through Resend with reply-to
+// set to the customer. Nothing secret ships in the page: the relay picks the
+// inbox from its own table using `site` (site.leadSite in lib/site.config.ts),
+// so this site holds no key at all. NEXT_PUBLIC_LEAD_ENDPOINT overrides the
+// URL for testing against a local EOS dev server; production never sets it.
 //
-// WITHOUT A KEY THE FORM REFUSES TO SEND and tells the visitor to call
-// instead. Deliberately loud: a lead vanishing silently is the worst thing a
-// quote page can do.
+// Until the relay has this site's entry it answers "unknown site", and the
+// form tells the visitor to call instead. Deliberately loud: a lead vanishing
+// silently is the worst thing a quote page can do.
 //
 // The field markup stays in each page as children, so this adds behaviour
 // without touching any page's styling. The .h-lead class gives any fields
@@ -21,8 +22,7 @@ import { site, telHref } from "@/lib/site.config";
 // client" form pulls ~200KB of React runtime and RSC payload onto every page
 // for a form submit, and costs the money pages several Lighthouse points.
 
-const ENDPOINT = "https://api.web3forms.com/submit";
-const KEY = process.env.NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY || "";
+const ENDPOINT = process.env.NEXT_PUBLIC_LEAD_ENDPOINT || "https://eosmelbourne.com/api/lead";
 
 // JSON is a subset of JS, so this is safe to drop into a script body - except
 // that a literal "</script>" inside a string would close the tag early. None of
@@ -39,7 +39,7 @@ const js = (v: unknown) => JSON.stringify(v ?? null).replace(/</g, "\\u003c");
 // is what makes a screen reader announce it, so building it lazily is not just
 // parity, it is the behaviour that works.
 const formScript = (subject: string) => `(function(){var f=document.currentScript.previousElementSibling;
-var S=${js(subject)},PH=${js(site.phone)},TEL=${js(telHref)},K=${js(KEY)};
+var S=${js(subject)},PH=${js(site.phone)},TEL=${js(telHref)};
 var sending=false,err=null;
 function show(m){if(!err){err=document.createElement("p");err.setAttribute("role","alert");
 err.style.cssText="margin:0;font-size:14px;line-height:1.5;color:var(--status-critical)";
@@ -49,9 +49,8 @@ f.appendChild(err)}err.firstChild.nodeValue=m+" "}
 function clear(){if(err){err.remove();err=null}}
 function lock(v){sending=v;var s=f.querySelector("fieldset");if(s)s.disabled=v}
 f.addEventListener("submit",function(ev){ev.preventDefault();if(sending)return;
-if(!K){show("This form is not connected yet. Please call "+PH+" instead.");return}
 var d=new FormData(f);
-d.append("access_key",K);d.append("subject",S);d.append("from_name",${js(site.name + " website")});
+d.append("site",${js(site.leadSite)});d.append("subject",S);d.append("from_name",${js(site.name + " website")});
 d.append("page",location.pathname);
 lock(true);clear();
 fetch(${js(ENDPOINT)},{method:"POST",body:d}).then(function(res){
@@ -71,8 +70,8 @@ export default function LeadForm({
   return (
     <>
       <form className="h-lead" method="POST" style={style}>
-        {/* Honeypot: invisible to people, irresistible to bots. Web3Forms
-            drops any submission where a field named botcheck is filled in. */}
+        {/* Honeypot: invisible to people, irresistible to bots. The relay drops
+            any submission where a field named botcheck is filled in. */}
         <input type="checkbox" name="botcheck" tabIndex={-1} autoComplete="off" aria-hidden="true" style={{ display: "none" }} />
         <fieldset style={{ border: 0, margin: 0, padding: 0, display: "contents" }}>{children}</fieldset>
       </form>

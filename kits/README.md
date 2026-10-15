@@ -6,7 +6,7 @@ A kit is a finished client site with the client taken out. `new-site` copies `ki
 
 1. Copy its `website/` to `kits/<name>/`, without `node_modules`, `.next*`, `out`, `.vercel`, `.env*`, `.git` and `.github`.
 2. Delete the client's photos (`public/images/work`, `optimized`, `og`) and point every key in `lib/photos.ts` and `lib/details.ts` at grey placeholders of the same shape.
-3. Put placeholder identity in `lib/site.config.ts` (Business Name, (555) 010-0199, hello@example.com) and replace any name, phone, suburb or proof claim written into a page or comment.
+3. Put placeholder identity in `lib/site.config.ts` (Business Name, (555) 010-0199, hello@example.com, `leadSite: "yourbusiness"`) and replace any name, phone, suburb or proof claim written into a page or comment.
 4. Swap the logo files for neutral ones at the same names, and the icons and `og.png` too.
 5. Keep one service page and one blog post as `app/services/_template` and `app/blog/_template`, delete the rest, and empty `content/services.ts`, `content/posts.ts` and the schedule in `lib/publishing.ts`.
 6. Remove client-only files (verification files, old-site redirects, analytics IDs, publish logs), then check `npm run build` is clean and a `new-site` copy flags only placeholders.

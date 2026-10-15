@@ -80,7 +80,7 @@ Two real files are the specimens. Match them: `gbp-posts-queue.md` (a queue of t
 # Website index
 
 Updated Tuesday 25 August 2026 · 21 pages · 3 money pages scheduled · zero orphans
-**Next:** paste the Web3Forms key into website/.env.local, then /publish.
+**Next:** get this site added to the lead relay, then /publish.
 ```
 
 No preamble, no methodology, no "I analysed 1,000 keywords and here's what I found."
@@ -90,8 +90,8 @@ No preamble, no methodology, no "I analysed 1,000 keywords and here's what I fou
 ```
 # ⛔ Blockers before /publish
 
-- **The Web3Forms key is not set.** Every form refuses to send until it is.
-  Do not publish before it is pasted in.
+- **This site is not on the lead relay yet.** Every form refuses to send until it is.
+  Do not publish before it is added.
 ```
 
 **Then sections, each with its count in the heading.** `# Written + linked · 14` · `# The chassis · 9` · `# Private pages · 2`. The count in the heading is what makes the file scannable without reading it.
@@ -118,7 +118,7 @@ No preamble, no methodology, no "I analysed 1,000 keywords and here's what I fou
  - written
  - linked
  - keyword-map row 1
-**Warnings:** the form is a placeholder until the Web3Forms key lands
+**Warnings:** the form is a placeholder until the site is on the lead relay
 ```
 
 Same file name = same fields every time, in every repo, on every run. If a run genuinely needs a different field, say so out loud and ask - never silently change the shape of a file the user has learned to read.

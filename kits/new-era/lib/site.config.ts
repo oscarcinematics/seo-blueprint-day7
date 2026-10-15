@@ -31,6 +31,13 @@ export const site = {
   abn: "00 000 000 000",
   // Canonicals, the sitemap, robots and every schema URL read this.
   url: "https://yourbusiness.example",
+  // This site's id on the lead relay (EOS's app/api/lead, its SITES table).
+  // Every form sends it. The relay picks the inbox (normally `email` above),
+  // the sender name and the allowed origins from its own entry, never from
+  // the page, so this site holds no key. Short, lowercase, no spaces. The
+  // relay refuses an id it does not know, so the forms say "please call"
+  // until Oscar adds this site there.
+  leadSite: "yourbusiness",
   instagram: "https://www.instagram.com/yourbusiness/",
   facebook: "https://www.facebook.com/yourbusiness",
 
