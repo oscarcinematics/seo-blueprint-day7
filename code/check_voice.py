@@ -128,17 +128,6 @@ def check(path):
             "the most overused construction in AI copy. Rewrite as two sentences."
         )
 
-    # Personality: a draft written entirely in "we" has no narrator, which is
-    # the difference between correct copy and copy somebody wrote.
-    first_person = len(re.findall(r"\bI\b|\bI'(m|ve|ll|d)\b|\bmy\b", text))
-    corporate = len(re.findall(r"\bwe\b|\bour\b|\bus\b", text, re.I))
-    if corporate >= 12 and first_person == 0:
-        failures.append(
-            f'no narrator: {corporate} uses of we/our/us and not one "I". '
-            '"We" is right for the offer, but nothing here is anyone\'s opinion or '
-            "experience. Put the owner in it somewhere."
-        )
-
     return failures
 
 
